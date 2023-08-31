@@ -1,2 +1,3 @@
-  - Merged translation table with product table. Because it was unnecessary.
-  - Adding language_id to understand in which language the text has been written
+- Merged translation table with product table. Because it was unnecessary.
+- Adding language_id to understand in which language the text has been written
+- Added dynamic_features_class to add certain features like subscribe, pricing etc.
