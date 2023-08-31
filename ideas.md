@@ -1,0 +1,2 @@
+  - Merged translation table with product table. Because it was unnecessary.
+  - Adding language_id to understand in which language the text has been written
