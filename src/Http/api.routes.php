@@ -25,5 +25,5 @@ Route::prefix('subscriptions')->group(function () {
         Route::delete('/{marketplace_subscriptions}', 'MarketplaceSubscription\MarketplaceSubscriptionController@destroy');
     });
 
-// EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n
+// EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n
 });
