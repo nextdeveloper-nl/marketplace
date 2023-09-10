@@ -8,13 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 use NextDeveloper\Commons\Database\Traits\Filterable;
 use NextDeveloper\Marketplace\Database\Observers\MarketplaceProductCatalogObserver;
 use NextDeveloper\Commons\Database\Traits\UuidId;
+use NextDeveloper\Marketplace\Database\Observers\ProductCatalogObserver;
 
 /**
-* Class MarketplaceProductCatalog.
+* Class ProductCatalog.
 *
 * @package NextDeveloper\Marketplace\Database\Models
 */
-class MarketplaceProductCatalog extends Model
+class ProductCatalog extends Model
 {
 use Filterable, UuidId;
 	use SoftDeletes;
@@ -91,7 +92,7 @@ public static function boot()
 parent::boot();
 
 //  We create and add Observer even if we wont use it.
-parent::observe(MarketplaceProductCatalogObserver::class);
+parent::observe(ProductCatalogObserver::class);
 
 self::registerScopes();
 }
@@ -116,15 +117,255 @@ static::addGlobalScope(app($scope));
 }
 }
 
-public function marketplaceProduct()
+public function Product()
     {
-        return $this->belongsTo(MarketplaceProduct::class);
+        return $this->belongsTo(Product::class);
     }
     
-    public function marketplaceSubscriptions()
+    public function Subscription()
     {
-        return $this->hasMany(MarketplaceSubscription::class);
+        return $this->hasMany(Subscription::class);
     }
 
-    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n
+    public function Product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+    
+    public function Subscription()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function Product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+    
+    public function Subscription()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function Product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+    
+    public function Subscription()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function Product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+    
+    public function Subscription()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function Product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+    
+    public function Subscription()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function Product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+    
+    public function Subscription()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function Product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+    
+    public function Subscription()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function Product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+    
+    public function Subscription()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function Product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+    
+    public function Subscription()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function Product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+    
+    public function Subscription()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function Product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+    
+    public function Subscription()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function Product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+    
+    public function Subscription()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function Product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+    
+    public function Subscription()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function Products()
+    {
+        return $this->belongsTo(Products::class);
+    }
+    
+    public function Subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function Products()
+    {
+        return $this->belongsTo(Products::class);
+    }
+    
+    public function Subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function Products()
+    {
+        return $this->belongsTo(Products::class);
+    }
+    
+    public function Subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function Products()
+    {
+        return $this->belongsTo(Products::class);
+    }
+    
+    public function Subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function Products()
+    {
+        return $this->belongsTo(Products::class);
+    }
+    
+    public function Subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function Products()
+    {
+        return $this->belongsTo(Products::class);
+    }
+    
+    public function Subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function Products()
+    {
+        return $this->belongsTo(Products::class);
+    }
+    
+    public function Subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function Products()
+    {
+        return $this->belongsTo(Products::class);
+    }
+    
+    public function Subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function Products()
+    {
+        return $this->belongsTo(Products::class);
+    }
+    
+    public function Subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function Products()
+    {
+        return $this->belongsTo(Products::class);
+    }
+    
+    public function Subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function Products()
+    {
+        return $this->belongsTo(Products::class);
+    }
+    
+    public function Subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
 }

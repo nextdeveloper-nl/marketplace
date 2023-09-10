@@ -4,20 +4,21 @@ namespace NextDeveloper\Marketplace\Http\Transformers\AbstractTransformers;
 
 use NextDeveloper\Marketplace\Database\Models\MarketplaceProductCatalog;
 use NextDeveloper\Commons\Http\Transformers\AbstractTransformer;
+use NextDeveloper\Marketplace\Database\Models\ProductCatalog;
 
 /**
- * Class MarketplaceProductCatalogTransformer. This class is being used to manipulate the data we are serving to the customer
+ * Class ProductCatalogTransformer. This class is being used to manipulate the data we are serving to the customer
  *
  * @package NextDeveloper\Marketplace\Http\Transformers
  */
-class AbstractMarketplaceProductCatalogTransformer extends AbstractTransformer {
+class AbstractProductCatalogTransformer extends AbstractTransformer {
 
     /**
-     * @param MarketplaceProductCatalog $model
+     * @param ProductCatalog $model
      *
      * @return array
      */
-    public function transform(MarketplaceProductCatalog $model) {
+    public function transform(ProductCatalog $model) {
                         $marketplaceProductId = \NextDeveloper\Marketplace\Database\Models\MarketplaceProduct::where('id', $model->marketplace_product_id)->first();
             
         return $this->buildPayload([
@@ -35,7 +36,11 @@ class AbstractMarketplaceProductCatalogTransformer extends AbstractTransformer {
     ]);
     }
     
-    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n
+    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n\n\n\n\n\n\n
+
+
+
+
 
 
 }

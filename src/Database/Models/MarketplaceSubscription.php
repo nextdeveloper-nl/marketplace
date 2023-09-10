@@ -8,13 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 use NextDeveloper\Commons\Database\Traits\Filterable;
 use NextDeveloper\Marketplace\Database\Observers\MarketplaceSubscriptionObserver;
 use NextDeveloper\Commons\Database\Traits\UuidId;
+use NextDeveloper\Marketplace\Database\Observers\SubscriptionObserver;
 
 /**
-* Class MarketplaceSubscription.
+* Class Subscription.
 *
 * @package NextDeveloper\Marketplace\Database\Models
 */
-class MarketplaceSubscription extends Model
+class Subscription extends Model
 {
 use Filterable, UuidId;
 	use SoftDeletes;
@@ -94,7 +95,7 @@ public static function boot()
 parent::boot();
 
 //  We create and add Observer even if we wont use it.
-parent::observe(MarketplaceSubscriptionObserver::class);
+parent::observe(SubscriptionObserver::class);
 
 self::registerScopes();
 }
@@ -119,10 +120,15 @@ static::addGlobalScope(app($scope));
 }
 }
 
-public function marketplaceProductCatalog()
+public function ProductCatalog()
     {
-        return $this->belongsTo(MarketplaceProductCatalog::class);
+        return $this->belongsTo(ProductCatalog::class);
     }
     
-    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n
+    public function ProductCatalogs()
+    {
+        return $this->belongsTo(ProductCatalogs::class);
+    }
+    
+    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
 }

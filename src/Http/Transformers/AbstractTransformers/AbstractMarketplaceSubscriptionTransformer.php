@@ -4,20 +4,21 @@ namespace NextDeveloper\Marketplace\Http\Transformers\AbstractTransformers;
 
 use NextDeveloper\Marketplace\Database\Models\MarketplaceSubscription;
 use NextDeveloper\Commons\Http\Transformers\AbstractTransformer;
+use NextDeveloper\Marketplace\Database\Models\Subscription;
 
 /**
- * Class MarketplaceSubscriptionTransformer. This class is being used to manipulate the data we are serving to the customer
+ * Class SubscriptionTransformer. This class is being used to manipulate the data we are serving to the customer
  *
  * @package NextDeveloper\Marketplace\Http\Transformers
  */
-class AbstractMarketplaceSubscriptionTransformer extends AbstractTransformer {
+class AbstractSubscriptionTransformer extends AbstractTransformer {
 
     /**
-     * @param MarketplaceSubscription $model
+     * @param Subscription $model
      *
      * @return array
      */
-    public function transform(MarketplaceSubscription $model) {
+    public function transform(Subscription $model) {
                         $marketplaceProductCatalogId = \NextDeveloper\Marketplace\Database\Models\MarketplaceProductCatalog::where('id', $model->marketplace_product_catalog_id)->first();
                     $iamAccountId = \NextDeveloper\IAM\Database\Models\IamAccount::where('id', $model->iam_account_id)->first();
                     $iamUserId = \NextDeveloper\IAM\Database\Models\IamUser::where('id', $model->iam_user_id)->first();
@@ -37,7 +38,11 @@ class AbstractMarketplaceSubscriptionTransformer extends AbstractTransformer {
     ]);
     }
     
-    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n
+    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n\n\n\n\n\n\n
+
+
+
+
 
 
 }

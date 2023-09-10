@@ -4,20 +4,21 @@ namespace NextDeveloper\Marketplace\Http\Transformers\AbstractTransformers;
 
 use NextDeveloper\Marketplace\Database\Models\MarketplaceProduct;
 use NextDeveloper\Commons\Http\Transformers\AbstractTransformer;
+use NextDeveloper\Marketplace\Database\Models\Product;
 
 /**
- * Class MarketplaceProductTransformer. This class is being used to manipulate the data we are serving to the customer
+ * Class ProductTransformer. This class is being used to manipulate the data we are serving to the customer
  *
  * @package NextDeveloper\Marketplace\Http\Transformers
  */
-class AbstractMarketplaceProductTransformer extends AbstractTransformer {
+class AbstractProductTransformer extends AbstractTransformer {
 
     /**
-     * @param MarketplaceProduct $model
+     * @param Product $model
      *
      * @return array
      */
-    public function transform(MarketplaceProduct $model) {
+    public function transform(Product $model) {
                         $commonCategoryId = \NextDeveloper\Commons\Database\Models\CommonCategory::where('id', $model->common_category_id)->first();
                     $commonCountryId = \NextDeveloper\Commons\Database\Models\CommonCountry::where('id', $model->common_country_id)->first();
                     $commonLanguageId = \NextDeveloper\Commons\Database\Models\CommonLanguage::where('id', $model->common_language_id)->first();
@@ -54,7 +55,11 @@ class AbstractMarketplaceProductTransformer extends AbstractTransformer {
     ]);
     }
     
-    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n
+    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n\n\n\n\n\n\n
+
+
+
+
 
 
 }
