@@ -14,8 +14,8 @@ use NextDeveloper\Accounts\Database\Models\User;
 class SubscriptionsQueryFilter extends AbstractQueryFilter
 {
     /**
-    * @var Builder
-    */
+     * @var Builder
+     */
     protected $builder;
 
     public function isValid()
@@ -25,52 +25,52 @@ class SubscriptionsQueryFilter extends AbstractQueryFilter
     
     public function subscriptionStartsAtStart($date) 
     {
-        return $this->builder->where( 'subscription_starts_at', '>=', $date );
+        return $this->builder->where('subscription_starts_at', '>=', $date);
     }
 
     public function subscriptionStartsAtEnd($date) 
     {
-        return $this->builder->where( 'subscription_starts_at', '<=', $date );
+        return $this->builder->where('subscription_starts_at', '<=', $date);
     }
 
     public function subscriptionEndsAtStart($date) 
     {
-        return $this->builder->where( 'subscription_ends_at', '>=', $date );
+        return $this->builder->where('subscription_ends_at', '>=', $date);
     }
 
     public function subscriptionEndsAtEnd($date) 
     {
-        return $this->builder->where( 'subscription_ends_at', '<=', $date );
+        return $this->builder->where('subscription_ends_at', '<=', $date);
     }
 
     public function createdAtStart($date) 
     {
-        return $this->builder->where( 'created_at', '>=', $date );
+        return $this->builder->where('created_at', '>=', $date);
     }
 
     public function createdAtEnd($date) 
     {
-        return $this->builder->where( 'created_at', '<=', $date );
+        return $this->builder->where('created_at', '<=', $date);
     }
 
     public function updatedAtStart($date) 
     {
-        return $this->builder->where( 'updated_at', '>=', $date );
+        return $this->builder->where('updated_at', '>=', $date);
     }
 
     public function updatedAtEnd($date) 
     {
-        return $this->builder->where( 'updated_at', '<=', $date );
+        return $this->builder->where('updated_at', '<=', $date);
     }
 
     public function deletedAtStart($date) 
     {
-        return $this->builder->where( 'deleted_at', '>=', $date );
+        return $this->builder->where('deleted_at', '>=', $date);
     }
 
     public function deletedAtEnd($date) 
     {
-        return $this->builder->where( 'deleted_at', '<=', $date );
+        return $this->builder->where('deleted_at', '<=', $date);
     }
 
     public function marketplaceProductCatalogId($value)
@@ -100,5 +100,5 @@ class SubscriptionsQueryFilter extends AbstractQueryFilter
         }
     }
 
-    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
+    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
 }

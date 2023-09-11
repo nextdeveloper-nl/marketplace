@@ -10,32 +10,38 @@ use NextDeveloper\Commons\Http\Transformers\AbstractTransformer;
  *
  * @package NextDeveloper\Marketplace\Http\Transformers
  */
-class AbstractProductCatalogsTransformer extends AbstractTransformer {
+class AbstractProductCatalogsTransformer extends AbstractTransformer
+{
 
     /**
      * @param ProductCatalogs $model
      *
      * @return array
      */
-    public function transform(ProductCatalogs $model) {
+    public function transform(ProductCatalogs $model)
+    {
                         $marketplaceProductId = \NextDeveloper\Marketplace\Database\Models\Products::where('id', $model->marketplace_product_id)->first();
             
-        return $this->buildPayload([
-'id'  =>  $model->uuid,
-'name'  =>  $model->name,
-'agreement'  =>  $model->agreement,
-'args'  =>  $model->args,
-'price'  =>  $model->price,
-'currency_code'  =>  $model->currency_code,
-'subscription_type'  =>  $model->subscription_type,
-'marketplace_product_id'  =>  $marketplaceProductId ? $marketplaceProductId->uuid : null,
-'created_at'  =>  $model->created_at,
-'updated_at'  =>  $model->updated_at,
-'deleted_at'  =>  $model->deleted_at,
-    ]);
+        return $this->buildPayload(
+            [
+            'id'  =>  $model->uuid,
+            'name'  =>  $model->name,
+            'agreement'  =>  $model->agreement,
+            'args'  =>  $model->args,
+            'price'  =>  $model->price,
+            'currency_code'  =>  $model->currency_code,
+            'subscription_type'  =>  $model->subscription_type,
+            'marketplace_product_id'  =>  $marketplaceProductId ? $marketplaceProductId->uuid : null,
+            'created_at'  =>  $model->created_at,
+            'updated_at'  =>  $model->updated_at,
+            'deleted_at'  =>  $model->deleted_at,
+            ]
+        );
     }
     
-    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n
+    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n\n\n\n\n
+
+
 
 
 

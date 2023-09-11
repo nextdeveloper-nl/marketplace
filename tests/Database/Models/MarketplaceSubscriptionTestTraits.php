@@ -16,18 +16,20 @@ trait MarketplaceSubscriptionTestTraits
     public $http;
 
     /**
-    *   Creating the Guzzle object
-    */
+     *   Creating the Guzzle object
+     */
     public function setupGuzzle()
     {
-        $this->http = new Client([
+        $this->http = new Client(
+            [
             'base_uri'  =>  '127.0.0.1:8000'
-        ]);
+            ]
+        );
     }
 
     /**
-    *   Destroying the Guzzle object
-    */
+     *   Destroying the Guzzle object
+     */
     public function destroyGuzzle()
     {
         $this->http = null;
@@ -42,16 +44,19 @@ trait MarketplaceSubscriptionTestTraits
             ['http_errors' => false]
         );
 
-        $this->assertContains($response->getStatusCode(), [
+        $this->assertContains(
+            $response->getStatusCode(), [
             Response::HTTP_OK,
             Response::HTTP_NOT_FOUND
-        ]);
+            ]
+        );
     }
 
     public function test_http_marketplacesubscription_post()
     {
         $this->setupGuzzle();
-        $response = $this->http->request('POST', '/marketplace/marketplacesubscription', [
+        $response = $this->http->request(
+            'POST', '/marketplace/marketplacesubscription', [
             'form_params'   =>  [
                     'subscription_starts_at'  =>  now(),
                     'subscription_ends_at'  =>  now(),
@@ -64,10 +69,10 @@ trait MarketplaceSubscriptionTestTraits
     }
 
     /**
-    * Get test
-    *
-    * @return bool
-    */
+     * Get test
+     *
+     * @return bool
+     */
     public function test_marketplacesubscription_model_get()
     {
         $result = AbstractMarketplaceSubscriptionService::get();
@@ -84,9 +89,11 @@ trait MarketplaceSubscriptionTestTraits
 
     public function test_marketplacesubscription_get_paginated()
     {
-        $result = AbstractMarketplaceSubscriptionService::get(null, [
+        $result = AbstractMarketplaceSubscriptionService::get(
+            null, [
             'paginated' =>  'true'
-        ]);
+            ]
+        );
 
         $this->assertIsObject($result, LengthAwarePaginator::class);
     }
@@ -94,7 +101,7 @@ trait MarketplaceSubscriptionTestTraits
     public function test_marketplacesubscription_event_retrieved_without_object()
     {
         try {
-            event( new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionRetrievedEvent() );
+            event(new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionRetrievedEvent());
         } catch (\Exception $e) {
             $this->assertFalse(false, $e->getMessage());
         }
@@ -104,7 +111,7 @@ trait MarketplaceSubscriptionTestTraits
     public function test_marketplacesubscription_event_created_without_object()
     {
         try {
-            event( new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionCreatedEvent() );
+            event(new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionCreatedEvent());
         } catch (\Exception $e) {
             $this->assertFalse(false, $e->getMessage());
         }
@@ -114,7 +121,7 @@ trait MarketplaceSubscriptionTestTraits
     public function test_marketplacesubscription_event_creating_without_object()
     {
         try {
-            event( new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionCreatingEvent() );
+            event(new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionCreatingEvent());
         } catch (\Exception $e) {
             $this->assertFalse(false, $e->getMessage());
         }
@@ -124,7 +131,7 @@ trait MarketplaceSubscriptionTestTraits
     public function test_marketplacesubscription_event_saving_without_object()
     {
         try {
-            event( new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionSavingEvent() );
+            event(new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionSavingEvent());
         } catch (\Exception $e) {
             $this->assertFalse(false, $e->getMessage());
         }
@@ -134,7 +141,7 @@ trait MarketplaceSubscriptionTestTraits
     public function test_marketplacesubscription_event_saved_without_object()
     {
         try {
-            event( new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionSavedEvent() );
+            event(new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionSavedEvent());
         } catch (\Exception $e) {
             $this->assertFalse(false, $e->getMessage());
         }
@@ -144,7 +151,7 @@ trait MarketplaceSubscriptionTestTraits
     public function test_marketplacesubscription_event_updating_without_object()
     {
         try {
-            event( new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionUpdatingEvent() );
+            event(new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionUpdatingEvent());
         } catch (\Exception $e) {
             $this->assertFalse(false, $e->getMessage());
         }
@@ -154,7 +161,7 @@ trait MarketplaceSubscriptionTestTraits
     public function test_marketplacesubscription_event_updated_without_object()
     {
         try {
-            event( new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionUpdatedEvent() );
+            event(new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionUpdatedEvent());
         } catch (\Exception $e) {
             $this->assertFalse(false, $e->getMessage());
         }
@@ -164,7 +171,7 @@ trait MarketplaceSubscriptionTestTraits
     public function test_marketplacesubscription_event_deleting_without_object()
     {
         try {
-            event( new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionDeletingEvent() );
+            event(new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionDeletingEvent());
         } catch (\Exception $e) {
             $this->assertFalse(false, $e->getMessage());
         }
@@ -174,7 +181,7 @@ trait MarketplaceSubscriptionTestTraits
     public function test_marketplacesubscription_event_deleted_without_object()
     {
         try {
-            event( new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionDeletedEvent() );
+            event(new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionDeletedEvent());
         } catch (\Exception $e) {
             $this->assertFalse(false, $e->getMessage());
         }
@@ -184,7 +191,7 @@ trait MarketplaceSubscriptionTestTraits
     public function test_marketplacesubscription_event_restoring_without_object()
     {
         try {
-            event( new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionRestoringEvent() );
+            event(new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionRestoringEvent());
         } catch (\Exception $e) {
             $this->assertFalse(false, $e->getMessage());
         }
@@ -194,7 +201,7 @@ trait MarketplaceSubscriptionTestTraits
     public function test_marketplacesubscription_event_restored_without_object()
     {
         try {
-            event( new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionRestoredEvent() );
+            event(new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionRestoredEvent());
         } catch (\Exception $e) {
             $this->assertFalse(false, $e->getMessage());
         }
@@ -207,7 +214,7 @@ trait MarketplaceSubscriptionTestTraits
         try {
             $model = \NextDeveloper\Marketplace\Database\Models\MarketplaceSubscription::first();
 
-            event( new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionRetrievedEvent($model) );
+            event(new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionRetrievedEvent($model));
         } catch (\Exception $e) {
             $this->assertFalse(false, $e->getMessage());
         }
@@ -219,7 +226,7 @@ trait MarketplaceSubscriptionTestTraits
         try {
             $model = \NextDeveloper\Marketplace\Database\Models\MarketplaceSubscription::first();
 
-            event( new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionCreatedEvent($model) );
+            event(new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionCreatedEvent($model));
         } catch (\Exception $e) {
             $this->assertFalse(false, $e->getMessage());
         }
@@ -231,7 +238,7 @@ trait MarketplaceSubscriptionTestTraits
         try {
             $model = \NextDeveloper\Marketplace\Database\Models\MarketplaceSubscription::first();
 
-            event( new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionCreatingEvent($model) );
+            event(new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionCreatingEvent($model));
         } catch (\Exception $e) {
             $this->assertFalse(false, $e->getMessage());
         }
@@ -243,7 +250,7 @@ trait MarketplaceSubscriptionTestTraits
         try {
             $model = \NextDeveloper\Marketplace\Database\Models\MarketplaceSubscription::first();
 
-            event( new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionSavingEvent($model) );
+            event(new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionSavingEvent($model));
         } catch (\Exception $e) {
             $this->assertFalse(false, $e->getMessage());
         }
@@ -255,7 +262,7 @@ trait MarketplaceSubscriptionTestTraits
         try {
             $model = \NextDeveloper\Marketplace\Database\Models\MarketplaceSubscription::first();
 
-            event( new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionSavedEvent($model) );
+            event(new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionSavedEvent($model));
         } catch (\Exception $e) {
             $this->assertFalse(false, $e->getMessage());
         }
@@ -267,7 +274,7 @@ trait MarketplaceSubscriptionTestTraits
         try {
             $model = \NextDeveloper\Marketplace\Database\Models\MarketplaceSubscription::first();
 
-            event( new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionUpdatingEvent($model) );
+            event(new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionUpdatingEvent($model));
         } catch (\Exception $e) {
             $this->assertFalse(false, $e->getMessage());
         }
@@ -279,7 +286,7 @@ trait MarketplaceSubscriptionTestTraits
         try {
             $model = \NextDeveloper\Marketplace\Database\Models\MarketplaceSubscription::first();
 
-            event( new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionUpdatedEvent($model) );
+            event(new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionUpdatedEvent($model));
         } catch (\Exception $e) {
             $this->assertFalse(false, $e->getMessage());
         }
@@ -291,7 +298,7 @@ trait MarketplaceSubscriptionTestTraits
         try {
             $model = \NextDeveloper\Marketplace\Database\Models\MarketplaceSubscription::first();
 
-            event( new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionDeletingEvent($model) );
+            event(new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionDeletingEvent($model));
         } catch (\Exception $e) {
             $this->assertFalse(false, $e->getMessage());
         }
@@ -303,7 +310,7 @@ trait MarketplaceSubscriptionTestTraits
         try {
             $model = \NextDeveloper\Marketplace\Database\Models\MarketplaceSubscription::first();
 
-            event( new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionDeletedEvent($model) );
+            event(new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionDeletedEvent($model));
         } catch (\Exception $e) {
             $this->assertFalse(false, $e->getMessage());
         }
@@ -315,7 +322,7 @@ trait MarketplaceSubscriptionTestTraits
         try {
             $model = \NextDeveloper\Marketplace\Database\Models\MarketplaceSubscription::first();
 
-            event( new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionRestoringEvent($model) );
+            event(new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionRestoringEvent($model));
         } catch (\Exception $e) {
             $this->assertFalse(false, $e->getMessage());
         }
@@ -327,7 +334,7 @@ trait MarketplaceSubscriptionTestTraits
         try {
             $model = \NextDeveloper\Marketplace\Database\Models\MarketplaceSubscription::first();
 
-            event( new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionRestoredEvent($model) );
+            event(new \NextDeveloper\Marketplace\Events\MarketplaceSubscription\MarketplaceSubscriptionRestoredEvent($model));
         } catch (\Exception $e) {
             $this->assertFalse(false, $e->getMessage());
         }
@@ -338,9 +345,11 @@ trait MarketplaceSubscriptionTestTraits
     public function test_marketplacesubscription_event_subscription_starts_at_filter_start()
     {
         try {
-            $request = new Request([
+            $request = new Request(
+                [
                 'subscription_starts_atStart'  =>  now()
-            ]);
+                ]
+            );
 
             $filter = new MarketplaceSubscriptionQueryFilter($request);
 
@@ -355,9 +364,11 @@ trait MarketplaceSubscriptionTestTraits
     public function test_marketplacesubscription_event_subscription_ends_at_filter_start()
     {
         try {
-            $request = new Request([
+            $request = new Request(
+                [
                 'subscription_ends_atStart'  =>  now()
-            ]);
+                ]
+            );
 
             $filter = new MarketplaceSubscriptionQueryFilter($request);
 
@@ -372,9 +383,11 @@ trait MarketplaceSubscriptionTestTraits
     public function test_marketplacesubscription_event_created_at_filter_start()
     {
         try {
-            $request = new Request([
+            $request = new Request(
+                [
                 'created_atStart'  =>  now()
-            ]);
+                ]
+            );
 
             $filter = new MarketplaceSubscriptionQueryFilter($request);
 
@@ -389,9 +402,11 @@ trait MarketplaceSubscriptionTestTraits
     public function test_marketplacesubscription_event_updated_at_filter_start()
     {
         try {
-            $request = new Request([
+            $request = new Request(
+                [
                 'updated_atStart'  =>  now()
-            ]);
+                ]
+            );
 
             $filter = new MarketplaceSubscriptionQueryFilter($request);
 
@@ -406,9 +421,11 @@ trait MarketplaceSubscriptionTestTraits
     public function test_marketplacesubscription_event_deleted_at_filter_start()
     {
         try {
-            $request = new Request([
+            $request = new Request(
+                [
                 'deleted_atStart'  =>  now()
-            ]);
+                ]
+            );
 
             $filter = new MarketplaceSubscriptionQueryFilter($request);
 
@@ -423,9 +440,11 @@ trait MarketplaceSubscriptionTestTraits
     public function test_marketplacesubscription_event_subscription_starts_at_filter_end()
     {
         try {
-            $request = new Request([
+            $request = new Request(
+                [
                 'subscription_starts_atEnd'  =>  now()
-            ]);
+                ]
+            );
 
             $filter = new MarketplaceSubscriptionQueryFilter($request);
 
@@ -440,9 +459,11 @@ trait MarketplaceSubscriptionTestTraits
     public function test_marketplacesubscription_event_subscription_ends_at_filter_end()
     {
         try {
-            $request = new Request([
+            $request = new Request(
+                [
                 'subscription_ends_atEnd'  =>  now()
-            ]);
+                ]
+            );
 
             $filter = new MarketplaceSubscriptionQueryFilter($request);
 
@@ -457,9 +478,11 @@ trait MarketplaceSubscriptionTestTraits
     public function test_marketplacesubscription_event_created_at_filter_end()
     {
         try {
-            $request = new Request([
+            $request = new Request(
+                [
                 'created_atEnd'  =>  now()
-            ]);
+                ]
+            );
 
             $filter = new MarketplaceSubscriptionQueryFilter($request);
 
@@ -474,9 +497,11 @@ trait MarketplaceSubscriptionTestTraits
     public function test_marketplacesubscription_event_updated_at_filter_end()
     {
         try {
-            $request = new Request([
+            $request = new Request(
+                [
                 'updated_atEnd'  =>  now()
-            ]);
+                ]
+            );
 
             $filter = new MarketplaceSubscriptionQueryFilter($request);
 
@@ -491,9 +516,11 @@ trait MarketplaceSubscriptionTestTraits
     public function test_marketplacesubscription_event_deleted_at_filter_end()
     {
         try {
-            $request = new Request([
+            $request = new Request(
+                [
                 'deleted_atEnd'  =>  now()
-            ]);
+                ]
+            );
 
             $filter = new MarketplaceSubscriptionQueryFilter($request);
 
@@ -508,10 +535,12 @@ trait MarketplaceSubscriptionTestTraits
     public function test_marketplacesubscription_event_subscription_starts_at_filter_start_and_end()
     {
         try {
-            $request = new Request([
+            $request = new Request(
+                [
                 'subscription_starts_atStart'  =>  now(),
                 'subscription_starts_atEnd'  =>  now()
-            ]);
+                ]
+            );
 
             $filter = new MarketplaceSubscriptionQueryFilter($request);
 
@@ -526,10 +555,12 @@ trait MarketplaceSubscriptionTestTraits
     public function test_marketplacesubscription_event_subscription_ends_at_filter_start_and_end()
     {
         try {
-            $request = new Request([
+            $request = new Request(
+                [
                 'subscription_ends_atStart'  =>  now(),
                 'subscription_ends_atEnd'  =>  now()
-            ]);
+                ]
+            );
 
             $filter = new MarketplaceSubscriptionQueryFilter($request);
 
@@ -544,10 +575,12 @@ trait MarketplaceSubscriptionTestTraits
     public function test_marketplacesubscription_event_created_at_filter_start_and_end()
     {
         try {
-            $request = new Request([
+            $request = new Request(
+                [
                 'created_atStart'  =>  now(),
                 'created_atEnd'  =>  now()
-            ]);
+                ]
+            );
 
             $filter = new MarketplaceSubscriptionQueryFilter($request);
 
@@ -562,10 +595,12 @@ trait MarketplaceSubscriptionTestTraits
     public function test_marketplacesubscription_event_updated_at_filter_start_and_end()
     {
         try {
-            $request = new Request([
+            $request = new Request(
+                [
                 'updated_atStart'  =>  now(),
                 'updated_atEnd'  =>  now()
-            ]);
+                ]
+            );
 
             $filter = new MarketplaceSubscriptionQueryFilter($request);
 
@@ -580,10 +615,12 @@ trait MarketplaceSubscriptionTestTraits
     public function test_marketplacesubscription_event_deleted_at_filter_start_and_end()
     {
         try {
-            $request = new Request([
+            $request = new Request(
+                [
                 'deleted_atStart'  =>  now(),
                 'deleted_atEnd'  =>  now()
-            ]);
+                ]
+            );
 
             $filter = new MarketplaceSubscriptionQueryFilter($request);
 
@@ -594,5 +631,5 @@ trait MarketplaceSubscriptionTestTraits
 
         $this->assertTrue(true);
     }
-    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
+    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
 }
