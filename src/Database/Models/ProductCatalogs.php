@@ -22,7 +22,7 @@ class ProductCatalogs extends Model
 
     public $timestamps = true;
 
-    protected $table = 'marketplace_product_catalog';
+    protected $table = 'marketplace_product_catalogs';
 
 
     /**
@@ -101,7 +101,7 @@ class ProductCatalogs extends Model
     public static function registerScopes()
     {
         $globalScopes = config('marketplace.scopes.global');
-        $modelScopes = config('marketplace.scopes.marketplace_product_catalog');
+        $modelScopes = config('marketplace.scopes.marketplace_product_catalogs');
 
         if(!$modelScopes) { $modelScopes = [];
         }
@@ -120,15 +120,5 @@ class ProductCatalogs extends Model
         }
     }
 
-    public function products()
-    {
-        return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\Products::class);
-    }
-    
-    public function subscriptions()
-    {
-        return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\Subscriptions::class);
-    }
-
-    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
+    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
 }
