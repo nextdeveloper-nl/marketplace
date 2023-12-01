@@ -86,7 +86,7 @@ class ProductsController extends AbstractController
     {
         $model = ProductsService::delete($productsId);
 
-        return ResponsableFactory::makeResponse($this, $model);
+        return $this->noContent();
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE

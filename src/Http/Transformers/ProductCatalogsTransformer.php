@@ -13,20 +13,23 @@ use NextDeveloper\Marketplace\Http\Transformers\AbstractTransformers\AbstractPro
  *
  * @package NextDeveloper\Marketplace\Http\Transformers
  */
-class ProductCatalogsTransformer extends AbstractProductCatalogsTransformer {
+class ProductCatalogsTransformer extends AbstractProductCatalogsTransformer
+{
 
     /**
      * @param ProductCatalogs $model
      *
      * @return array
      */
-    public function transform(ProductCatalogs $model) {
+    public function transform(ProductCatalogs $model)
+    {
         $transformed = Cache::get(
             CacheHelper::getKey('ProductCatalogs', $model->uuid, 'Transformed')
         );
 
-        if($transformed)
+        if($transformed) {
             return $transformed;
+        }
 
         $transformed = parent::transform($model);
 

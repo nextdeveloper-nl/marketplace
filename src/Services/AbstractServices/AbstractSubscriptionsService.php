@@ -20,14 +20,16 @@ use NextDeveloper\Marketplace\Events\Subscriptions\SubscriptionsDeletingEvent;
 
 
 /**
-* This class is responsible from managing the data for Subscriptions
-*
-* Class SubscriptionsService.
-*
-* @package NextDeveloper\Marketplace\Database\Models
-*/
-class AbstractSubscriptionsService {
-    public static function get(SubscriptionsQueryFilter $filter = null, array $params = []) : Collection|LengthAwarePaginator {
+ * This class is responsible from managing the data for Subscriptions
+ *
+ * Class SubscriptionsService.
+ *
+ * @package NextDeveloper\Marketplace\Database\Models
+ */
+class AbstractSubscriptionsService
+{
+    public static function get(SubscriptionsQueryFilter $filter = null, array $params = []) : Collection|LengthAwarePaginator
+    {
         $enablePaginate = array_key_exists('paginate', $params);
 
         /**
@@ -36,19 +38,22 @@ class AbstractSubscriptionsService {
         *
         * Please let me know if you have any other idea about this; baris.bulut@nextdeveloper.com
         */
-        if($filter == null)
+        if($filter == null) {
             $filter = new SubscriptionsQueryFilter(new Request());
+        }
 
         $perPage = config('commons.pagination.per_page');
 
-        if($perPage == null)
+        if($perPage == null) {
             $perPage = 20;
+        }
 
         if(array_key_exists('per_page', $params)) {
             $perPage = intval($params['per_page']);
 
-            if($perPage == 0)
+            if($perPage == 0) {
                 $perPage = 20;
+            }
         }
 
         if(array_key_exists('orderBy', $params)) {
@@ -57,155 +62,166 @@ class AbstractSubscriptionsService {
 
         $model = Subscriptions::filter($filter);
 
-        if($model && $enablePaginate)
+        if($model && $enablePaginate) {
             return $model->paginate($perPage);
-        else
+        } else {
             return $model->get();
+        }
     }
 
-    public static function getAll() {
+    public static function getAll()
+    {
         return Subscriptions::all();
     }
 
     /**
-    * This method returns the model by looking at reference id
-    *
-    * @param $ref
-    * @return mixed
-    */
-    public static function getByRef($ref) : ?Subscriptions {
+     * This method returns the model by looking at reference id
+     *
+     * @param  $ref
+     * @return mixed
+     */
+    public static function getByRef($ref) : ?Subscriptions
+    {
         return Subscriptions::findByRef($ref);
     }
 
     /**
-    * This method returns the model by lookint at its id
-    *
-    * @param $id
-    * @return Subscriptions|null
-    */
-    public static function getById($id) : ?Subscriptions {
+     * This method returns the model by lookint at its id
+     *
+     * @param  $id
+     * @return Subscriptions|null
+     */
+    public static function getById($id) : ?Subscriptions
+    {
         return Subscriptions::where('id', $id)->first();
     }
 
     /**
-    * This method created the model from an array.
-    *
-    * Throws an exception if stuck with any problem.
-    *
-    * @param array $data
-    * @return mixed
-    * @throw Exception
-    */
-    public static function create(array $data) {
-        event( new SubscriptionCreatingEvent() );
+     * This method created the model from an array.
+     *
+     * Throws an exception if stuck with any problem.
+     *
+     * @param  array $data
+     * @return mixed
+     * @throw  Exception
+     */
+    public static function create(array $data)
+    {
+        event(new SubscriptionsCreatingEvent());
 
-                if (array_key_exists('marketplace_product_catalog_id', $data))
+        if (array_key_exists('marketplace_product_catalog_id', $data)) {
             $data['marketplace_product_catalog_id'] = DatabaseHelper::uuidToId(
-                '\NextDeveloper\Marketplace\Database\Models\ProductCatalog',
+                '\NextDeveloper\Marketplace\Database\Models\ProductCatalogs',
                 $data['marketplace_product_catalog_id']
             );
-	        if (array_key_exists('iam_account_id', $data))
+        }
+        if (array_key_exists('iam_account_id', $data)) {
             $data['iam_account_id'] = DatabaseHelper::uuidToId(
-                '\NextDeveloper\IAM\Database\Models\IamAccount',
+                '\NextDeveloper\IAM\Database\Models\Accounts',
                 $data['iam_account_id']
             );
-	        if (array_key_exists('iam_user_id', $data))
+        }
+        if (array_key_exists('iam_user_id', $data)) {
             $data['iam_user_id'] = DatabaseHelper::uuidToId(
-                '\NextDeveloper\IAM\Database\Models\IamUser',
+                '\NextDeveloper\IAM\Database\Models\Users',
                 $data['iam_user_id']
             );
-	        
+        }
+    
         try {
             $model = Subscriptions::create($data);
         } catch(\Exception $e) {
             throw $e;
         }
 
-        event( new SubscriptionsCreatedEvent($model) );
+        event(new SubscriptionsCreatedEvent($model));
 
         return $model->fresh();
     }
 
-/**
-* This function expects the ID inside the object.
-*
-* @param array $data
-* @return Subscriptions
-*/
-public static function updateRaw(array $data) : ?Subscriptions
-{
-if(array_key_exists('id', $data)) {
-return self::update($data['id'], $data);
-}
-
-return null;
-}
-
     /**
-    * This method updated the model from an array.
-    *
-    * Throws an exception if stuck with any problem.
-    *
-    * @param
-    * @param array $data
-    * @return mixed
-    * @throw Exception
-    */
-    public static function update($id, array $data) {
-        $model = Subscriptions::where('uuid', $id)->first();
-
-                if (array_key_exists('marketplace_product_catalog_id', $data))
-            $data['marketplace_product_catalog_id'] = DatabaseHelper::uuidToId(
-                '\NextDeveloper\Marketplace\Database\Models\ProductCatalog',
-                $data['marketplace_product_catalog_id']
-            );
-	        if (array_key_exists('iam_account_id', $data))
-            $data['iam_account_id'] = DatabaseHelper::uuidToId(
-                '\NextDeveloper\IAM\Database\Models\IamAccount',
-                $data['iam_account_id']
-            );
-	        if (array_key_exists('iam_user_id', $data))
-            $data['iam_user_id'] = DatabaseHelper::uuidToId(
-                '\NextDeveloper\IAM\Database\Models\IamUser',
-                $data['iam_user_id']
-            );
-	
-        event( new SubscriptionsUpdatingEvent($model) );
-
-        try {
-           $isUpdated = $model->update($data);
-           $model = $model->fresh();
-        } catch(\Exception $e) {
-           throw $e;
+     This function expects the ID inside the object.
+    
+     @param  array $data
+     @return Subscriptions
+     */
+    public static function updateRaw(array $data) : ?Subscriptions
+    {
+        if(array_key_exists('id', $data)) {
+            return self::update($data['id'], $data);
         }
 
-        event( new SubscriptionsUpdatedEvent($model) );
+        return null;
+    }
+
+    /**
+     * This method updated the model from an array.
+     *
+     * Throws an exception if stuck with any problem.
+     *
+     * @param
+     * @param  array $data
+     * @return mixed
+     * @throw  Exception
+     */
+    public static function update($id, array $data)
+    {
+        $model = Subscriptions::where('uuid', $id)->first();
+
+        if (array_key_exists('marketplace_product_catalog_id', $data)) {
+            $data['marketplace_product_catalog_id'] = DatabaseHelper::uuidToId(
+                '\NextDeveloper\Marketplace\Database\Models\ProductCatalogs',
+                $data['marketplace_product_catalog_id']
+            );
+        }
+        if (array_key_exists('iam_account_id', $data)) {
+            $data['iam_account_id'] = DatabaseHelper::uuidToId(
+                '\NextDeveloper\IAM\Database\Models\Accounts',
+                $data['iam_account_id']
+            );
+        }
+        if (array_key_exists('iam_user_id', $data)) {
+            $data['iam_user_id'] = DatabaseHelper::uuidToId(
+                '\NextDeveloper\IAM\Database\Models\Users',
+                $data['iam_user_id']
+            );
+        }
+    
+        event(new SubscriptionsUpdatingEvent($model));
+
+        try {
+            $isUpdated = $model->update($data);
+            $model = $model->fresh();
+        } catch(\Exception $e) {
+            throw $e;
+        }
+
+        event(new SubscriptionsUpdatedEvent($model));
 
         return $model->fresh();
     }
 
     /**
-    * This method updated the model from an array.
-    *
-    * Throws an exception if stuck with any problem.
-    *
-    * @param
-    * @param array $data
-    * @return mixed
-    * @throw Exception
-    */
-    public static function delete($id, array $data) {
+     * This method updated the model from an array.
+     *
+     * Throws an exception if stuck with any problem.
+     *
+     * @param
+     * @param  array $data
+     * @return mixed
+     * @throw  Exception
+     */
+    public static function delete($id)
+    {
         $model = Subscriptions::where('uuid', $id)->first();
 
-        event( new SubscriptionsDeletingEvent() );
+        event(new SubscriptionsDeletingEvent());
 
         try {
             $model = $model->delete();
         } catch(\Exception $e) {
             throw $e;
         }
-
-        event( new SubscriptionsDeletedEvent($model) );
 
         return $model;
     }

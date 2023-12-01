@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use NextDeveloper\Commons\Database\Traits\Filterable;
 use NextDeveloper\Marketplace\Database\Observers\ProductsObserver;
 use NextDeveloper\Commons\Database\Traits\UuidId;
+use NextDeveloper\Commons\Common\Cache\Traits\CleanCache;
 
 /**
  * Class Products.
@@ -16,7 +17,7 @@ use NextDeveloper\Commons\Database\Traits\UuidId;
  */
 class Products extends Model
 {
-    use Filterable, UuidId;
+    use Filterable, UuidId, CleanCache;
     use SoftDeletes;
 
 
@@ -71,8 +72,6 @@ class Products extends Model
     'common_category_id'       => 'integer',
     'common_country_id'        => 'integer',
     'common_language_id'       => 'integer',
-    'iam_account_id'           => 'integer',
-    'iam_user_id'              => 'integer',
     'created_at'               => 'datetime',
     'updated_at'               => 'datetime',
     'deleted_at'               => 'datetime',
@@ -166,5 +165,6 @@ class Products extends Model
         return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Users::class);
     }
     
-    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
+    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
+
 }

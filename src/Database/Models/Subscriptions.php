@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use NextDeveloper\Commons\Database\Traits\Filterable;
 use NextDeveloper\Marketplace\Database\Observers\SubscriptionsObserver;
 use NextDeveloper\Commons\Database\Traits\UuidId;
+use NextDeveloper\Commons\Common\Cache\Traits\CleanCache;
 
 /**
  * Class Subscriptions.
@@ -16,7 +17,7 @@ use NextDeveloper\Commons\Database\Traits\UuidId;
  */
 class Subscriptions extends Model
 {
-    use Filterable, UuidId;
+    use Filterable, UuidId, CleanCache;
     use SoftDeletes;
 
 
@@ -53,8 +54,6 @@ class Subscriptions extends Model
     'id'                             => 'integer',
     'uuid'                           => 'string',
     'marketplace_product_catalog_id' => 'integer',
-    'iam_account_id'                 => 'integer',
-    'iam_user_id'                    => 'integer',
     'subscription_starts_at'         => 'datetime',
     'subscription_ends_at'           => 'datetime',
     'is_valid'                       => 'boolean',
@@ -128,5 +127,6 @@ class Subscriptions extends Model
         return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\ProductCatalogs::class);
     }
     
-    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
+    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
+
 }

@@ -13,20 +13,23 @@ use NextDeveloper\Marketplace\Http\Transformers\AbstractTransformers\AbstractSub
  *
  * @package NextDeveloper\Marketplace\Http\Transformers
  */
-class SubscriptionsTransformer extends AbstractSubscriptionsTransformer {
+class SubscriptionsTransformer extends AbstractSubscriptionsTransformer
+{
 
     /**
      * @param Subscriptions $model
      *
      * @return array
      */
-    public function transform(Subscriptions $model) {
+    public function transform(Subscriptions $model)
+    {
         $transformed = Cache::get(
             CacheHelper::getKey('Subscriptions', $model->uuid, 'Transformed')
         );
 
-        if($transformed)
+        if($transformed) {
             return $transformed;
+        }
 
         $transformed = parent::transform($model);
 
