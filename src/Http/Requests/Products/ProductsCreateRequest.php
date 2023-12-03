@@ -35,5 +35,5 @@ class ProductsCreateRequest extends AbstractFormRequest
         'common_language_id'       => 'required|exists:common_languages,uuid|uuid',
         ];
     }
-    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n
 }

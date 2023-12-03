@@ -20,5 +20,5 @@ class SubscriptionsCreateRequest extends AbstractFormRequest
         'is_valid'                       => 'boolean',
         ];
     }
-    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n
 }

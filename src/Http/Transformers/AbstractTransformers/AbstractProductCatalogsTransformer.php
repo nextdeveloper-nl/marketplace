@@ -21,7 +21,7 @@ class AbstractProductCatalogsTransformer extends AbstractTransformer
     public function transform(ProductCatalogs $model)
     {
                         $marketplaceProductId = \NextDeveloper\Marketplace\Database\Models\Products::where('id', $model->marketplace_product_id)->first();
-            
+        
         return $this->buildPayload(
             [
             'id'  =>  $model->uuid,
@@ -32,12 +32,13 @@ class AbstractProductCatalogsTransformer extends AbstractTransformer
             'currency_code'  =>  $model->currency_code,
             'subscription_type'  =>  $model->subscription_type,
             'marketplace_product_id'  =>  $marketplaceProductId ? $marketplaceProductId->uuid : null,
-            'created_at'  =>  $model->created_at,
-            'updated_at'  =>  $model->updated_at,
-            'deleted_at'  =>  $model->deleted_at,
+            'created_at'  =>  $model->created_at ? $model->created_at->toIso8601String() : null,
+            'updated_at'  =>  $model->updated_at ? $model->updated_at->toIso8601String() : null,
+            'deleted_at'  =>  $model->deleted_at ? $model->deleted_at->toIso8601String() : null,
             ]
         );
     }
-    
-    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
+    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n
+
 }
