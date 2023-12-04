@@ -11,13 +11,13 @@ use NextDeveloper\Commons\Common\Cache\CacheHelper;
 use NextDeveloper\Commons\Helpers\DatabaseHelper;
 use NextDeveloper\Marketplace\Database\Models\ProductCatalogs;
 use NextDeveloper\Marketplace\Database\Filters\ProductCatalogsQueryFilter;
+use NextDeveloper\Commons\Exceptions\ModelNotFoundException;
 use NextDeveloper\Marketplace\Events\ProductCatalogs\ProductCatalogsCreatedEvent;
 use NextDeveloper\Marketplace\Events\ProductCatalogs\ProductCatalogsCreatingEvent;
 use NextDeveloper\Marketplace\Events\ProductCatalogs\ProductCatalogsUpdatedEvent;
 use NextDeveloper\Marketplace\Events\ProductCatalogs\ProductCatalogsUpdatingEvent;
 use NextDeveloper\Marketplace\Events\ProductCatalogs\ProductCatalogsDeletedEvent;
 use NextDeveloper\Marketplace\Events\ProductCatalogs\ProductCatalogsDeletingEvent;
-
 
 /**
  * This class is responsible from managing the data for ProductCatalogs
@@ -94,6 +94,31 @@ class AbstractProductCatalogsService
     public static function getById($id) : ?ProductCatalogs
     {
         return ProductCatalogs::where('id', $id)->first();
+    }
+
+    /**
+     * This method returns the sub objects of the related models
+     *
+     * @param  $uuid
+     * @param  $object
+     * @return void
+     * @throws \Laravel\Octane\Exceptions\DdException
+     */
+    public static function relatedObjects($uuid, $object)
+    {
+        try {
+            $obj = ProductCatalogs::where('uuid', $uuid)->first();
+
+            if(!$obj) {
+                throw new ModelNotFoundException('Cannot find the related model');
+            }
+
+            if($obj) {
+                return $obj->$object;
+            }
+        } catch (\Exception $e) {
+            dd($e);
+        }
     }
 
     /**

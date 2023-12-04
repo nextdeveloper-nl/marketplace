@@ -11,13 +11,13 @@ use NextDeveloper\Commons\Common\Cache\CacheHelper;
 use NextDeveloper\Commons\Helpers\DatabaseHelper;
 use NextDeveloper\Marketplace\Database\Models\Subscriptions;
 use NextDeveloper\Marketplace\Database\Filters\SubscriptionsQueryFilter;
+use NextDeveloper\Commons\Exceptions\ModelNotFoundException;
 use NextDeveloper\Marketplace\Events\Subscriptions\SubscriptionsCreatedEvent;
 use NextDeveloper\Marketplace\Events\Subscriptions\SubscriptionsCreatingEvent;
 use NextDeveloper\Marketplace\Events\Subscriptions\SubscriptionsUpdatedEvent;
 use NextDeveloper\Marketplace\Events\Subscriptions\SubscriptionsUpdatingEvent;
 use NextDeveloper\Marketplace\Events\Subscriptions\SubscriptionsDeletedEvent;
 use NextDeveloper\Marketplace\Events\Subscriptions\SubscriptionsDeletingEvent;
-
 
 /**
  * This class is responsible from managing the data for Subscriptions
@@ -94,6 +94,31 @@ class AbstractSubscriptionsService
     public static function getById($id) : ?Subscriptions
     {
         return Subscriptions::where('id', $id)->first();
+    }
+
+    /**
+     * This method returns the sub objects of the related models
+     *
+     * @param  $uuid
+     * @param  $object
+     * @return void
+     * @throws \Laravel\Octane\Exceptions\DdException
+     */
+    public static function relatedObjects($uuid, $object)
+    {
+        try {
+            $obj = Subscriptions::where('uuid', $uuid)->first();
+
+            if(!$obj) {
+                throw new ModelNotFoundException('Cannot find the related model');
+            }
+
+            if($obj) {
+                return $obj->$object;
+            }
+        } catch (\Exception $e) {
+            dd($e);
+        }
     }
 
     /**

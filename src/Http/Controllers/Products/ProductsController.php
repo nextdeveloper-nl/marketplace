@@ -7,11 +7,15 @@ use NextDeveloper\Marketplace\Http\Controllers\AbstractController;
 use NextDeveloper\Generator\Http\Traits\ResponsableFactory;
 use NextDeveloper\Marketplace\Http\Requests\Products\ProductsUpdateRequest;
 use NextDeveloper\Marketplace\Database\Filters\ProductsQueryFilter;
+use NextDeveloper\Marketplace\Database\Models\Products;
 use NextDeveloper\Marketplace\Services\ProductsService;
 use NextDeveloper\Marketplace\Http\Requests\Products\ProductsCreateRequest;
-
+use NextDeveloper\Commons\Http\Traits\Tags;
 class ProductsController extends AbstractController
 {
+    private $model = Products::class;
+
+    use Tags;
     /**
      * This method returns the list of products.
      *
@@ -46,15 +50,18 @@ class ProductsController extends AbstractController
     }
 
     /**
-     * This method returns the list of sub objects the related object.
+     * This method returns the list of sub objects the related object. Sub object means an object which is preowned by
+     * this object.
+     *
+     * It can be tags, addresses, states etc.
      *
      * @param  $ref
      * @param  $subObject
      * @return void
      */
-    public function subObjects($ref, $subObject)
+    public function relatedObjects($ref, $subObject)
     {
-        $objects = ProductsService::getSubObjects($ref, $subObject);
+        $objects = ProductsService::relatedObjects($ref, $subObject);
 
         return ResponsableFactory::makeResponse($this, $objects);
     }

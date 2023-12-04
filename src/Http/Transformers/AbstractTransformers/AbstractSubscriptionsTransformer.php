@@ -45,4 +45,5 @@ class AbstractSubscriptionsTransformer extends AbstractTransformer
 
 
 
+
 }

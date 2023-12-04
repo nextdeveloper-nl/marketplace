@@ -11,13 +11,13 @@ use NextDeveloper\Commons\Common\Cache\CacheHelper;
 use NextDeveloper\Commons\Helpers\DatabaseHelper;
 use NextDeveloper\Marketplace\Database\Models\Products;
 use NextDeveloper\Marketplace\Database\Filters\ProductsQueryFilter;
+use NextDeveloper\Commons\Exceptions\ModelNotFoundException;
 use NextDeveloper\Marketplace\Events\Products\ProductsCreatedEvent;
 use NextDeveloper\Marketplace\Events\Products\ProductsCreatingEvent;
 use NextDeveloper\Marketplace\Events\Products\ProductsUpdatedEvent;
 use NextDeveloper\Marketplace\Events\Products\ProductsUpdatingEvent;
 use NextDeveloper\Marketplace\Events\Products\ProductsDeletedEvent;
 use NextDeveloper\Marketplace\Events\Products\ProductsDeletingEvent;
-
 
 /**
  * This class is responsible from managing the data for Products
@@ -94,6 +94,31 @@ class AbstractProductsService
     public static function getById($id) : ?Products
     {
         return Products::where('id', $id)->first();
+    }
+
+    /**
+     * This method returns the sub objects of the related models
+     *
+     * @param  $uuid
+     * @param  $object
+     * @return void
+     * @throws \Laravel\Octane\Exceptions\DdException
+     */
+    public static function relatedObjects($uuid, $object)
+    {
+        try {
+            $obj = Products::where('uuid', $uuid)->first();
+
+            if(!$obj) {
+                throw new ModelNotFoundException('Cannot find the related model');
+            }
+
+            if($obj) {
+                return $obj->$object;
+            }
+        } catch (\Exception $e) {
+            dd($e);
+        }
     }
 
     /**
