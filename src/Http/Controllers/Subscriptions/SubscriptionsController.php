@@ -4,7 +4,7 @@ namespace NextDeveloper\Marketplace\Http\Controllers\Subscriptions;
 
 use Illuminate\Http\Request;
 use NextDeveloper\Marketplace\Http\Controllers\AbstractController;
-use NextDeveloper\Generator\Http\Traits\ResponsableFactory;
+use NextDeveloper\Commons\Http\Traits\ResponsableFactory;
 use NextDeveloper\Marketplace\Http\Requests\Subscriptions\SubscriptionsUpdateRequest;
 use NextDeveloper\Marketplace\Database\Filters\SubscriptionsQueryFilter;
 use NextDeveloper\Marketplace\Database\Models\Subscriptions;
