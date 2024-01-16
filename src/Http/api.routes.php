@@ -8,6 +8,8 @@ Route::prefix('marketplace')->group(
 
                 Route::get('{marketplace_product_catalogs}/tags ', 'ProductCatalogs\ProductCatalogsController@tags');
                 Route::post('{marketplace_product_catalogs}/tags ', 'ProductCatalogs\ProductCatalogsController@saveTags');
+                Route::get('{marketplace_product_catalogs}/addresses ', 'ProductCatalogs\ProductCatalogsController@addresses');
+                Route::post('{marketplace_product_catalogs}/addresses ', 'ProductCatalogs\ProductCatalogsController@saveAddresses');
 
                 Route::get('/{marketplace_product_catalogs}/{subObjects}', 'ProductCatalogs\ProductCatalogsController@relatedObjects');
                 Route::get('/{marketplace_product_catalogs}', 'ProductCatalogs\ProductCatalogsController@show');
@@ -24,6 +26,8 @@ Route::prefix('marketplace')->group(
 
                 Route::get('{marketplace_products}/tags ', 'Products\ProductsController@tags');
                 Route::post('{marketplace_products}/tags ', 'Products\ProductsController@saveTags');
+                Route::get('{marketplace_products}/addresses ', 'Products\ProductsController@addresses');
+                Route::post('{marketplace_products}/addresses ', 'Products\ProductsController@saveAddresses');
 
                 Route::get('/{marketplace_products}/{subObjects}', 'Products\ProductsController@relatedObjects');
                 Route::get('/{marketplace_products}', 'Products\ProductsController@show');
@@ -40,6 +44,8 @@ Route::prefix('marketplace')->group(
 
                 Route::get('{marketplace_subscriptions}/tags ', 'Subscriptions\SubscriptionsController@tags');
                 Route::post('{marketplace_subscriptions}/tags ', 'Subscriptions\SubscriptionsController@saveTags');
+                Route::get('{marketplace_subscriptions}/addresses ', 'Subscriptions\SubscriptionsController@addresses');
+                Route::post('{marketplace_subscriptions}/addresses ', 'Subscriptions\SubscriptionsController@saveAddresses');
 
                 Route::get('/{marketplace_subscriptions}/{subObjects}', 'Subscriptions\SubscriptionsController@relatedObjects');
                 Route::get('/{marketplace_subscriptions}', 'Subscriptions\SubscriptionsController@show');
@@ -55,8 +61,16 @@ Route::prefix('marketplace')->group(
 
 
 
+
+
+
+
+
+
     }
 );
+
+
 
 
 

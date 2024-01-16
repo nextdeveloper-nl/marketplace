@@ -4,7 +4,7 @@ namespace NextDeveloper\Marketplace\Http\Controllers\ProductCatalogs;
 
 use Illuminate\Http\Request;
 use NextDeveloper\Marketplace\Http\Controllers\AbstractController;
-use NextDeveloper\Commons\Http\Traits\ResponsableFactory;
+use NextDeveloper\Commons\Http\Response\ResponsableFactory;
 use NextDeveloper\Marketplace\Http\Requests\ProductCatalogs\ProductCatalogsUpdateRequest;
 use NextDeveloper\Marketplace\Database\Filters\ProductCatalogsQueryFilter;
 use NextDeveloper\Marketplace\Database\Models\ProductCatalogs;
