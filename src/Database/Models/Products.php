@@ -52,30 +52,28 @@ class Products extends Model
      @var array
      */
     protected $casts = [
-    'id'                       => 'integer',
-    'uuid'                     => 'string',
-    'name'                     => 'string',
-    'description'              => 'string',
-    'content'                  => 'string',
-    'highlights'               => 'string',
+    'id' => 'integer',
+    'name' => 'string',
+    'description' => 'string',
+    'content' => 'string',
+    'highlights' => 'string',
     'after_sales_introduction' => 'string',
-    'support_content'          => 'string',
-    'refund_policy'            => 'string',
-    'eula'                     => 'string',
-    'slug'                     => 'string',
-    'version'                  => 'string',
-    'management_class'         => 'string',
-    'discount_rate'            => 'boolean',
-    'is_maintenance'           => 'boolean',
-    'is_public'                => 'boolean',
-    'is_invisible'             => 'boolean',
-    'is_active'                => 'boolean',
-    'common_category_id'       => 'integer',
-    'common_country_id'        => 'integer',
-    'common_language_id'       => 'integer',
-    'created_at'               => 'datetime',
-    'updated_at'               => 'datetime',
-    'deleted_at'               => 'datetime',
+    'support_content' => 'string',
+    'refund_policy' => 'string',
+    'eula' => 'string',
+    'slug' => 'string',
+    'version' => 'string',
+    'discount_rate' => 'integer',
+    'is_in_maintenance' => 'boolean',
+    'is_public' => 'boolean',
+    'is_invisible' => 'boolean',
+    'is_active' => 'boolean',
+    'common_category_id' => 'integer',
+    'common_country_id' => 'integer',
+    'common_language_id' => 'integer',
+    'created_at' => 'datetime',
+    'updated_at' => 'datetime',
+    'deleted_at' => 'datetime',
     ];
 
     /**
@@ -136,37 +134,8 @@ class Products extends Model
         }
     }
 
-    public function productCatalogs() : \Illuminate\Database\Eloquent\Relations\HasMany
-    {
-        return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\ProductCatalogs::class);
-    }
-
-    public function categories() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\Commons\Database\Models\Categories::class);
-    }
-    
-    public function countries() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\Commons\Database\Models\Countries::class);
-    }
-    
-    public function languages() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\Commons\Database\Models\Languages::class);
-    }
-    
-    public function accounts() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Accounts::class);
-    }
-    
-    public function users() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Users::class);
-    }
-    
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
+
 
 
 

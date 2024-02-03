@@ -13,12 +13,11 @@ class ProductCatalogsCreateRequest extends AbstractFormRequest
     public function rules()
     {
         return [
-            'name'                   => 'required|string|max:500',
-        'agreement'              => 'nullable|string',
-        'args'                   => 'nullable',
-        'price'                  => 'required|numeric',
-        'currency_code'          => 'string|max:3',
-        'subscription_type'      => '',
+            'name' => 'required',
+        'agreement' => 'nullable|string',
+        'args' => 'nullable',
+        'price' => 'required',
+        'common_currency_code_id' => 'nullable|exists:common_currency_codes,uuid|uuid',
         'marketplace_product_id' => 'required|exists:marketplace_products,uuid|uuid',
         ];
     }

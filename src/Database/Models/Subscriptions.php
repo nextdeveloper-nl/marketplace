@@ -52,15 +52,15 @@ class Subscriptions extends Model
      @var array
      */
     protected $casts = [
-    'id'                             => 'integer',
-    'uuid'                           => 'string',
+    'id' => 'integer',
     'marketplace_product_catalog_id' => 'integer',
-    'subscription_starts_at'         => 'datetime',
-    'subscription_ends_at'           => 'datetime',
-    'is_valid'                       => 'boolean',
-    'created_at'                     => 'datetime',
-    'updated_at'                     => 'datetime',
-    'deleted_at'                     => 'datetime',
+    'subscription_data' => 'array',
+    'subscription_starts_at' => 'datetime',
+    'subscription_ends_at' => 'datetime',
+    'is_valid' => 'boolean',
+    'created_at' => 'datetime',
+    'updated_at' => 'datetime',
+    'deleted_at' => 'datetime',
     ];
 
     /**
@@ -123,12 +123,8 @@ class Subscriptions extends Model
         }
     }
 
-    public function productCatalogs() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\ProductCatalogs::class);
-    }
-    
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
+
 
 
 

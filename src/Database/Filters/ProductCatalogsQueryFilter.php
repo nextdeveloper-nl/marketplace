@@ -4,7 +4,7 @@ namespace NextDeveloper\Marketplace\Database\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
 use NextDeveloper\Commons\Database\Filters\AbstractQueryFilter;
-    
+        
 
 /**
  * This class automatically puts where clause on database so that use can filter
@@ -17,34 +17,11 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
      */
     protected $builder;
     
-    public function name($value)
-    {
-        return $this->builder->where('name', 'like', '%' . $value . '%');
-    }
-    
     public function agreement($value)
     {
         return $this->builder->where('agreement', 'like', '%' . $value . '%');
     }
-    
-    public function currencyCode($value)
-    {
-        return $this->builder->where('currency_code', 'like', '%' . $value . '%');
-    }
 
-    public function price($value)
-    {
-        $operator = substr($value, 0, 1);
-
-        if ($operator != '<' || $operator != '>') {
-            $operator = '=';
-        } else {
-            $value = substr($value, 1);
-        }
-
-        return $this->builder->where('price', $operator, $value);
-    }
-    
     public function createdAtStart($date) 
     {
         return $this->builder->where('created_at', '>=', $date);
@@ -73,6 +50,15 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
     public function deletedAtEnd($date) 
     {
         return $this->builder->where('deleted_at', '<=', $date);
+    }
+
+    public function commonCurrencyCodeId($value)
+    {
+            $commonCurrencyCode = \NextDeveloper\Commons\Database\Models\CurrencyCodes::where('uuid', $value)->first();
+
+        if($commonCurrencyCode) {
+            return $this->builder->where('common_currency_code_id', '=', $commonCurrencyCode->id);
+        }
     }
 
     public function marketplaceProductId($value)

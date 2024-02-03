@@ -58,10 +58,7 @@ trait MarketplaceProductCatalogTestTraits
         $response = $this->http->request(
             'POST', '/marketplace/marketplaceproductcatalog', [
             'form_params'   =>  [
-                'name'  =>  'a',
                 'agreement'  =>  'a',
-                'currency_code'  =>  'a',
-                'price'  =>  '1',
                             ],
                 ['http_errors' => false]
             ]
@@ -344,69 +341,12 @@ trait MarketplaceProductCatalogTestTraits
         $this->assertTrue(true);
     }
 
-    public function test_marketplaceproductcatalog_event_name_filter()
-    {
-        try {
-            $request = new Request(
-                [
-                'name'  =>  'a'
-                ]
-            );
-
-            $filter = new MarketplaceProductCatalogQueryFilter($request);
-
-            $model = \NextDeveloper\Marketplace\Database\Models\MarketplaceProductCatalog::filter($filter)->first();
-        } catch (\Exception $e) {
-            $this->assertFalse(false, $e->getMessage());
-        }
-
-        $this->assertTrue(true);
-    }
-
     public function test_marketplaceproductcatalog_event_agreement_filter()
     {
         try {
             $request = new Request(
                 [
                 'agreement'  =>  'a'
-                ]
-            );
-
-            $filter = new MarketplaceProductCatalogQueryFilter($request);
-
-            $model = \NextDeveloper\Marketplace\Database\Models\MarketplaceProductCatalog::filter($filter)->first();
-        } catch (\Exception $e) {
-            $this->assertFalse(false, $e->getMessage());
-        }
-
-        $this->assertTrue(true);
-    }
-
-    public function test_marketplaceproductcatalog_event_currency_code_filter()
-    {
-        try {
-            $request = new Request(
-                [
-                'currency_code'  =>  'a'
-                ]
-            );
-
-            $filter = new MarketplaceProductCatalogQueryFilter($request);
-
-            $model = \NextDeveloper\Marketplace\Database\Models\MarketplaceProductCatalog::filter($filter)->first();
-        } catch (\Exception $e) {
-            $this->assertFalse(false, $e->getMessage());
-        }
-
-        $this->assertTrue(true);
-    }
-
-    public function test_marketplaceproductcatalog_event_price_filter()
-    {
-        try {
-            $request = new Request(
-                [
-                'price'  =>  '1'
                 ]
             );
 

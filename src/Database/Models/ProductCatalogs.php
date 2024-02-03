@@ -52,16 +52,14 @@ class ProductCatalogs extends Model
      @var array
      */
     protected $casts = [
-    'id'                     => 'integer',
-    'uuid'                   => 'string',
-    'name'                   => 'string',
-    'agreement'              => 'string',
-    'price'                  => 'double',
-    'currency_code'          => 'string',
+    'id' => 'integer',
+    'agreement' => 'string',
+    'args' => 'array',
+    'common_currency_code_id' => 'integer',
     'marketplace_product_id' => 'integer',
-    'created_at'             => 'datetime',
-    'updated_at'             => 'datetime',
-    'deleted_at'             => 'datetime',
+    'created_at' => 'datetime',
+    'updated_at' => 'datetime',
+    'deleted_at' => 'datetime',
     ];
 
     /**
@@ -122,17 +120,8 @@ class ProductCatalogs extends Model
         }
     }
 
-    public function products() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\Products::class);
-    }
-    
-    public function subscriptions() : \Illuminate\Database\Eloquent\Relations\HasMany
-    {
-        return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\Subscriptions::class);
-    }
-
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
+
 
 
 

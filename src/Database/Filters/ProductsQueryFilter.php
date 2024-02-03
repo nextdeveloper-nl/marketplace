@@ -67,11 +67,6 @@ class ProductsQueryFilter extends AbstractQueryFilter
     {
         return $this->builder->where('version', 'like', '%' . $value . '%');
     }
-    
-    public function managementClass($value)
-    {
-        return $this->builder->where('management_class', 'like', '%' . $value . '%');
-    }
 
     public function discountRate($value)
     {
@@ -86,9 +81,9 @@ class ProductsQueryFilter extends AbstractQueryFilter
         return $this->builder->where('discount_rate', $operator, $value);
     }
     
-    public function isMaintenance()
+    public function isInMaintenance()
     {
-        return $this->builder->where('is_maintenance', true);
+        return $this->builder->where('is_in_maintenance', true);
     }
     
     public function isPublic()

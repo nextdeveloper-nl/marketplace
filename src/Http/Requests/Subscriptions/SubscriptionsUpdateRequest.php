@@ -14,10 +14,10 @@ class SubscriptionsUpdateRequest extends AbstractFormRequest
     {
         return [
             'marketplace_product_catalog_id' => 'nullable|exists:marketplace_product_catalogs,uuid|uuid',
-        'subscription_data'              => 'nullable',
-        'subscription_starts_at'         => 'nullable|date',
-        'subscription_ends_at'           => 'nullable|date',
-        'is_valid'                       => 'boolean',
+        'subscription_data' => 'nullable',
+        'subscription_starts_at' => 'nullable|date',
+        'subscription_ends_at' => 'nullable|date',
+        'is_valid' => 'boolean',
         ];
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n
