@@ -12,12 +12,7 @@ use NextDeveloper\Commons\Helpers\DatabaseHelper;
 use NextDeveloper\Marketplace\Database\Models\Subscriptions;
 use NextDeveloper\Marketplace\Database\Filters\SubscriptionsQueryFilter;
 use NextDeveloper\Commons\Exceptions\ModelNotFoundException;
-use NextDeveloper\Marketplace\Events\Subscriptions\SubscriptionsCreatedEvent;
-use NextDeveloper\Marketplace\Events\Subscriptions\SubscriptionsCreatingEvent;
-use NextDeveloper\Marketplace\Events\Subscriptions\SubscriptionsUpdatedEvent;
-use NextDeveloper\Marketplace\Events\Subscriptions\SubscriptionsUpdatingEvent;
-use NextDeveloper\Marketplace\Events\Subscriptions\SubscriptionsDeletedEvent;
-use NextDeveloper\Marketplace\Events\Subscriptions\SubscriptionsDeletingEvent;
+use NextDeveloper\Events\Services\Events;
 
 /**
  * This class is responsible from managing the data for Subscriptions
@@ -132,8 +127,6 @@ class AbstractSubscriptionsService
      */
     public static function create(array $data)
     {
-        event(new SubscriptionsCreatingEvent());
-
         if (array_key_exists('marketplace_product_catalog_id', $data)) {
             $data['marketplace_product_catalog_id'] = DatabaseHelper::uuidToId(
                 '\NextDeveloper\Marketplace\Database\Models\ProductCatalogs',
@@ -159,16 +152,16 @@ class AbstractSubscriptionsService
             throw $e;
         }
 
-        event(new SubscriptionsCreatedEvent($model));
+        Events::fire('created:NextDeveloper\Marketplace\Subscriptions', $model);
 
         return $model->fresh();
     }
 
     /**
-     This function expects the ID inside the object.
-    
-     @param  array $data
-     @return Subscriptions
+     * This function expects the ID inside the object.
+     *
+     * @param  array $data
+     * @return Subscriptions
      */
     public static function updateRaw(array $data) : ?Subscriptions
     {
@@ -212,7 +205,7 @@ class AbstractSubscriptionsService
             );
         }
     
-        event(new SubscriptionsUpdatingEvent($model));
+        Events::fire('updating:NextDeveloper\Marketplace\Subscriptions', $model);
 
         try {
             $isUpdated = $model->update($data);
@@ -221,7 +214,7 @@ class AbstractSubscriptionsService
             throw $e;
         }
 
-        event(new SubscriptionsUpdatedEvent($model));
+        Events::fire('updated:NextDeveloper\Marketplace\Subscriptions', $model);
 
         return $model->fresh();
     }
@@ -240,7 +233,7 @@ class AbstractSubscriptionsService
     {
         $model = Subscriptions::where('uuid', $id)->first();
 
-        event(new SubscriptionsDeletingEvent());
+        Events::fire('deleted:NextDeveloper\Marketplace\Subscriptions', $model);
 
         try {
             $model = $model->delete();

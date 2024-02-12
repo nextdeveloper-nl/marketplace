@@ -53,10 +53,12 @@ class ProductCatalogs extends Model
      */
     protected $casts = [
     'id' => 'integer',
+    'name' => 'string',
     'agreement' => 'string',
     'args' => 'array',
-    'common_currency_code_id' => 'integer',
+    'common_currency_id' => 'integer',
     'marketplace_product_id' => 'integer',
+    'tags' => \NextDeveloper\Commons\Database\Casts\TextArray::class,
     'created_at' => 'datetime',
     'updated_at' => 'datetime',
     'deleted_at' => 'datetime',
@@ -121,6 +123,9 @@ class ProductCatalogs extends Model
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
+
+
+
 
 
 

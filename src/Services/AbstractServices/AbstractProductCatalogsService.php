@@ -12,12 +12,7 @@ use NextDeveloper\Commons\Helpers\DatabaseHelper;
 use NextDeveloper\Marketplace\Database\Models\ProductCatalogs;
 use NextDeveloper\Marketplace\Database\Filters\ProductCatalogsQueryFilter;
 use NextDeveloper\Commons\Exceptions\ModelNotFoundException;
-use NextDeveloper\Marketplace\Events\ProductCatalogs\ProductCatalogsCreatedEvent;
-use NextDeveloper\Marketplace\Events\ProductCatalogs\ProductCatalogsCreatingEvent;
-use NextDeveloper\Marketplace\Events\ProductCatalogs\ProductCatalogsUpdatedEvent;
-use NextDeveloper\Marketplace\Events\ProductCatalogs\ProductCatalogsUpdatingEvent;
-use NextDeveloper\Marketplace\Events\ProductCatalogs\ProductCatalogsDeletedEvent;
-use NextDeveloper\Marketplace\Events\ProductCatalogs\ProductCatalogsDeletingEvent;
+use NextDeveloper\Events\Services\Events;
 
 /**
  * This class is responsible from managing the data for ProductCatalogs
@@ -132,8 +127,12 @@ class AbstractProductCatalogsService
      */
     public static function create(array $data)
     {
-        event(new ProductCatalogsCreatingEvent());
-
+        if (array_key_exists('common_currency_id', $data)) {
+            $data['common_currency_id'] = DatabaseHelper::uuidToId(
+                '\NextDeveloper\Commons\Database\Models\Currencies',
+                $data['common_currency_id']
+            );
+        }
         if (array_key_exists('marketplace_product_id', $data)) {
             $data['marketplace_product_id'] = DatabaseHelper::uuidToId(
                 '\NextDeveloper\Marketplace\Database\Models\Products',
@@ -147,16 +146,16 @@ class AbstractProductCatalogsService
             throw $e;
         }
 
-        event(new ProductCatalogsCreatedEvent($model));
+        Events::fire('created:NextDeveloper\Marketplace\ProductCatalogs', $model);
 
         return $model->fresh();
     }
 
     /**
-     This function expects the ID inside the object.
-    
-     @param  array $data
-     @return ProductCatalogs
+     * This function expects the ID inside the object.
+     *
+     * @param  array $data
+     * @return ProductCatalogs
      */
     public static function updateRaw(array $data) : ?ProductCatalogs
     {
@@ -181,6 +180,12 @@ class AbstractProductCatalogsService
     {
         $model = ProductCatalogs::where('uuid', $id)->first();
 
+        if (array_key_exists('common_currency_id', $data)) {
+            $data['common_currency_id'] = DatabaseHelper::uuidToId(
+                '\NextDeveloper\Commons\Database\Models\Currencies',
+                $data['common_currency_id']
+            );
+        }
         if (array_key_exists('marketplace_product_id', $data)) {
             $data['marketplace_product_id'] = DatabaseHelper::uuidToId(
                 '\NextDeveloper\Marketplace\Database\Models\Products',
@@ -188,7 +193,7 @@ class AbstractProductCatalogsService
             );
         }
     
-        event(new ProductCatalogsUpdatingEvent($model));
+        Events::fire('updating:NextDeveloper\Marketplace\ProductCatalogs', $model);
 
         try {
             $isUpdated = $model->update($data);
@@ -197,7 +202,7 @@ class AbstractProductCatalogsService
             throw $e;
         }
 
-        event(new ProductCatalogsUpdatedEvent($model));
+        Events::fire('updated:NextDeveloper\Marketplace\ProductCatalogs', $model);
 
         return $model->fresh();
     }
@@ -216,7 +221,7 @@ class AbstractProductCatalogsService
     {
         $model = ProductCatalogs::where('uuid', $id)->first();
 
-        event(new ProductCatalogsDeletingEvent());
+        Events::fire('deleted:NextDeveloper\Marketplace\ProductCatalogs', $model);
 
         try {
             $model = $model->delete();

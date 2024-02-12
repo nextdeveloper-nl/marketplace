@@ -17,6 +17,11 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
      */
     protected $builder;
     
+    public function name($value)
+    {
+        return $this->builder->where('name', 'like', '%' . $value . '%');
+    }
+    
     public function agreement($value)
     {
         return $this->builder->where('agreement', 'like', '%' . $value . '%');
@@ -52,12 +57,12 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
         return $this->builder->where('deleted_at', '<=', $date);
     }
 
-    public function commonCurrencyCodeId($value)
+    public function commonCurrencyId($value)
     {
-            $commonCurrencyCode = \NextDeveloper\Commons\Database\Models\CurrencyCodes::where('uuid', $value)->first();
+            $commonCurrency = \NextDeveloper\Commons\Database\Models\Currencies::where('uuid', $value)->first();
 
-        if($commonCurrencyCode) {
-            return $this->builder->where('common_currency_code_id', '=', $commonCurrencyCode->id);
+        if($commonCurrency) {
+            return $this->builder->where('common_currency_id', '=', $commonCurrency->id);
         }
     }
 

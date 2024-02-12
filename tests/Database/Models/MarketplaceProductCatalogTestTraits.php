@@ -58,6 +58,7 @@ trait MarketplaceProductCatalogTestTraits
         $response = $this->http->request(
             'POST', '/marketplace/marketplaceproductcatalog', [
             'form_params'   =>  [
+                'name'  =>  'a',
                 'agreement'  =>  'a',
                             ],
                 ['http_errors' => false]
@@ -334,6 +335,25 @@ trait MarketplaceProductCatalogTestTraits
             $model = \NextDeveloper\Marketplace\Database\Models\MarketplaceProductCatalog::first();
 
             event(new \NextDeveloper\Marketplace\Events\MarketplaceProductCatalog\MarketplaceProductCatalogRestoredEvent($model));
+        } catch (\Exception $e) {
+            $this->assertFalse(false, $e->getMessage());
+        }
+
+        $this->assertTrue(true);
+    }
+
+    public function test_marketplaceproductcatalog_event_name_filter()
+    {
+        try {
+            $request = new Request(
+                [
+                'name'  =>  'a'
+                ]
+            );
+
+            $filter = new MarketplaceProductCatalogQueryFilter($request);
+
+            $model = \NextDeveloper\Marketplace\Database\Models\MarketplaceProductCatalog::filter($filter)->first();
         } catch (\Exception $e) {
             $this->assertFalse(false, $e->getMessage());
         }

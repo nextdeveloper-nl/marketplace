@@ -18,6 +18,7 @@ class SubscriptionsCreateRequest extends AbstractFormRequest
         'subscription_starts_at' => 'nullable|date',
         'subscription_ends_at' => 'nullable|date',
         'is_valid' => 'boolean',
+        'tags' => '',
         ];
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n

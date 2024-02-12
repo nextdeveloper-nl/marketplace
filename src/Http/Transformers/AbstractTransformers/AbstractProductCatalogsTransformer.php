@@ -20,7 +20,7 @@ class AbstractProductCatalogsTransformer extends AbstractTransformer
      */
     public function transform(ProductCatalogs $model)
     {
-                        $commonCurrencyCodeId = \NextDeveloper\Commons\Database\Models\CurrencyCodes::where('id', $model->common_currency_code_id)->first();
+                        $commonCurrencyId = \NextDeveloper\Commons\Database\Models\Currencies::where('id', $model->common_currency_id)->first();
                     $marketplaceProductId = \NextDeveloper\Marketplace\Database\Models\Products::where('id', $model->marketplace_product_id)->first();
         
         return $this->buildPayload(
@@ -30,8 +30,9 @@ class AbstractProductCatalogsTransformer extends AbstractTransformer
             'agreement'  =>  $model->agreement,
             'args'  =>  $model->args,
             'price'  =>  $model->price,
-            'common_currency_code_id'  =>  $commonCurrencyCodeId ? $commonCurrencyCodeId->uuid : null,
+            'common_currency_id'  =>  $commonCurrencyId ? $commonCurrencyId->uuid : null,
             'marketplace_product_id'  =>  $marketplaceProductId ? $marketplaceProductId->uuid : null,
+            'tags'  =>  $model->tags,
             'created_at'  =>  $model->created_at,
             'updated_at'  =>  $model->updated_at,
             'deleted_at'  =>  $model->deleted_at,
@@ -40,6 +41,9 @@ class AbstractProductCatalogsTransformer extends AbstractTransformer
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n
+
+
+
 
 
 

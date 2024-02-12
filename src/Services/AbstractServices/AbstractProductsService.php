@@ -12,12 +12,7 @@ use NextDeveloper\Commons\Helpers\DatabaseHelper;
 use NextDeveloper\Marketplace\Database\Models\Products;
 use NextDeveloper\Marketplace\Database\Filters\ProductsQueryFilter;
 use NextDeveloper\Commons\Exceptions\ModelNotFoundException;
-use NextDeveloper\Marketplace\Events\Products\ProductsCreatedEvent;
-use NextDeveloper\Marketplace\Events\Products\ProductsCreatingEvent;
-use NextDeveloper\Marketplace\Events\Products\ProductsUpdatedEvent;
-use NextDeveloper\Marketplace\Events\Products\ProductsUpdatingEvent;
-use NextDeveloper\Marketplace\Events\Products\ProductsDeletedEvent;
-use NextDeveloper\Marketplace\Events\Products\ProductsDeletingEvent;
+use NextDeveloper\Events\Services\Events;
 
 /**
  * This class is responsible from managing the data for Products
@@ -132,8 +127,6 @@ class AbstractProductsService
      */
     public static function create(array $data)
     {
-        event(new ProductsCreatingEvent());
-
         if (array_key_exists('common_category_id', $data)) {
             $data['common_category_id'] = DatabaseHelper::uuidToId(
                 '\NextDeveloper\Commons\Database\Models\Categories',
@@ -171,16 +164,16 @@ class AbstractProductsService
             throw $e;
         }
 
-        event(new ProductsCreatedEvent($model));
+        Events::fire('created:NextDeveloper\Marketplace\Products', $model);
 
         return $model->fresh();
     }
 
     /**
-     This function expects the ID inside the object.
-    
-     @param  array $data
-     @return Products
+     * This function expects the ID inside the object.
+     *
+     * @param  array $data
+     * @return Products
      */
     public static function updateRaw(array $data) : ?Products
     {
@@ -236,7 +229,7 @@ class AbstractProductsService
             );
         }
     
-        event(new ProductsUpdatingEvent($model));
+        Events::fire('updating:NextDeveloper\Marketplace\Products', $model);
 
         try {
             $isUpdated = $model->update($data);
@@ -245,7 +238,7 @@ class AbstractProductsService
             throw $e;
         }
 
-        event(new ProductsUpdatedEvent($model));
+        Events::fire('updated:NextDeveloper\Marketplace\Products', $model);
 
         return $model->fresh();
     }
@@ -264,7 +257,7 @@ class AbstractProductsService
     {
         $model = Products::where('uuid', $id)->first();
 
-        event(new ProductsDeletingEvent());
+        Events::fire('deleted:NextDeveloper\Marketplace\Products', $model);
 
         try {
             $model = $model->delete();

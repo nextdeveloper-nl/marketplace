@@ -34,6 +34,7 @@ class AbstractSubscriptionsTransformer extends AbstractTransformer
             'subscription_starts_at'  =>  $model->subscription_starts_at,
             'subscription_ends_at'  =>  $model->subscription_ends_at,
             'is_valid'  =>  $model->is_valid,
+            'tags'  =>  $model->tags,
             'created_at'  =>  $model->created_at,
             'updated_at'  =>  $model->updated_at,
             'deleted_at'  =>  $model->deleted_at,
@@ -42,6 +43,9 @@ class AbstractSubscriptionsTransformer extends AbstractTransformer
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n
+
+
+
 
 
 
