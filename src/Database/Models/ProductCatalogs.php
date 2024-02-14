@@ -12,9 +12,21 @@ use NextDeveloper\Commons\Common\Cache\Traits\CleanCache;
 use NextDeveloper\Commons\Database\Traits\Taggable;
 
 /**
- * Class ProductCatalogs.
+ * ProductCatalogs model.
  *
- * @package NextDeveloper\Marketplace\Database\Models
+ * @package  NextDeveloper\Marketplace\Database\Models
+ * @property integer $id
+ * @property string $uuid
+ * @property string $name
+ * @property string $agreement
+ * @property $args
+ * @property $price
+ * @property integer $common_currency_id
+ * @property integer $marketplace_product_id
+ * @property array $tags
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property \Carbon\Carbon $deleted_at
  */
 class ProductCatalogs extends Model
 {
@@ -31,6 +43,16 @@ class ProductCatalogs extends Model
      @var array
      */
     protected $guarded = [];
+
+    protected $fillable = [
+            'name',
+            'agreement',
+            'args',
+            'price',
+            'common_currency_id',
+            'marketplace_product_id',
+            'tags',
+    ];
 
     /**
       Here we have the fulltext fields. We can use these for fulltext search if enabled.
@@ -123,6 +145,7 @@ class ProductCatalogs extends Model
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
+
 
 
 

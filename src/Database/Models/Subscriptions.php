@@ -12,9 +12,22 @@ use NextDeveloper\Commons\Common\Cache\Traits\CleanCache;
 use NextDeveloper\Commons\Database\Traits\Taggable;
 
 /**
- * Class Subscriptions.
+ * Subscriptions model.
  *
- * @package NextDeveloper\Marketplace\Database\Models
+ * @package  NextDeveloper\Marketplace\Database\Models
+ * @property integer $id
+ * @property string $uuid
+ * @property integer $marketplace_product_catalog_id
+ * @property integer $iam_account_id
+ * @property integer $iam_user_id
+ * @property $subscription_data
+ * @property \Carbon\Carbon $subscription_starts_at
+ * @property \Carbon\Carbon $subscription_ends_at
+ * @property boolean $is_valid
+ * @property array $tags
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property \Carbon\Carbon $deleted_at
  */
 class Subscriptions extends Model
 {
@@ -31,6 +44,17 @@ class Subscriptions extends Model
      @var array
      */
     protected $guarded = [];
+
+    protected $fillable = [
+            'marketplace_product_catalog_id',
+            'iam_account_id',
+            'iam_user_id',
+            'subscription_data',
+            'subscription_starts_at',
+            'subscription_ends_at',
+            'is_valid',
+            'tags',
+    ];
 
     /**
       Here we have the fulltext fields. We can use these for fulltext search if enabled.
@@ -125,6 +149,7 @@ class Subscriptions extends Model
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
+
 
 
 

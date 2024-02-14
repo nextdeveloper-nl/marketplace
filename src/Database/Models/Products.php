@@ -12,9 +12,37 @@ use NextDeveloper\Commons\Common\Cache\Traits\CleanCache;
 use NextDeveloper\Commons\Database\Traits\Taggable;
 
 /**
- * Class Products.
+ * Products model.
  *
- * @package NextDeveloper\Marketplace\Database\Models
+ * @package  NextDeveloper\Marketplace\Database\Models
+ * @property integer $id
+ * @property string $uuid
+ * @property string $name
+ * @property string $description
+ * @property string $content
+ * @property string $highlights
+ * @property string $after_sales_introduction
+ * @property string $support_content
+ * @property string $refund_policy
+ * @property string $eula
+ * @property $subscription_type
+ * @property string $slug
+ * @property string $version
+ * @property $product_type
+ * @property integer $discount_rate
+ * @property boolean $is_in_maintenance
+ * @property boolean $is_public
+ * @property boolean $is_invisible
+ * @property boolean $is_active
+ * @property integer $common_category_id
+ * @property integer $common_country_id
+ * @property integer $common_language_id
+ * @property integer $iam_account_id
+ * @property integer $iam_user_id
+ * @property array $tags
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property \Carbon\Carbon $deleted_at
  */
 class Products extends Model
 {
@@ -31,6 +59,32 @@ class Products extends Model
      @var array
      */
     protected $guarded = [];
+
+    protected $fillable = [
+            'name',
+            'description',
+            'content',
+            'highlights',
+            'after_sales_introduction',
+            'support_content',
+            'refund_policy',
+            'eula',
+            'subscription_type',
+            'slug',
+            'version',
+            'product_type',
+            'discount_rate',
+            'is_in_maintenance',
+            'is_public',
+            'is_invisible',
+            'is_active',
+            'common_category_id',
+            'common_country_id',
+            'common_language_id',
+            'iam_account_id',
+            'iam_user_id',
+            'tags',
+    ];
 
     /**
       Here we have the fulltext fields. We can use these for fulltext search if enabled.
@@ -136,6 +190,7 @@ class Products extends Model
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
+
 
 
 
