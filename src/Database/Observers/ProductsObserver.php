@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
  * Class MarketplaceProductObserver
  * @package NextDeveloper\Marketplace\Database\Observers
  */
-class MarketplaceProductObserver
+class ProductsObserver
 {
     /**
     * Triggered when a new record is retrieved.

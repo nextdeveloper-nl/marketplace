@@ -2,6 +2,24 @@
 
 Route::prefix('marketplace')->group(
     function () {
+        Route::prefix('subscriptions')->group(
+            function () {
+                Route::get('/', 'Subscriptions\SubscriptionsController@index');
+
+                Route::get('{marketplace_subscriptions}/tags ', 'Subscriptions\SubscriptionsController@tags');
+                Route::post('{marketplace_subscriptions}/tags ', 'Subscriptions\SubscriptionsController@saveTags');
+                Route::get('{marketplace_subscriptions}/addresses ', 'Subscriptions\SubscriptionsController@addresses');
+                Route::post('{marketplace_subscriptions}/addresses ', 'Subscriptions\SubscriptionsController@saveAddresses');
+
+                Route::get('/{marketplace_subscriptions}/{subObjects}', 'Subscriptions\SubscriptionsController@relatedObjects');
+                Route::get('/{marketplace_subscriptions}', 'Subscriptions\SubscriptionsController@show');
+
+                Route::post('/', 'Subscriptions\SubscriptionsController@store');
+                Route::patch('/{marketplace_subscriptions}', 'Subscriptions\SubscriptionsController@update');
+                Route::delete('/{marketplace_subscriptions}', 'Subscriptions\SubscriptionsController@destroy');
+            }
+        );
+
         Route::prefix('products')->group(
             function () {
                 Route::get('/', 'Products\ProductsController@index');
@@ -38,47 +56,7 @@ Route::prefix('marketplace')->group(
             }
         );
 
-        Route::prefix('subscriptions')->group(
-            function () {
-                Route::get('/', 'Subscriptions\SubscriptionsController@index');
-
-                Route::get('{marketplace_subscriptions}/tags ', 'Subscriptions\SubscriptionsController@tags');
-                Route::post('{marketplace_subscriptions}/tags ', 'Subscriptions\SubscriptionsController@saveTags');
-                Route::get('{marketplace_subscriptions}/addresses ', 'Subscriptions\SubscriptionsController@addresses');
-                Route::post('{marketplace_subscriptions}/addresses ', 'Subscriptions\SubscriptionsController@saveAddresses');
-
-                Route::get('/{marketplace_subscriptions}/{subObjects}', 'Subscriptions\SubscriptionsController@relatedObjects');
-                Route::get('/{marketplace_subscriptions}', 'Subscriptions\SubscriptionsController@show');
-
-                Route::post('/', 'Subscriptions\SubscriptionsController@store');
-                Route::patch('/{marketplace_subscriptions}', 'Subscriptions\SubscriptionsController@update');
-                Route::delete('/{marketplace_subscriptions}', 'Subscriptions\SubscriptionsController@destroy');
-            }
-        );
-
         // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -87,6 +65,11 @@ Route::prefix('marketplace')->group(
 
     }
 );
+
+
+
+
+
 
 
 
