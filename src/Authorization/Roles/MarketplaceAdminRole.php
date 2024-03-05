@@ -53,6 +53,10 @@ class MarketplaceAdminRole extends AbstractRole implements IAuthorizationRole
     public function allowedOperations() :array
     {
         return [
+            'marketplace_markets:read',
+            'marketplace_markets:update',
+            'marketplace_markets:create',
+            'marketplace_markets:delete',
             'marketplace_products:read',
             'marketplace_products:update',
             'marketplace_products:create',
