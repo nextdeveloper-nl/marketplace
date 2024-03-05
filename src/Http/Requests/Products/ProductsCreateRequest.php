@@ -34,6 +34,7 @@ class ProductsCreateRequest extends AbstractFormRequest
         'common_language_id' => 'required|exists:common_languages,uuid|uuid',
         'tags' => '',
         'is_service' => 'boolean',
+        'marketplace_market_id' => 'nullable|exists:marketplace_markets,uuid|uuid',
         ];
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n

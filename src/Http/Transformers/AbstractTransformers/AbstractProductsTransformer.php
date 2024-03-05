@@ -25,6 +25,7 @@ class AbstractProductsTransformer extends AbstractTransformer
                     $commonLanguageId = \NextDeveloper\Commons\Database\Models\Languages::where('id', $model->common_language_id)->first();
                     $iamAccountId = \NextDeveloper\IAM\Database\Models\Accounts::where('id', $model->iam_account_id)->first();
                     $iamUserId = \NextDeveloper\IAM\Database\Models\Users::where('id', $model->iam_user_id)->first();
+                    $marketplaceMarketId = \NextDeveloper\Marketplace\Database\Models\Markets::where('id', $model->marketplace_market_id)->first();
         
         return $this->buildPayload(
             [
@@ -55,11 +56,14 @@ class AbstractProductsTransformer extends AbstractTransformer
             'updated_at'  =>  $model->updated_at,
             'deleted_at'  =>  $model->deleted_at,
             'is_service'  =>  $model->is_service,
+            'marketplace_market_id'  =>  $marketplaceMarketId ? $marketplaceMarketId->uuid : null,
             ]
         );
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n
+
+
 
 
 
