@@ -41,7 +41,6 @@ class AbstractProductsTransformer extends AbstractTransformer
             'slug'  =>  $model->slug,
             'version'  =>  $model->version,
             'product_type'  =>  $model->product_type,
-            'discount_rate'  =>  $model->discount_rate,
             'is_in_maintenance'  =>  $model->is_in_maintenance,
             'is_public'  =>  $model->is_public,
             'is_invisible'  =>  $model->is_invisible,
@@ -55,11 +54,15 @@ class AbstractProductsTransformer extends AbstractTransformer
             'created_at'  =>  $model->created_at,
             'updated_at'  =>  $model->updated_at,
             'deleted_at'  =>  $model->deleted_at,
+            'is_service'  =>  $model->is_service,
             ]
         );
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n
+
+
+
 
 
 

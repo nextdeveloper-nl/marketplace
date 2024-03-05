@@ -6,45 +6,30 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Model;
 use NextDeveloper\Commons\Database\Traits\Filterable;
-use NextDeveloper\Marketplace\Database\Observers\ProductsObserver;
+use NextDeveloper\Marketplace\Database\Observers\MarketsObserver;
 use NextDeveloper\Commons\Database\Traits\UuidId;
 use NextDeveloper\Commons\Common\Cache\Traits\CleanCache;
 use NextDeveloper\Commons\Database\Traits\Taggable;
 
 /**
- * Products model.
+ * Markets model.
  *
  * @package  NextDeveloper\Marketplace\Database\Models
  * @property integer $id
  * @property string $uuid
  * @property string $name
  * @property string $description
- * @property string $content
- * @property string $highlights
- * @property string $after_sales_introduction
- * @property string $support_content
- * @property string $refund_policy
- * @property string $eula
- * @property $subscription_type
- * @property string $slug
- * @property string $version
- * @property $product_type
- * @property boolean $is_in_maintenance
+ * @property integer $common_domain_id
  * @property boolean $is_public
- * @property boolean $is_invisible
  * @property boolean $is_active
- * @property integer $common_category_id
- * @property integer $common_country_id
+ * @property integer $common_currency_id
  * @property integer $common_language_id
- * @property integer $iam_account_id
- * @property integer $iam_user_id
- * @property array $tags
+ * @property integer $common_country_id
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
- * @property boolean $is_service
  */
-class Products extends Model
+class Markets extends Model
 {
     use Filterable, UuidId, CleanCache, Taggable;
     use SoftDeletes;
@@ -52,7 +37,7 @@ class Products extends Model
 
     public $timestamps = true;
 
-    protected $table = 'marketplace_products';
+    protected $table = 'marketplace_markets';
 
 
     /**
@@ -63,27 +48,12 @@ class Products extends Model
     protected $fillable = [
             'name',
             'description',
-            'content',
-            'highlights',
-            'after_sales_introduction',
-            'support_content',
-            'refund_policy',
-            'eula',
-            'subscription_type',
-            'slug',
-            'version',
-            'product_type',
-            'is_in_maintenance',
+            'common_domain_id',
             'is_public',
-            'is_invisible',
             'is_active',
-            'common_category_id',
-            'common_country_id',
+            'common_currency_id',
             'common_language_id',
-            'iam_account_id',
-            'iam_user_id',
-            'tags',
-            'is_service',
+            'common_country_id',
     ];
 
     /**
@@ -109,26 +79,15 @@ class Products extends Model
     'id' => 'integer',
     'name' => 'string',
     'description' => 'string',
-    'content' => 'string',
-    'highlights' => 'string',
-    'after_sales_introduction' => 'string',
-    'support_content' => 'string',
-    'refund_policy' => 'string',
-    'eula' => 'string',
-    'slug' => 'string',
-    'version' => 'string',
-    'is_in_maintenance' => 'boolean',
+    'common_domain_id' => 'integer',
     'is_public' => 'boolean',
-    'is_invisible' => 'boolean',
     'is_active' => 'boolean',
-    'common_category_id' => 'integer',
-    'common_country_id' => 'integer',
+    'common_currency_id' => 'integer',
     'common_language_id' => 'integer',
-    'tags' => \NextDeveloper\Commons\Database\Casts\TextArray::class,
+    'common_country_id' => 'integer',
     'created_at' => 'datetime',
     'updated_at' => 'datetime',
     'deleted_at' => 'datetime',
-    'is_service' => 'boolean',
     ];
 
     /**
@@ -162,7 +121,7 @@ class Products extends Model
         parent::boot();
 
         //  We create and add Observer even if we wont use it.
-        parent::observe(ProductsObserver::class);
+        parent::observe(MarketsObserver::class);
 
         self::registerScopes();
     }
@@ -170,7 +129,7 @@ class Products extends Model
     public static function registerScopes()
     {
         $globalScopes = config('marketplace.scopes.global');
-        $modelScopes = config('marketplace.scopes.marketplace_products');
+        $modelScopes = config('marketplace.scopes.marketplace_markets');
 
         if(!$modelScopes) { $modelScopes = [];
         }
@@ -189,27 +148,5 @@ class Products extends Model
         }
     }
 
-    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
 }

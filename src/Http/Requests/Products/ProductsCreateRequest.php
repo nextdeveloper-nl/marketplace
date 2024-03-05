@@ -13,7 +13,7 @@ class ProductsCreateRequest extends AbstractFormRequest
     public function rules()
     {
         return [
-            'name' => 'nullable|string',
+            'name' => 'required|string',
         'description' => 'nullable|string',
         'content' => 'nullable|string',
         'highlights' => 'nullable|string',
@@ -22,18 +22,18 @@ class ProductsCreateRequest extends AbstractFormRequest
         'refund_policy' => 'nullable|string',
         'eula' => 'nullable|string',
         'subscription_type' => '',
-        'slug' => 'required|string',
+        'slug' => 'nullable|string',
         'version' => 'nullable|string',
         'product_type' => '',
-        'discount_rate' => 'integer',
         'is_in_maintenance' => 'boolean',
         'is_public' => 'boolean',
         'is_invisible' => 'boolean',
         'is_active' => 'boolean',
-        'common_category_id' => 'required|exists:common_categories,uuid|uuid',
-        'common_country_id' => 'required|exists:common_countries,uuid|uuid',
+        'common_category_id' => 'nullable|exists:common_categories,uuid|uuid',
+        'common_country_id' => 'nullable|exists:common_countries,uuid|uuid',
         'common_language_id' => 'required|exists:common_languages,uuid|uuid',
         'tags' => '',
+        'is_service' => 'boolean',
         ];
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n

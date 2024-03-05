@@ -68,7 +68,6 @@ trait MarketplaceProductTestTraits
                 'eula'  =>  'a',
                 'slug'  =>  'a',
                 'version'  =>  'a',
-                'discount_rate'  =>  '1',
                             ],
                 ['http_errors' => false]
             ]
@@ -528,25 +527,6 @@ trait MarketplaceProductTestTraits
             $request = new Request(
                 [
                 'version'  =>  'a'
-                ]
-            );
-
-            $filter = new MarketplaceProductQueryFilter($request);
-
-            $model = \NextDeveloper\Marketplace\Database\Models\MarketplaceProduct::filter($filter)->first();
-        } catch (\Exception $e) {
-            $this->assertFalse(false, $e->getMessage());
-        }
-
-        $this->assertTrue(true);
-    }
-
-    public function test_marketplaceproduct_event_discount_rate_filter()
-    {
-        try {
-            $request = new Request(
-                [
-                'discount_rate'  =>  '1'
                 ]
             );
 

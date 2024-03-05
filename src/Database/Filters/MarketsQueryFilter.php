@@ -4,34 +4,14 @@ namespace NextDeveloper\Marketplace\Database\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
 use NextDeveloper\Commons\Database\Filters\AbstractQueryFilter;
-        
+                
 
 /**
  * This class automatically puts where clause on database so that use can filter
  * data returned from the query.
  */
-class ProductCatalogsQueryFilter extends AbstractQueryFilter
+class MarketsQueryFilter extends AbstractQueryFilter
 {
-    /**
-     * Filter by tags
-     *
-     * @param  $values
-     * @return Builder
-     */
-    public function tags($values)
-    {
-        $tags = explode(',', $values);
-
-        $search = '';
-
-        for($i = 0; $i < count($tags); $i++) {
-            $search .= "'" . trim($tags[$i]) . "',";
-        }
-
-        $search = substr($search, 0, -1);
-
-        return $this->builder->whereRaw('tags @> ARRAY[' . $search . ']');
-    }
 
     /**
      * @var Builder
@@ -43,9 +23,19 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
         return $this->builder->where('name', 'like', '%' . $value . '%');
     }
     
-    public function agreement($value)
+    public function description($value)
     {
-        return $this->builder->where('agreement', 'like', '%' . $value . '%');
+        return $this->builder->where('description', 'like', '%' . $value . '%');
+    }
+
+    public function isPublic()
+    {
+        return $this->builder->where('is_public', true);
+    }
+
+    public function isActive()
+    {
+        return $this->builder->where('is_active', true);
     }
 
     public function createdAtStart($date)
@@ -78,6 +68,15 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
         return $this->builder->where('deleted_at', '<=', $date);
     }
 
+    public function commonDomainId($value)
+    {
+            $commonDomain = \NextDeveloper\Commons\Database\Models\Domains::where('uuid', $value)->first();
+
+        if($commonDomain) {
+            return $this->builder->where('common_domain_id', '=', $commonDomain->id);
+        }
+    }
+
     public function commonCurrencyId($value)
     {
             $commonCurrency = \NextDeveloper\Commons\Database\Models\Currencies::where('uuid', $value)->first();
@@ -87,14 +86,23 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
         }
     }
 
-    public function marketplaceProductId($value)
+    public function commonLanguageId($value)
     {
-            $marketplaceProduct = \NextDeveloper\Marketplace\Database\Models\Products::where('uuid', $value)->first();
+            $commonLanguage = \NextDeveloper\Commons\Database\Models\Languages::where('uuid', $value)->first();
 
-        if($marketplaceProduct) {
-            return $this->builder->where('marketplace_product_id', '=', $marketplaceProduct->id);
+        if($commonLanguage) {
+            return $this->builder->where('common_language_id', '=', $commonLanguage->id);
         }
     }
 
-    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
+    public function commonCountryId($value)
+    {
+            $commonCountry = \NextDeveloper\Commons\Database\Models\Countries::where('uuid', $value)->first();
+
+        if($commonCountry) {
+            return $this->builder->where('common_country_id', '=', $commonCountry->id);
+        }
+    }
+
+    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
 }

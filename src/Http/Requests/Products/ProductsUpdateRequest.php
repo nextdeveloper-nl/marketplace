@@ -25,7 +25,6 @@ class ProductsUpdateRequest extends AbstractFormRequest
         'slug' => 'nullable|string',
         'version' => 'nullable|string',
         'product_type' => '',
-        'discount_rate' => 'integer',
         'is_in_maintenance' => 'boolean',
         'is_public' => 'boolean',
         'is_invisible' => 'boolean',
@@ -34,6 +33,7 @@ class ProductsUpdateRequest extends AbstractFormRequest
         'common_country_id' => 'nullable|exists:common_countries,uuid|uuid',
         'common_language_id' => 'nullable|exists:common_languages,uuid|uuid',
         'tags' => '',
+        'is_service' => 'boolean',
         ];
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n

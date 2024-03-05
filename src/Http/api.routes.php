@@ -56,7 +56,35 @@ Route::prefix('marketplace')->group(
             }
         );
 
+        Route::prefix('markets')->group(
+            function () {
+                Route::get('/', 'Markets\MarketsController@index');
+
+                Route::get('{marketplace_markets}/tags ', 'Markets\MarketsController@tags');
+                Route::post('{marketplace_markets}/tags ', 'Markets\MarketsController@saveTags');
+                Route::get('{marketplace_markets}/addresses ', 'Markets\MarketsController@addresses');
+                Route::post('{marketplace_markets}/addresses ', 'Markets\MarketsController@saveAddresses');
+
+                Route::get('/{marketplace_markets}/{subObjects}', 'Markets\MarketsController@relatedObjects');
+                Route::get('/{marketplace_markets}', 'Markets\MarketsController@show');
+
+                Route::post('/', 'Markets\MarketsController@store');
+                Route::patch('/{marketplace_markets}', 'Markets\MarketsController@update');
+                Route::delete('/{marketplace_markets}', 'Markets\MarketsController@destroy');
+            }
+        );
+
         // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -68,6 +96,9 @@ Route::prefix('marketplace')->group(
 
     }
 );
+
+
+
 
 
 
