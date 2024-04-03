@@ -11,13 +11,13 @@ use NextDeveloper\IAM\Authorization\Roles\IAuthorizationRole;
 use NextDeveloper\IAM\Database\Models\Users;
 use NextDeveloper\IAM\Helpers\UserHelper;
 
-class MarketplaceAdminRole extends AbstractRole implements IAuthorizationRole
+class MarketplaceVendorRole extends AbstractRole implements IAuthorizationRole
 {
-    public const NAME = 'marketplace-admin';
+    public const NAME = 'marketplace-vendor';
 
-    public const LEVEL = 100;
+    public const LEVEL = 120;
 
-    public const DESCRIPTION = 'Marketplace Admin';
+    public const DESCRIPTION = 'Marketplace Vendor Role for managing products.';
 
     public const DB_PREFIX = 'marketplace';
 
@@ -33,11 +33,7 @@ class MarketplaceAdminRole extends AbstractRole implements IAuthorizationRole
         /**
          * Here user will be able to list all models, because by default, sales manager can see everybody.
          */
-        $ids = AccountManagers::withoutGlobalScopes()
-            ->where('iam_account_id', UserHelper::currentAccount()->id)
-            ->pluck('crm_account_id');
 
-        $builder->whereIn('iam_account_id', $ids);
     }
 
     public function checkPrivileges(Users $users = null)
@@ -54,21 +50,11 @@ class MarketplaceAdminRole extends AbstractRole implements IAuthorizationRole
     {
         return [
             'marketplace_markets:read',
-            'marketplace_markets:update',
-            'marketplace_markets:create',
-            'marketplace_markets:delete',
             'marketplace_products:read',
-            'marketplace_products:update',
-            'marketplace_products:create',
-            'marketplace_products:delete',
             'marketplace_product_catalogs:read',
-            'marketplace_product_catalogs:update',
-            'marketplace_product_catalogs:create',
-            'marketplace_product_catalogs:delete',
             'marketplace_subscriptions:read',
             'marketplace_subscriptions:update',
-            'marketplace_subscriptions:create',
-            'marketplace_subscriptions:delete'
+            'marketplace_subscriptions:create'
         ];
     }
 

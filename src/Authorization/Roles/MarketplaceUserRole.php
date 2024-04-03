@@ -15,7 +15,7 @@ class MarketplaceUserRole extends AbstractRole implements IAuthorizationRole
 {
     public const NAME = 'marketplace-user';
 
-    public const LEVEL = 30;
+    public const LEVEL = 150;
 
     public const DESCRIPTION = 'Marketplace user can see and subscribe to marketplace items.';
 
