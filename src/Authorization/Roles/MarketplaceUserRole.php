@@ -30,10 +30,10 @@ class MarketplaceUserRole extends AbstractRole implements IAuthorizationRole
      */
     public function apply(Builder $builder, Model $model)
     {
-        /**
-         * Here user will be able to list all models, because by default, sales manager can see everybody.
-         */
-
+        $builder->where([
+            'iam_account_id'    =>  UserHelper::currentAccount()->id,
+            'iam_user_id'       =>  UserHelper::me()->id
+        ]);
     }
 
     public function checkPrivileges(Users $users = null)
@@ -89,5 +89,10 @@ class MarketplaceUserRole extends AbstractRole implements IAuthorizationRole
     public function getDbPrefix()
     {
         return self::DB_PREFIX;
+    }
+
+    public function checkRules(Users $users): bool
+    {
+        // TODO: Implement checkRules() method.
     }
 }
