@@ -9,7 +9,9 @@ use NextDeveloper\CRM\Database\Models\AccountManagers;
 use NextDeveloper\IAM\Authorization\Roles\AbstractRole;
 use NextDeveloper\IAM\Authorization\Roles\IAuthorizationRole;
 use NextDeveloper\IAM\Database\Models\Users;
+use NextDeveloper\IAM\Database\Scopes\AuthorizationScope;
 use NextDeveloper\IAM\Helpers\UserHelper;
+use NextDeveloper\Marketplace\Database\Models\Markets;
 
 class MarketplaceUserRole extends AbstractRole implements IAuthorizationRole
 {
@@ -30,10 +32,16 @@ class MarketplaceUserRole extends AbstractRole implements IAuthorizationRole
      */
     public function apply(Builder $builder, Model $model)
     {
-        $builder->where([
-            'iam_account_id'    =>  UserHelper::currentAccount()->id,
-            'iam_user_id'       =>  UserHelper::me()->id
-        ]);
+        if($model->getTable() == 'marketplace_products') {
+            $publicMarkets = Markets::withoutGlobalScope(AuthorizationScope::class)
+                ->where('is_public', '=', 'true')
+                ->pluck('id');
+
+            $builder->where([
+                'iam_account_id'    =>  UserHelper::currentAccount()->id,
+                'iam_user_id'       =>  UserHelper::me()->id
+            ])->orWhereIn('marketplace_market_id', $publicMarkets);
+        }
     }
 
     public function checkPrivileges(Users $users = null)
