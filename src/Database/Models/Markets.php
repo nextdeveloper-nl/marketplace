@@ -28,6 +28,8 @@ use NextDeveloper\Commons\Database\Traits\Taggable;
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
+ * @property integer $iam_user_id
+ * @property integer $iam_account_id
  */
 class Markets extends Model
 {
@@ -54,6 +56,8 @@ class Markets extends Model
             'common_currency_id',
             'common_language_id',
             'common_country_id',
+            'iam_user_id',
+            'iam_account_id',
     ];
 
     /**
@@ -149,6 +153,4 @@ class Markets extends Model
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
-
-
 }

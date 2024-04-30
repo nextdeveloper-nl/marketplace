@@ -5,6 +5,7 @@ Route::prefix('marketplace')->group(
         Route::prefix('subscriptions')->group(
             function () {
                 Route::get('/', 'Subscriptions\SubscriptionsController@index');
+                Route::get('/actions', 'Subscriptions\SubscriptionsController@getActions');
 
                 Route::get('{marketplace_subscriptions}/tags ', 'Subscriptions\SubscriptionsController@tags');
                 Route::post('{marketplace_subscriptions}/tags ', 'Subscriptions\SubscriptionsController@saveTags');
@@ -15,6 +16,8 @@ Route::prefix('marketplace')->group(
                 Route::get('/{marketplace_subscriptions}', 'Subscriptions\SubscriptionsController@show');
 
                 Route::post('/', 'Subscriptions\SubscriptionsController@store');
+                Route::post('/{marketplace_subscriptions}/do/{action}', 'Subscriptions\SubscriptionsController@doAction');
+
                 Route::patch('/{marketplace_subscriptions}', 'Subscriptions\SubscriptionsController@update');
                 Route::delete('/{marketplace_subscriptions}', 'Subscriptions\SubscriptionsController@destroy');
             }
@@ -23,6 +26,7 @@ Route::prefix('marketplace')->group(
         Route::prefix('products')->group(
             function () {
                 Route::get('/', 'Products\ProductsController@index');
+                Route::get('/actions', 'Products\ProductsController@getActions');
 
                 Route::get('{marketplace_products}/tags ', 'Products\ProductsController@tags');
                 Route::post('{marketplace_products}/tags ', 'Products\ProductsController@saveTags');
@@ -33,6 +37,8 @@ Route::prefix('marketplace')->group(
                 Route::get('/{marketplace_products}', 'Products\ProductsController@show');
 
                 Route::post('/', 'Products\ProductsController@store');
+                Route::post('/{marketplace_products}/do/{action}', 'Products\ProductsController@doAction');
+
                 Route::patch('/{marketplace_products}', 'Products\ProductsController@update');
                 Route::delete('/{marketplace_products}', 'Products\ProductsController@destroy');
             }
@@ -41,6 +47,7 @@ Route::prefix('marketplace')->group(
         Route::prefix('product-catalogs')->group(
             function () {
                 Route::get('/', 'ProductCatalogs\ProductCatalogsController@index');
+                Route::get('/actions', 'ProductCatalogs\ProductCatalogsController@getActions');
 
                 Route::get('{marketplace_product_catalogs}/tags ', 'ProductCatalogs\ProductCatalogsController@tags');
                 Route::post('{marketplace_product_catalogs}/tags ', 'ProductCatalogs\ProductCatalogsController@saveTags');
@@ -51,6 +58,8 @@ Route::prefix('marketplace')->group(
                 Route::get('/{marketplace_product_catalogs}', 'ProductCatalogs\ProductCatalogsController@show');
 
                 Route::post('/', 'ProductCatalogs\ProductCatalogsController@store');
+                Route::post('/{marketplace_product_catalogs}/do/{action}', 'ProductCatalogs\ProductCatalogsController@doAction');
+
                 Route::patch('/{marketplace_product_catalogs}', 'ProductCatalogs\ProductCatalogsController@update');
                 Route::delete('/{marketplace_product_catalogs}', 'ProductCatalogs\ProductCatalogsController@destroy');
             }
@@ -59,6 +68,7 @@ Route::prefix('marketplace')->group(
         Route::prefix('markets')->group(
             function () {
                 Route::get('/', 'Markets\MarketsController@index');
+                Route::get('/actions', 'Markets\MarketsController@getActions');
 
                 Route::get('{marketplace_markets}/tags ', 'Markets\MarketsController@tags');
                 Route::post('{marketplace_markets}/tags ', 'Markets\MarketsController@saveTags');
@@ -69,6 +79,8 @@ Route::prefix('marketplace')->group(
                 Route::get('/{marketplace_markets}', 'Markets\MarketsController@show');
 
                 Route::post('/', 'Markets\MarketsController@store');
+                Route::post('/{marketplace_markets}/do/{action}', 'Markets\MarketsController@doAction');
+
                 Route::patch('/{marketplace_markets}', 'Markets\MarketsController@update');
                 Route::delete('/{marketplace_markets}', 'Markets\MarketsController@destroy');
             }
@@ -102,8 +114,13 @@ Route::prefix('marketplace')->group(
 
 
 
+
+
+
+
     }
 );
+
 
 
 

@@ -21,8 +21,6 @@ class AbstractProductsTransformer extends AbstractTransformer
     public function transform(Products $model)
     {
                         $commonCategoryId = \NextDeveloper\Commons\Database\Models\Categories::where('id', $model->common_category_id)->first();
-                    $commonCountryId = \NextDeveloper\Commons\Database\Models\Countries::where('id', $model->common_country_id)->first();
-                    $commonLanguageId = \NextDeveloper\Commons\Database\Models\Languages::where('id', $model->common_language_id)->first();
                     $iamAccountId = \NextDeveloper\IAM\Database\Models\Accounts::where('id', $model->iam_account_id)->first();
                     $iamUserId = \NextDeveloper\IAM\Database\Models\Users::where('id', $model->iam_user_id)->first();
                     $marketplaceMarketId = \NextDeveloper\Marketplace\Database\Models\Markets::where('id', $model->marketplace_market_id)->first();
@@ -47,8 +45,6 @@ class AbstractProductsTransformer extends AbstractTransformer
             'is_invisible'  =>  $model->is_invisible,
             'is_active'  =>  $model->is_active,
             'common_category_id'  =>  $commonCategoryId ? $commonCategoryId->uuid : null,
-            'common_country_id'  =>  $commonCountryId ? $commonCountryId->uuid : null,
-            'common_language_id'  =>  $commonLanguageId ? $commonLanguageId->uuid : null,
             'iam_account_id'  =>  $iamAccountId ? $iamAccountId->uuid : null,
             'iam_user_id'  =>  $iamUserId ? $iamUserId->uuid : null,
             'tags'  =>  $model->tags,
@@ -62,6 +58,7 @@ class AbstractProductsTransformer extends AbstractTransformer
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n
+
 
 
 

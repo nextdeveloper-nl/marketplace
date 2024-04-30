@@ -34,8 +34,6 @@ use NextDeveloper\Commons\Database\Traits\Taggable;
  * @property boolean $is_invisible
  * @property boolean $is_active
  * @property integer $common_category_id
- * @property integer $common_country_id
- * @property integer $common_language_id
  * @property integer $iam_account_id
  * @property integer $iam_user_id
  * @property array $tags
@@ -79,8 +77,6 @@ class Products extends Model
             'is_invisible',
             'is_active',
             'common_category_id',
-            'common_country_id',
-            'common_language_id',
             'iam_account_id',
             'iam_user_id',
             'tags',
@@ -124,8 +120,6 @@ class Products extends Model
     'is_invisible' => 'boolean',
     'is_active' => 'boolean',
     'common_category_id' => 'integer',
-    'common_country_id' => 'integer',
-    'common_language_id' => 'integer',
     'tags' => \NextDeveloper\Commons\Database\Casts\TextArray::class,
     'created_at' => 'datetime',
     'updated_at' => 'datetime',
@@ -192,29 +186,5 @@ class Products extends Model
         }
     }
 
-    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
 }

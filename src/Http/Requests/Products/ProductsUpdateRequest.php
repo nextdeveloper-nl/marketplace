@@ -30,8 +30,6 @@ class ProductsUpdateRequest extends AbstractFormRequest
         'is_invisible' => 'boolean',
         'is_active' => 'boolean',
         'common_category_id' => 'nullable|exists:common_categories,uuid|uuid',
-        'common_country_id' => 'nullable|exists:common_countries,uuid|uuid',
-        'common_language_id' => 'nullable|exists:common_languages,uuid|uuid',
         'tags' => '',
         'is_service' => 'boolean',
         'marketplace_market_id' => 'nullable|exists:marketplace_markets,uuid|uuid',

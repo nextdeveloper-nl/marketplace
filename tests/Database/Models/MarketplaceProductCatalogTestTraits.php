@@ -60,6 +60,8 @@ trait MarketplaceProductCatalogTestTraits
             'form_params'   =>  [
                 'name'  =>  'a',
                 'agreement'  =>  'a',
+                'sku'  =>  'a',
+                'quantitiy_in_inventory'  =>  '1',
                             ],
                 ['http_errors' => false]
             ]
@@ -367,6 +369,44 @@ trait MarketplaceProductCatalogTestTraits
             $request = new Request(
                 [
                 'agreement'  =>  'a'
+                ]
+            );
+
+            $filter = new MarketplaceProductCatalogQueryFilter($request);
+
+            $model = \NextDeveloper\Marketplace\Database\Models\MarketplaceProductCatalog::filter($filter)->first();
+        } catch (\Exception $e) {
+            $this->assertFalse(false, $e->getMessage());
+        }
+
+        $this->assertTrue(true);
+    }
+
+    public function test_marketplaceproductcatalog_event_sku_filter()
+    {
+        try {
+            $request = new Request(
+                [
+                'sku'  =>  'a'
+                ]
+            );
+
+            $filter = new MarketplaceProductCatalogQueryFilter($request);
+
+            $model = \NextDeveloper\Marketplace\Database\Models\MarketplaceProductCatalog::filter($filter)->first();
+        } catch (\Exception $e) {
+            $this->assertFalse(false, $e->getMessage());
+        }
+
+        $this->assertTrue(true);
+    }
+
+    public function test_marketplaceproductcatalog_event_quantitiy_in_inventory_filter()
+    {
+        try {
+            $request = new Request(
+                [
+                'quantitiy_in_inventory'  =>  '1'
                 ]
             );
 

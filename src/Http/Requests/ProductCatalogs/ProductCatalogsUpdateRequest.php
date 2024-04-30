@@ -17,9 +17,10 @@ class ProductCatalogsUpdateRequest extends AbstractFormRequest
         'agreement' => 'nullable|string',
         'args' => 'nullable',
         'price' => 'nullable',
-        'common_currency_id' => 'nullable|exists:common_currencies,uuid|uuid',
         'marketplace_product_id' => 'nullable|exists:marketplace_products,uuid|uuid',
         'tags' => '',
+        'sku' => 'nullable|string',
+        'quantitiy_in_inventory' => 'integer',
         ];
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n

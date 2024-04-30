@@ -4,7 +4,7 @@ namespace NextDeveloper\Marketplace\Database\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
 use NextDeveloper\Commons\Database\Filters\AbstractQueryFilter;
-        
+    
 
 /**
  * This class automatically puts where clause on database so that use can filter
@@ -47,6 +47,24 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
     {
         return $this->builder->where('agreement', 'like', '%' . $value . '%');
     }
+    
+    public function sku($value)
+    {
+        return $this->builder->where('sku', 'like', '%' . $value . '%');
+    }
+
+    public function quantitiyInInventory($value)
+    {
+        $operator = substr($value, 0, 1);
+
+        if ($operator != '<' || $operator != '>') {
+            $operator = '=';
+        } else {
+            $value = substr($value, 1);
+        }
+
+        return $this->builder->where('quantitiy_in_inventory', $operator, $value);
+    }
 
     public function createdAtStart($date)
     {
@@ -78,15 +96,6 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
         return $this->builder->where('deleted_at', '<=', $date);
     }
 
-    public function commonCurrencyId($value)
-    {
-            $commonCurrency = \NextDeveloper\Commons\Database\Models\Currencies::where('uuid', $value)->first();
-
-        if($commonCurrency) {
-            return $this->builder->where('common_currency_id', '=', $commonCurrency->id);
-        }
-    }
-
     public function marketplaceProductId($value)
     {
             $marketplaceProduct = \NextDeveloper\Marketplace\Database\Models\Products::where('uuid', $value)->first();
@@ -97,4 +106,5 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 }

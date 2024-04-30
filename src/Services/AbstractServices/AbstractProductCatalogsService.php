@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use NextDeveloper\IAM\Helpers\UserHelper;
 use NextDeveloper\Commons\Common\Cache\CacheHelper;
 use NextDeveloper\Commons\Helpers\DatabaseHelper;
+use NextDeveloper\Commons\Database\Models\AvailableActions;
 use NextDeveloper\Marketplace\Database\Models\ProductCatalogs;
 use NextDeveloper\Marketplace\Database\Filters\ProductCatalogsQueryFilter;
 use NextDeveloper\Commons\Exceptions\ModelNotFoundException;
@@ -80,6 +81,38 @@ class AbstractProductCatalogsService
         return ProductCatalogs::findByRef($ref);
     }
 
+    public static function getActions()
+    {
+        $model = ProductCatalogs::class;
+
+        $model = Str::remove('Database\\Models\\', $model);
+
+        $actions = AvailableActions::where('input', $model)
+            ->get();
+
+        return $actions;
+    }
+
+    /**
+     * This method initiates the related action with the given parameters.
+     */
+    public static function doAction($objectId, $action, ...$params)
+    {
+        $object = ProductCatalogs::where('uuid', $objectId)->first();
+
+        $action = '\\NextDeveloper\\Marketplace\\Actions\\ProductCatalogs\\' . Str::studly($action);
+
+        if(class_exists($action)) {
+            $action = new $action($object, $params);
+
+            dispatch($action);
+
+            return $action->getActionId();
+        }
+
+        return null;
+    }
+
     /**
      * This method returns the model by lookint at its id
      *
@@ -127,27 +160,13 @@ class AbstractProductCatalogsService
      */
     public static function create(array $data)
     {
-        if (array_key_exists('common_currency_id', $data)) {
-            $data['common_currency_id'] = DatabaseHelper::uuidToId(
-                '\NextDeveloper\Commons\Database\Models\Currencies',
-                $data['common_currency_id']
-            );
-        }
         if (array_key_exists('marketplace_product_id', $data)) {
             $data['marketplace_product_id'] = DatabaseHelper::uuidToId(
                 '\NextDeveloper\Marketplace\Database\Models\Products',
                 $data['marketplace_product_id']
             );
         }
-    
-        if(!array_key_exists('iam_account_id', $data)) {
-            $data['iam_account_id'] = UserHelper::currentAccount()->id;
-        }
-
-        if(!array_key_exists('iam_user_id', $data)) {
-            $data['iam_user_id']    = UserHelper::me()->id;
-        }
-
+                        
         try {
             $model = ProductCatalogs::create($data);
         } catch(\Exception $e) {
@@ -188,12 +207,6 @@ class AbstractProductCatalogsService
     {
         $model = ProductCatalogs::where('uuid', $id)->first();
 
-        if (array_key_exists('common_currency_id', $data)) {
-            $data['common_currency_id'] = DatabaseHelper::uuidToId(
-                '\NextDeveloper\Commons\Database\Models\Currencies',
-                $data['common_currency_id']
-            );
-        }
         if (array_key_exists('marketplace_product_id', $data)) {
             $data['marketplace_product_id'] = DatabaseHelper::uuidToId(
                 '\NextDeveloper\Marketplace\Database\Models\Products',

@@ -10,12 +10,13 @@ use NextDeveloper\Marketplace\Database\Filters\SubscriptionsQueryFilter;
 use NextDeveloper\Marketplace\Database\Models\Subscriptions;
 use NextDeveloper\Marketplace\Services\SubscriptionsService;
 use NextDeveloper\Marketplace\Http\Requests\Subscriptions\SubscriptionsCreateRequest;
-use NextDeveloper\Commons\Http\Traits\Tags;
+use NextDeveloper\Commons\Http\Traits\Tags;use NextDeveloper\Commons\Http\Traits\Addresses;
 class SubscriptionsController extends AbstractController
 {
     private $model = Subscriptions::class;
 
     use Tags;
+    use Addresses;
     /**
      * This method returns the list of subscriptions.
      *
@@ -31,6 +32,36 @@ class SubscriptionsController extends AbstractController
         $data = SubscriptionsService::get($filter, $request->all());
 
         return ResponsableFactory::makeResponse($this, $data);
+    }
+
+    /**
+     * This function returns the list of actions that can be performed on this object.
+     *
+     * @return void
+     */
+    public function getActions()
+    {
+        $data = SubscriptionsService::getActions();
+
+        return ResponsableFactory::makeResponse($this, $data);
+    }
+
+    /**
+     * Makes the related action to the object
+     *
+     * @param  $objectId
+     * @param  $action
+     * @return array
+     */
+    public function doAction($objectId, $action)
+    {
+        $actionId = SubscriptionsService::doAction($objectId, $action);
+
+        return $this->withArray(
+            [
+            'action_id' =>  $actionId
+            ]
+        );
     }
 
     /**

@@ -21,12 +21,13 @@ use NextDeveloper\Commons\Database\Traits\Taggable;
  * @property string $agreement
  * @property $args
  * @property $price
- * @property integer $common_currency_id
  * @property integer $marketplace_product_id
  * @property array $tags
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
+ * @property string $sku
+ * @property integer $quantitiy_in_inventory
  */
 class ProductCatalogs extends Model
 {
@@ -49,9 +50,10 @@ class ProductCatalogs extends Model
             'agreement',
             'args',
             'price',
-            'common_currency_id',
             'marketplace_product_id',
             'tags',
+            'sku',
+            'quantitiy_in_inventory',
     ];
 
     /**
@@ -78,12 +80,13 @@ class ProductCatalogs extends Model
     'name' => 'string',
     'agreement' => 'string',
     'args' => 'array',
-    'common_currency_id' => 'integer',
     'marketplace_product_id' => 'integer',
     'tags' => \NextDeveloper\Commons\Database\Casts\TextArray::class,
     'created_at' => 'datetime',
     'updated_at' => 'datetime',
     'deleted_at' => 'datetime',
+    'sku' => 'string',
+    'quantitiy_in_inventory' => 'integer',
     ];
 
     /**
@@ -144,29 +147,5 @@ class ProductCatalogs extends Model
         }
     }
 
-    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
 }

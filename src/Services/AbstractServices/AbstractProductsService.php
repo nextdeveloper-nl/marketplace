@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use NextDeveloper\IAM\Helpers\UserHelper;
 use NextDeveloper\Commons\Common\Cache\CacheHelper;
 use NextDeveloper\Commons\Helpers\DatabaseHelper;
+use NextDeveloper\Commons\Database\Models\AvailableActions;
 use NextDeveloper\Marketplace\Database\Models\Products;
 use NextDeveloper\Marketplace\Database\Filters\ProductsQueryFilter;
 use NextDeveloper\Commons\Exceptions\ModelNotFoundException;
@@ -80,6 +81,38 @@ class AbstractProductsService
         return Products::findByRef($ref);
     }
 
+    public static function getActions()
+    {
+        $model = Products::class;
+
+        $model = Str::remove('Database\\Models\\', $model);
+
+        $actions = AvailableActions::where('input', $model)
+            ->get();
+
+        return $actions;
+    }
+
+    /**
+     * This method initiates the related action with the given parameters.
+     */
+    public static function doAction($objectId, $action, ...$params)
+    {
+        $object = Products::where('uuid', $objectId)->first();
+
+        $action = '\\NextDeveloper\\Marketplace\\Actions\\Products\\' . Str::studly($action);
+
+        if(class_exists($action)) {
+            $action = new $action($object, $params);
+
+            dispatch($action);
+
+            return $action->getActionId();
+        }
+
+        return null;
+    }
+
     /**
      * This method returns the model by lookint at its id
      *
@@ -133,23 +166,15 @@ class AbstractProductsService
                 $data['common_category_id']
             );
         }
-        if (array_key_exists('common_country_id', $data)) {
-            $data['common_country_id'] = DatabaseHelper::uuidToId(
-                '\NextDeveloper\Commons\Database\Models\Countries',
-                $data['common_country_id']
-            );
-        }
-        if (array_key_exists('common_language_id', $data)) {
-            $data['common_language_id'] = DatabaseHelper::uuidToId(
-                '\NextDeveloper\Commons\Database\Models\Languages',
-                $data['common_language_id']
-            );
-        }
         if (array_key_exists('iam_account_id', $data)) {
             $data['iam_account_id'] = DatabaseHelper::uuidToId(
                 '\NextDeveloper\IAM\Database\Models\Accounts',
                 $data['iam_account_id']
             );
+        }
+            
+        if(!array_key_exists('iam_account_id', $data)) {
+            $data['iam_account_id'] = UserHelper::currentAccount()->id;
         }
         if (array_key_exists('iam_user_id', $data)) {
             $data['iam_user_id'] = DatabaseHelper::uuidToId(
@@ -157,15 +182,17 @@ class AbstractProductsService
                 $data['iam_user_id']
             );
         }
-    
-        if(!array_key_exists('iam_account_id', $data)) {
-            $data['iam_account_id'] = UserHelper::currentAccount()->id;
-        }
-
+                    
         if(!array_key_exists('iam_user_id', $data)) {
             $data['iam_user_id']    = UserHelper::me()->id;
         }
-
+        if (array_key_exists('marketplace_market_id', $data)) {
+            $data['marketplace_market_id'] = DatabaseHelper::uuidToId(
+                '\NextDeveloper\Marketplace\Database\Models\Markets',
+                $data['marketplace_market_id']
+            );
+        }
+                        
         try {
             $model = Products::create($data);
         } catch(\Exception $e) {
@@ -212,18 +239,6 @@ class AbstractProductsService
                 $data['common_category_id']
             );
         }
-        if (array_key_exists('common_country_id', $data)) {
-            $data['common_country_id'] = DatabaseHelper::uuidToId(
-                '\NextDeveloper\Commons\Database\Models\Countries',
-                $data['common_country_id']
-            );
-        }
-        if (array_key_exists('common_language_id', $data)) {
-            $data['common_language_id'] = DatabaseHelper::uuidToId(
-                '\NextDeveloper\Commons\Database\Models\Languages',
-                $data['common_language_id']
-            );
-        }
         if (array_key_exists('iam_account_id', $data)) {
             $data['iam_account_id'] = DatabaseHelper::uuidToId(
                 '\NextDeveloper\IAM\Database\Models\Accounts',
@@ -234,6 +249,12 @@ class AbstractProductsService
             $data['iam_user_id'] = DatabaseHelper::uuidToId(
                 '\NextDeveloper\IAM\Database\Models\Users',
                 $data['iam_user_id']
+            );
+        }
+        if (array_key_exists('marketplace_market_id', $data)) {
+            $data['marketplace_market_id'] = DatabaseHelper::uuidToId(
+                '\NextDeveloper\Marketplace\Database\Models\Markets',
+                $data['marketplace_market_id']
             );
         }
     

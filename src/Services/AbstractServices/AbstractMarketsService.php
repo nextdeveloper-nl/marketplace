@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use NextDeveloper\IAM\Helpers\UserHelper;
 use NextDeveloper\Commons\Common\Cache\CacheHelper;
 use NextDeveloper\Commons\Helpers\DatabaseHelper;
+use NextDeveloper\Commons\Database\Models\AvailableActions;
 use NextDeveloper\Marketplace\Database\Models\Markets;
 use NextDeveloper\Marketplace\Database\Filters\MarketsQueryFilter;
 use NextDeveloper\Commons\Exceptions\ModelNotFoundException;
@@ -78,6 +79,38 @@ class AbstractMarketsService
     public static function getByRef($ref) : ?Markets
     {
         return Markets::findByRef($ref);
+    }
+
+    public static function getActions()
+    {
+        $model = Markets::class;
+
+        $model = Str::remove('Database\\Models\\', $model);
+
+        $actions = AvailableActions::where('input', $model)
+            ->get();
+
+        return $actions;
+    }
+
+    /**
+     * This method initiates the related action with the given parameters.
+     */
+    public static function doAction($objectId, $action, ...$params)
+    {
+        $object = Markets::where('uuid', $objectId)->first();
+
+        $action = '\\NextDeveloper\\Marketplace\\Actions\\Markets\\' . Str::studly($action);
+
+        if(class_exists($action)) {
+            $action = new $action($object, $params);
+
+            dispatch($action);
+
+            return $action->getActionId();
+        }
+
+        return null;
     }
 
     /**
@@ -151,15 +184,27 @@ class AbstractMarketsService
                 $data['common_country_id']
             );
         }
-    
-        if(!array_key_exists('iam_account_id', $data)) {
-            $data['iam_account_id'] = UserHelper::currentAccount()->id;
+        if (array_key_exists('iam_user_id', $data)) {
+            $data['iam_user_id'] = DatabaseHelper::uuidToId(
+                '\NextDeveloper\IAM\Database\Models\Users',
+                $data['iam_user_id']
+            );
         }
-
+                    
         if(!array_key_exists('iam_user_id', $data)) {
             $data['iam_user_id']    = UserHelper::me()->id;
         }
-
+        if (array_key_exists('iam_account_id', $data)) {
+            $data['iam_account_id'] = DatabaseHelper::uuidToId(
+                '\NextDeveloper\IAM\Database\Models\Accounts',
+                $data['iam_account_id']
+            );
+        }
+            
+        if(!array_key_exists('iam_account_id', $data)) {
+            $data['iam_account_id'] = UserHelper::currentAccount()->id;
+        }
+                        
         try {
             $model = Markets::create($data);
         } catch(\Exception $e) {
@@ -222,6 +267,18 @@ class AbstractMarketsService
             $data['common_country_id'] = DatabaseHelper::uuidToId(
                 '\NextDeveloper\Commons\Database\Models\Countries',
                 $data['common_country_id']
+            );
+        }
+        if (array_key_exists('iam_user_id', $data)) {
+            $data['iam_user_id'] = DatabaseHelper::uuidToId(
+                '\NextDeveloper\IAM\Database\Models\Users',
+                $data['iam_user_id']
+            );
+        }
+        if (array_key_exists('iam_account_id', $data)) {
+            $data['iam_account_id'] = DatabaseHelper::uuidToId(
+                '\NextDeveloper\IAM\Database\Models\Accounts',
+                $data['iam_account_id']
             );
         }
     

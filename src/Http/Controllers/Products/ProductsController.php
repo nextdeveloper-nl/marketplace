@@ -10,12 +10,13 @@ use NextDeveloper\Marketplace\Database\Filters\ProductsQueryFilter;
 use NextDeveloper\Marketplace\Database\Models\Products;
 use NextDeveloper\Marketplace\Services\ProductsService;
 use NextDeveloper\Marketplace\Http\Requests\Products\ProductsCreateRequest;
-use NextDeveloper\Commons\Http\Traits\Tags;
+use NextDeveloper\Commons\Http\Traits\Tags;use NextDeveloper\Commons\Http\Traits\Addresses;
 class ProductsController extends AbstractController
 {
     private $model = Products::class;
 
     use Tags;
+    use Addresses;
     /**
      * This method returns the list of products.
      *
@@ -31,6 +32,36 @@ class ProductsController extends AbstractController
         $data = ProductsService::get($filter, $request->all());
 
         return ResponsableFactory::makeResponse($this, $data);
+    }
+
+    /**
+     * This function returns the list of actions that can be performed on this object.
+     *
+     * @return void
+     */
+    public function getActions()
+    {
+        $data = ProductsService::getActions();
+
+        return ResponsableFactory::makeResponse($this, $data);
+    }
+
+    /**
+     * Makes the related action to the object
+     *
+     * @param  $objectId
+     * @param  $action
+     * @return array
+     */
+    public function doAction($objectId, $action)
+    {
+        $actionId = ProductsService::doAction($objectId, $action);
+
+        return $this->withArray(
+            [
+            'action_id' =>  $actionId
+            ]
+        );
     }
 
     /**
