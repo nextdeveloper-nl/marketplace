@@ -106,6 +106,12 @@ class SubscriptionsController extends AbstractController
      */
     public function store(SubscriptionsCreateRequest $request)
     {
+        if($request->has('validateOnly') && $request->get('validateOnly') == true) {
+            return [
+                'validation'    =>  'success'
+            ];
+        }
+
         $model = SubscriptionsService::create($request->validated());
 
         return ResponsableFactory::makeResponse($this, $model);
@@ -115,12 +121,18 @@ class SubscriptionsController extends AbstractController
      * This method updates Subscriptions object on database.
      *
      * @param  $subscriptionsId
-     * @param  CountryCreateRequest $request
+     * @param  SubscriptionsUpdateRequest $request
      * @return mixed|null
      * @throws \NextDeveloper\Commons\Exceptions\CannotCreateModelException
      */
     public function update($subscriptionsId, SubscriptionsUpdateRequest $request)
     {
+        if($request->has('validateOnly') && $request->get('validateOnly') == true) {
+            return [
+                'validation'    =>  'success'
+            ];
+        }
+
         $model = SubscriptionsService::update($subscriptionsId, $request->validated());
 
         return ResponsableFactory::makeResponse($this, $model);
@@ -130,7 +142,6 @@ class SubscriptionsController extends AbstractController
      * This method updates Subscriptions object on database.
      *
      * @param  $subscriptionsId
-     * @param  CountryCreateRequest $request
      * @return mixed|null
      * @throws \NextDeveloper\Commons\Exceptions\CannotCreateModelException
      */

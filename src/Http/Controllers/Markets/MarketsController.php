@@ -106,6 +106,12 @@ class MarketsController extends AbstractController
      */
     public function store(MarketsCreateRequest $request)
     {
+        if($request->has('validateOnly') && $request->get('validateOnly') == true) {
+            return [
+                'validation'    =>  'success'
+            ];
+        }
+
         $model = MarketsService::create($request->validated());
 
         return ResponsableFactory::makeResponse($this, $model);
@@ -115,12 +121,18 @@ class MarketsController extends AbstractController
      * This method updates Markets object on database.
      *
      * @param  $marketsId
-     * @param  CountryCreateRequest $request
+     * @param  MarketsUpdateRequest $request
      * @return mixed|null
      * @throws \NextDeveloper\Commons\Exceptions\CannotCreateModelException
      */
     public function update($marketsId, MarketsUpdateRequest $request)
     {
+        if($request->has('validateOnly') && $request->get('validateOnly') == true) {
+            return [
+                'validation'    =>  'success'
+            ];
+        }
+
         $model = MarketsService::update($marketsId, $request->validated());
 
         return ResponsableFactory::makeResponse($this, $model);
@@ -130,7 +142,6 @@ class MarketsController extends AbstractController
      * This method updates Markets object on database.
      *
      * @param  $marketsId
-     * @param  CountryCreateRequest $request
      * @return mixed|null
      * @throws \NextDeveloper\Commons\Exceptions\CannotCreateModelException
      */

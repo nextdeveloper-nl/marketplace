@@ -106,6 +106,12 @@ class ProductsController extends AbstractController
      */
     public function store(ProductsCreateRequest $request)
     {
+        if($request->has('validateOnly') && $request->get('validateOnly') == true) {
+            return [
+                'validation'    =>  'success'
+            ];
+        }
+
         $model = ProductsService::create($request->validated());
 
         return ResponsableFactory::makeResponse($this, $model);
@@ -115,12 +121,18 @@ class ProductsController extends AbstractController
      * This method updates Products object on database.
      *
      * @param  $productsId
-     * @param  CountryCreateRequest $request
+     * @param  ProductsUpdateRequest $request
      * @return mixed|null
      * @throws \NextDeveloper\Commons\Exceptions\CannotCreateModelException
      */
     public function update($productsId, ProductsUpdateRequest $request)
     {
+        if($request->has('validateOnly') && $request->get('validateOnly') == true) {
+            return [
+                'validation'    =>  'success'
+            ];
+        }
+
         $model = ProductsService::update($productsId, $request->validated());
 
         return ResponsableFactory::makeResponse($this, $model);
@@ -130,7 +142,6 @@ class ProductsController extends AbstractController
      * This method updates Products object on database.
      *
      * @param  $productsId
-     * @param  CountryCreateRequest $request
      * @return mixed|null
      * @throws \NextDeveloper\Commons\Exceptions\CannotCreateModelException
      */
