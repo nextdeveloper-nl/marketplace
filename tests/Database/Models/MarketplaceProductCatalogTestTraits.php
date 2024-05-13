@@ -62,6 +62,7 @@ trait MarketplaceProductCatalogTestTraits
                 'agreement'  =>  'a',
                 'sku'  =>  'a',
                 'quantitiy_in_inventory'  =>  '1',
+                'trial_date'  =>  '1',
                             ],
                 ['http_errors' => false]
             ]
@@ -407,6 +408,25 @@ trait MarketplaceProductCatalogTestTraits
             $request = new Request(
                 [
                 'quantitiy_in_inventory'  =>  '1'
+                ]
+            );
+
+            $filter = new MarketplaceProductCatalogQueryFilter($request);
+
+            $model = \NextDeveloper\Marketplace\Database\Models\MarketplaceProductCatalog::filter($filter)->first();
+        } catch (\Exception $e) {
+            $this->assertFalse(false, $e->getMessage());
+        }
+
+        $this->assertTrue(true);
+    }
+
+    public function test_marketplaceproductcatalog_event_trial_date_filter()
+    {
+        try {
+            $request = new Request(
+                [
+                'trial_date'  =>  '1'
                 ]
             );
 

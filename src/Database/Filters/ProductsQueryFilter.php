@@ -53,11 +53,6 @@ class ProductsQueryFilter extends AbstractQueryFilter
         return $this->builder->where('content', 'like', '%' . $value . '%');
     }
     
-    public function highlights($value)
-    {
-        return $this->builder->where('highlights', 'like', '%' . $value . '%');
-    }
-    
     public function afterSalesIntroduction($value)
     {
         return $this->builder->where('after_sales_introduction', 'like', '%' . $value . '%');
@@ -180,6 +175,14 @@ class ProductsQueryFilter extends AbstractQueryFilter
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
+
+
+
+
+
+
+
 
 
 }

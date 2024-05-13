@@ -21,6 +21,7 @@ class ProductCatalogsCreateRequest extends AbstractFormRequest
         'tags' => '',
         'sku' => 'nullable|string',
         'quantitiy_in_inventory' => 'integer',
+        'trial_date' => 'integer',
         ];
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n

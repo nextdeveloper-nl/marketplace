@@ -28,6 +28,7 @@ use NextDeveloper\Commons\Database\Traits\Taggable;
  * @property \Carbon\Carbon $deleted_at
  * @property string $sku
  * @property integer $quantitiy_in_inventory
+ * @property integer $trial_date
  */
 class ProductCatalogs extends Model
 {
@@ -54,6 +55,7 @@ class ProductCatalogs extends Model
             'tags',
             'sku',
             'quantitiy_in_inventory',
+            'trial_date',
     ];
 
     /**
@@ -87,6 +89,7 @@ class ProductCatalogs extends Model
     'deleted_at' => 'datetime',
     'sku' => 'string',
     'quantitiy_in_inventory' => 'integer',
+    'trial_date' => 'integer',
     ];
 
     /**
@@ -148,5 +151,13 @@ class ProductCatalogs extends Model
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
+
+
+
+
+
+
+
 
 }

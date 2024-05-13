@@ -66,6 +66,19 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
         return $this->builder->where('quantitiy_in_inventory', $operator, $value);
     }
 
+    public function trialDate($value)
+    {
+        $operator = substr($value, 0, 1);
+
+        if ($operator != '<' || $operator != '>') {
+            $operator = '=';
+        } else {
+            $value = substr($value, 1);
+        }
+
+        return $this->builder->where('trial_date', $operator, $value);
+    }
+
     public function createdAtStart($date)
     {
         return $this->builder->where('created_at', '>=', $date);
@@ -106,6 +119,14 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
+
+
+
+
+
+
+
 
 
 }

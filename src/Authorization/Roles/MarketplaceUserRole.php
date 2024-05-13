@@ -42,6 +42,13 @@ class MarketplaceUserRole extends AbstractRole implements IAuthorizationRole
                 'iam_user_id'       =>  UserHelper::me()->id
             ])->orWhereIn('marketplace_market_id', $publicMarkets);
         }
+
+        if($model->getTable() == 'marketplace_markets') {
+            $builder->where('is_public', '=', 'true')
+                ->orWhere([
+                    'iam_account_id'    =>  UserHelper::currentAccount()->id,
+                ]);
+        }
     }
 
     public function checkPrivileges(Users $users = null)

@@ -16,7 +16,7 @@ class ProductsUpdateRequest extends AbstractFormRequest
             'name' => 'nullable|string',
         'description' => 'nullable|string',
         'content' => 'nullable|string',
-        'highlights' => 'nullable|string',
+        'highlights' => 'nullable',
         'after_sales_introduction' => 'nullable|string',
         'support_content' => 'nullable|string',
         'refund_policy' => 'nullable|string',

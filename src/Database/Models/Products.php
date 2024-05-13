@@ -20,7 +20,7 @@ use NextDeveloper\Commons\Database\Traits\Taggable;
  * @property string $name
  * @property string $description
  * @property string $content
- * @property string $highlights
+ * @property array $highlights
  * @property string $after_sales_introduction
  * @property string $support_content
  * @property string $refund_policy
@@ -108,7 +108,7 @@ class Products extends Model
     'name' => 'string',
     'description' => 'string',
     'content' => 'string',
-    'highlights' => 'string',
+    'highlights' => \NextDeveloper\Commons\Database\Casts\TextArray::class,
     'after_sales_introduction' => 'string',
     'support_content' => 'string',
     'refund_policy' => 'string',
@@ -187,5 +187,13 @@ class Products extends Model
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
+
+
+
+
+
+
+
 
 }

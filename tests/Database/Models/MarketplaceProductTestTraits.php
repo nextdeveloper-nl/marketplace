@@ -61,7 +61,6 @@ trait MarketplaceProductTestTraits
                 'name'  =>  'a',
                 'description'  =>  'a',
                 'content'  =>  'a',
-                'highlights'  =>  'a',
                 'after_sales_introduction'  =>  'a',
                 'support_content'  =>  'a',
                 'refund_policy'  =>  'a',
@@ -394,25 +393,6 @@ trait MarketplaceProductTestTraits
             $request = new Request(
                 [
                 'content'  =>  'a'
-                ]
-            );
-
-            $filter = new MarketplaceProductQueryFilter($request);
-
-            $model = \NextDeveloper\Marketplace\Database\Models\MarketplaceProduct::filter($filter)->first();
-        } catch (\Exception $e) {
-            $this->assertFalse(false, $e->getMessage());
-        }
-
-        $this->assertTrue(true);
-    }
-
-    public function test_marketplaceproduct_event_highlights_filter()
-    {
-        try {
-            $request = new Request(
-                [
-                'highlights'  =>  'a'
                 ]
             );
 
