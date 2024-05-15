@@ -82,6 +82,11 @@ class ProductsQueryFilter extends AbstractQueryFilter
     {
         return $this->builder->where('version', 'like', '%' . $value . '%');
     }
+    
+    public function salesPitch($value)
+    {
+        return $this->builder->where('sales_pitch', 'like', '%' . $value . '%');
+    }
 
     public function isInMaintenance()
     {
@@ -175,6 +180,7 @@ class ProductsQueryFilter extends AbstractQueryFilter
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 

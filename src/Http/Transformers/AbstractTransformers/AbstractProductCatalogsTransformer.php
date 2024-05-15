@@ -71,6 +71,7 @@ class AbstractProductCatalogsTransformer extends AbstractTransformer
             'sku'  =>  $model->sku,
             'quantitiy_in_inventory'  =>  $model->quantitiy_in_inventory,
             'trial_date'  =>  $model->trial_date,
+            'features'  =>  $model->features,
             ]
         );
     }
@@ -159,5 +160,6 @@ class AbstractProductCatalogsTransformer extends AbstractTransformer
         return $this->collection($addresses, new AddressesTransformer());
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 }

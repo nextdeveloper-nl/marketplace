@@ -87,6 +87,7 @@ class AbstractProductsTransformer extends AbstractTransformer
             'deleted_at'  =>  $model->deleted_at,
             'is_service'  =>  $model->is_service,
             'marketplace_market_id'  =>  $marketplaceMarketId ? $marketplaceMarketId->uuid : null,
+            'sales_pitch'  =>  $model->sales_pitch,
             ]
         );
     }
@@ -175,5 +176,6 @@ class AbstractProductsTransformer extends AbstractTransformer
         return $this->collection($addresses, new AddressesTransformer());
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 }

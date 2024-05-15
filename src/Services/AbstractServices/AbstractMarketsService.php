@@ -199,7 +199,7 @@ class AbstractMarketsService
                 $data['iam_user_id']
             );
         }
-                    
+
         if(!array_key_exists('iam_user_id', $data)) {
             $data['iam_user_id']    = UserHelper::me()->id;
         }
@@ -209,11 +209,11 @@ class AbstractMarketsService
                 $data['iam_account_id']
             );
         }
-            
+
         if(!array_key_exists('iam_account_id', $data)) {
             $data['iam_account_id'] = UserHelper::currentAccount()->id;
         }
-                        
+
         try {
             $model = Markets::create($data);
         } catch(\Exception $e) {
@@ -254,6 +254,10 @@ class AbstractMarketsService
     {
         $model = Markets::where('uuid', $id)->first();
 
+        if(!$model)
+            throw new \Exception('We cannot find the related object to update. ' .
+                'Maybe you dont have the permission to update this object?');
+
         if (array_key_exists('common_domain_id', $data)) {
             $data['common_domain_id'] = DatabaseHelper::uuidToId(
                 '\NextDeveloper\Commons\Database\Models\Domains',
@@ -290,7 +294,7 @@ class AbstractMarketsService
                 $data['iam_account_id']
             );
         }
-    
+
         Events::fire('updating:NextDeveloper\Marketplace\Markets', $model);
 
         try {

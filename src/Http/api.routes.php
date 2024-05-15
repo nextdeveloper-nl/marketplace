@@ -23,27 +23,6 @@ Route::prefix('marketplace')->group(
             }
         );
 
-        Route::prefix('products')->group(
-            function () {
-                Route::get('/', 'Products\ProductsController@index');
-                Route::get('/actions', 'Products\ProductsController@getActions');
-
-                Route::get('{marketplace_products}/tags ', 'Products\ProductsController@tags');
-                Route::post('{marketplace_products}/tags ', 'Products\ProductsController@saveTags');
-                Route::get('{marketplace_products}/addresses ', 'Products\ProductsController@addresses');
-                Route::post('{marketplace_products}/addresses ', 'Products\ProductsController@saveAddresses');
-
-                Route::get('/{marketplace_products}/{subObjects}', 'Products\ProductsController@relatedObjects');
-                Route::get('/{marketplace_products}', 'Products\ProductsController@show');
-
-                Route::post('/', 'Products\ProductsController@store');
-                Route::post('/{marketplace_products}/do/{action}', 'Products\ProductsController@doAction');
-
-                Route::patch('/{marketplace_products}', 'Products\ProductsController@update');
-                Route::delete('/{marketplace_products}', 'Products\ProductsController@destroy');
-            }
-        );
-
         Route::prefix('product-catalogs')->group(
             function () {
                 Route::get('/', 'ProductCatalogs\ProductCatalogsController@index');
@@ -62,6 +41,27 @@ Route::prefix('marketplace')->group(
 
                 Route::patch('/{marketplace_product_catalogs}', 'ProductCatalogs\ProductCatalogsController@update');
                 Route::delete('/{marketplace_product_catalogs}', 'ProductCatalogs\ProductCatalogsController@destroy');
+            }
+        );
+
+        Route::prefix('products')->group(
+            function () {
+                Route::get('/', 'Products\ProductsController@index');
+                Route::get('/actions', 'Products\ProductsController@getActions');
+
+                Route::get('{marketplace_products}/tags ', 'Products\ProductsController@tags');
+                Route::post('{marketplace_products}/tags ', 'Products\ProductsController@saveTags');
+                Route::get('{marketplace_products}/addresses ', 'Products\ProductsController@addresses');
+                Route::post('{marketplace_products}/addresses ', 'Products\ProductsController@saveAddresses');
+
+                Route::get('/{marketplace_products}/{subObjects}', 'Products\ProductsController@relatedObjects');
+                Route::get('/{marketplace_products}', 'Products\ProductsController@show');
+
+                Route::post('/', 'Products\ProductsController@store');
+                Route::post('/{marketplace_products}/do/{action}', 'Products\ProductsController@doAction');
+
+                Route::patch('/{marketplace_products}', 'Products\ProductsController@update');
+                Route::delete('/{marketplace_products}', 'Products\ProductsController@destroy');
             }
         );
 
@@ -154,8 +154,13 @@ Route::prefix('marketplace')->group(
 
 
 
+
+
+
+
     }
 );
+
 
 
 

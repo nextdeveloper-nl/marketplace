@@ -42,6 +42,7 @@ use NextDeveloper\Commons\Database\Traits\Taggable;
  * @property \Carbon\Carbon $deleted_at
  * @property boolean $is_service
  * @property integer $marketplace_market_id
+ * @property string $sales_pitch
  */
 class Products extends Model
 {
@@ -82,6 +83,7 @@ class Products extends Model
             'tags',
             'is_service',
             'marketplace_market_id',
+            'sales_pitch',
     ];
 
     /**
@@ -126,6 +128,7 @@ class Products extends Model
     'deleted_at' => 'datetime',
     'is_service' => 'boolean',
     'marketplace_market_id' => 'integer',
+    'sales_pitch' => 'string',
     ];
 
     /**
@@ -187,6 +190,7 @@ class Products extends Model
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 

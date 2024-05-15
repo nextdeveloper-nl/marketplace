@@ -22,6 +22,7 @@ class ProductCatalogsUpdateRequest extends AbstractFormRequest
         'sku' => 'nullable|string',
         'quantitiy_in_inventory' => 'integer',
         'trial_date' => 'integer',
+        'features' => 'nullable',
         ];
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n

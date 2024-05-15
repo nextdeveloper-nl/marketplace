@@ -67,6 +67,7 @@ trait MarketplaceProductTestTraits
                 'eula'  =>  'a',
                 'slug'  =>  'a',
                 'version'  =>  'a',
+                'sales_pitch'  =>  'a',
                             ],
                 ['http_errors' => false]
             ]
@@ -507,6 +508,25 @@ trait MarketplaceProductTestTraits
             $request = new Request(
                 [
                 'version'  =>  'a'
+                ]
+            );
+
+            $filter = new MarketplaceProductQueryFilter($request);
+
+            $model = \NextDeveloper\Marketplace\Database\Models\MarketplaceProduct::filter($filter)->first();
+        } catch (\Exception $e) {
+            $this->assertFalse(false, $e->getMessage());
+        }
+
+        $this->assertTrue(true);
+    }
+
+    public function test_marketplaceproduct_event_sales_pitch_filter()
+    {
+        try {
+            $request = new Request(
+                [
+                'sales_pitch'  =>  'a'
                 ]
             );
 

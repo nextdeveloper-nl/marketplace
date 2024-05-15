@@ -29,6 +29,7 @@ use NextDeveloper\Commons\Database\Traits\Taggable;
  * @property string $sku
  * @property integer $quantitiy_in_inventory
  * @property integer $trial_date
+ * @property array $features
  */
 class ProductCatalogs extends Model
 {
@@ -56,6 +57,7 @@ class ProductCatalogs extends Model
             'sku',
             'quantitiy_in_inventory',
             'trial_date',
+            'features',
     ];
 
     /**
@@ -90,6 +92,7 @@ class ProductCatalogs extends Model
     'sku' => 'string',
     'quantitiy_in_inventory' => 'integer',
     'trial_date' => 'integer',
+    'features' => \NextDeveloper\Commons\Database\Casts\TextArray::class,
     ];
 
     /**
@@ -151,6 +154,7 @@ class ProductCatalogs extends Model
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 

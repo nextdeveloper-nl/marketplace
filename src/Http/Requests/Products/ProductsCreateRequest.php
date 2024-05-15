@@ -22,7 +22,6 @@ class ProductsCreateRequest extends AbstractFormRequest
         'refund_policy' => 'nullable|string',
         'eula' => 'nullable|string',
         'subscription_type' => '',
-        'slug' => 'nullable|string',
         'version' => 'nullable|string',
         'product_type' => '',
         'is_in_maintenance' => 'boolean',
@@ -33,6 +32,7 @@ class ProductsCreateRequest extends AbstractFormRequest
         'tags' => '',
         'is_service' => 'boolean',
         'marketplace_market_id' => 'required|exists:marketplace_markets,uuid|uuid',
+        'sales_pitch' => 'nullable|string',
         ];
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n
