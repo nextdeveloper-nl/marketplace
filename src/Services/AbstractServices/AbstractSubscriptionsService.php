@@ -236,6 +236,13 @@ class AbstractSubscriptionsService
     {
         $model = Subscriptions::where('uuid', $id)->first();
 
+        if(!$model) {
+            throw new \Exception(
+                'We cannot find the related object to update. ' .
+                'Maybe you dont have the permission to update this object?'
+            );
+        }
+
         if (array_key_exists('marketplace_product_catalog_id', $data)) {
             $data['marketplace_product_catalog_id'] = DatabaseHelper::uuidToId(
                 '\NextDeveloper\Marketplace\Database\Models\ProductCatalogs',

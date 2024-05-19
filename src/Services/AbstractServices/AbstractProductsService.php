@@ -242,6 +242,13 @@ class AbstractProductsService
     {
         $model = Products::where('uuid', $id)->first();
 
+        if(!$model) {
+            throw new \Exception(
+                'We cannot find the related object to update. ' .
+                'Maybe you dont have the permission to update this object?'
+            );
+        }
+
         if (array_key_exists('common_category_id', $data)) {
             $data['common_category_id'] = DatabaseHelper::uuidToId(
                 '\NextDeveloper\Commons\Database\Models\Categories',
