@@ -167,4 +167,6 @@ class ProductCatalogs extends Model
 
 
 
+
+
 }

@@ -63,11 +63,6 @@ class MarketplaceUserRole extends AbstractRole implements IAuthorizationRole
         $builder->where('iam_account_id', '=', UserHelper::currentAccount()->id);
     }
 
-    public function checkPrivileges(Users $users = null)
-    {
-        //return UserHelper::hasRole(self::NAME, $users);
-    }
-
     public function getModule()
     {
         return 'marketplace';
