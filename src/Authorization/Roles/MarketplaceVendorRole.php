@@ -9,7 +9,9 @@ use NextDeveloper\CRM\Database\Models\AccountManagers;
 use NextDeveloper\IAM\Authorization\Roles\AbstractRole;
 use NextDeveloper\IAM\Authorization\Roles\IAuthorizationRole;
 use NextDeveloper\IAM\Database\Models\Users;
+use NextDeveloper\IAM\Database\Scopes\AuthorizationScope;
 use NextDeveloper\IAM\Helpers\UserHelper;
+use NextDeveloper\Marketplace\Database\Models\Markets;
 
 class MarketplaceVendorRole extends AbstractRole implements IAuthorizationRole
 {
@@ -30,9 +32,32 @@ class MarketplaceVendorRole extends AbstractRole implements IAuthorizationRole
      */
     public function apply(Builder $builder, Model $model)
     {
-        $builder->where([
-            'iam_account_id'    =>  UserHelper::currentAccount()->id
-        ]);
+        //  If the request is a GET request, we will allow the user to see the public markets
+        if (request()->getMethod() == 'GET') {
+            if($model->getTable() == 'marketplace_products') {
+                $publicMarkets = Markets::withoutGlobalScope(AuthorizationScope::class)
+                    ->where('is_public', '=', 'true')
+                    ->pluck('id');
+
+                $builder->where([
+                    'iam_account_id'    =>  UserHelper::currentAccount()->id,
+                    'iam_user_id'       =>  UserHelper::me()->id
+                ])->orWhereIn('marketplace_market_id', $publicMarkets);
+
+                return;
+            }
+
+            if($model->getTable() == 'marketplace_markets') {
+                $builder->where('is_public', '=', 'true')
+                    ->orWhere([
+                        'iam_account_id' => UserHelper::currentAccount()->id,
+                    ]);
+
+                return;
+            }
+        }
+
+        $builder->where('iam_account_id', '=', UserHelper::currentAccount()->id);
     }
 
     public function checkPrivileges(Users $users = null)
@@ -49,8 +74,17 @@ class MarketplaceVendorRole extends AbstractRole implements IAuthorizationRole
     {
         return [
             'marketplace_markets:read',
+            'marketplace_markets:create',
+            'marketplace_markets:update',
+            'marketplace_markets:delete',
             'marketplace_products:read',
+            'marketplace_products:create',
+            'marketplace_products:update',
+            'marketplace_products:delete',
             'marketplace_product_catalogs:read',
+            'marketplace_product_catalogs:create',
+            'marketplace_product_catalogs:update',
+            'marketplace_product_catalogs:delete',
             'marketplace_subscriptions:read',
             'marketplace_subscriptions:update',
             'marketplace_subscriptions:create'
