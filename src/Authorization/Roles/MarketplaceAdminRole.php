@@ -33,6 +33,11 @@ class MarketplaceAdminRole extends AbstractRole implements IAuthorizationRole
 
     }
 
+    public function checkPolicy($method, Model $model, Users $user) : bool
+    {
+        return true;
+    }
+
     public function checkPrivileges(Users $users = null)
     {
         //return UserHelper::hasRole(self::NAME, $users);
@@ -96,10 +101,5 @@ class MarketplaceAdminRole extends AbstractRole implements IAuthorizationRole
     public function getDbPrefix()
     {
         return self::DB_PREFIX;
-    }
-
-    public function checkRules(Users $users): bool
-    {
-        // TODO: Implement checkRules() method.
     }
 }

@@ -33,31 +33,30 @@ class MarketplaceUserRole extends AbstractRole implements IAuthorizationRole
     public function apply(Builder $builder, Model $model)
     {
         //  If the request is a GET request, we will allow the user to see the public markets
-        if (request()->getMethod() == 'GET') {
-            if($model->getTable() == 'marketplace_products') {
-                $publicMarkets = Markets::withoutGlobalScope(AuthorizationScope::class)
-                    ->where('is_public', '=', 'true')
-                    ->pluck('id');
 
-                $builder->where([
-                    'iam_account_id'    =>  UserHelper::currentAccount()->id,
-                    'iam_user_id'       =>  UserHelper::me()->id
-                ])->orWhereIn('marketplace_market_id', $publicMarkets)
-                ->where('is_active', true);
+        if($model->getTable() == 'marketplace_products') {
+            $publicMarkets = Markets::withoutGlobalScope(AuthorizationScope::class)
+                ->where('is_public', '=', 'true')
+                ->pluck('id');
 
-                return;
-            }
+            $builder->where([
+                'iam_account_id'    =>  UserHelper::currentAccount()->id,
+                'iam_user_id'       =>  UserHelper::me()->id
+            ])->orWhereIn('marketplace_market_id', $publicMarkets)
+            ->where('is_active', true);
 
-            if($model->getTable() == 'marketplace_markets') {
-                $builder->where([
-                    'is_public' => true,
-                    'is_active' => true
-                ])->orWhere([
-                    'iam_account_id' => UserHelper::currentAccount()->id,
-                ]);
+            return;
+        }
 
-                return;
-            }
+        if($model->getTable() == 'marketplace_markets') {
+            $builder->where([
+                'is_public' => true,
+                'is_active' => true
+            ])->orWhere([
+                'iam_account_id' => UserHelper::currentAccount()->id,
+            ]);
+
+            return;
         }
 
         $builder->where('iam_account_id', '=', UserHelper::currentAccount()->id);
