@@ -3,7 +3,9 @@
 namespace NextDeveloper\Marketplace\Http\Transformers;
 
 use Illuminate\Support\Facades\Cache;
+use NextDeveloper\Blogs\Database\Models\Posts;
 use NextDeveloper\Commons\Common\Cache\CacheHelper;
+use NextDeveloper\IAM\Database\Scopes\AuthorizationScope;
 use NextDeveloper\Marketplace\Database\Models\Products;
 use NextDeveloper\Commons\Http\Transformers\AbstractTransformer;
 use NextDeveloper\Marketplace\Http\Transformers\AbstractTransformers\AbstractProductsTransformer;
@@ -15,6 +17,18 @@ use NextDeveloper\Marketplace\Http\Transformers\AbstractTransformers\AbstractPro
  */
 class ProductsTransformer extends AbstractProductsTransformer
 {
+    public array $availableIncludes = [
+        'states',
+        'actions',
+        'media',
+        'comments',
+        'votes',
+        'socialMedia',
+        'phoneNumbers',
+        'addresses',
+        'meta',
+        'blogs'
+    ];
 
     /**
      * @param Products $model
@@ -39,5 +53,16 @@ class ProductsTransformer extends AbstractProductsTransformer
         );
 
         return parent::transform($model);
+    }
+
+    public function includeBlogs(Products $model)
+    {
+        $blogs = Posts::withoutGlobalScope(AuthorizationScope::class)
+            ->where('tags', 'like', '%'.$model->slug.'%')
+            ->take(3)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return $this->collection($blogs, new \NextDeveloper\Blogs\Http\Transformers\PostsTransformer());
     }
 }

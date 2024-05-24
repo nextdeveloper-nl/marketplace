@@ -200,21 +200,22 @@ class AbstractMarketsService
                 $data['iam_user_id']
             );
         }
-                    
+
         if(!array_key_exists('iam_user_id', $data)) {
             $data['iam_user_id']    = UserHelper::me()->id;
         }
+
         if (array_key_exists('iam_account_id', $data)) {
             $data['iam_account_id'] = DatabaseHelper::uuidToId(
                 '\NextDeveloper\IAM\Database\Models\Accounts',
                 $data['iam_account_id']
             );
         }
-            
+
         if(!array_key_exists('iam_account_id', $data)) {
             $data['iam_account_id'] = UserHelper::currentAccount()->id;
         }
-                        
+
         try {
             $model = Markets::create($data);
         } catch(\Exception $e) {
@@ -298,7 +299,7 @@ class AbstractMarketsService
                 $data['iam_account_id']
             );
         }
-    
+
         Events::fire('updating:NextDeveloper\Marketplace\Markets', $model);
 
         try {
