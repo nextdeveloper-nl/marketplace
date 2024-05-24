@@ -58,6 +58,8 @@ class ProductCatalogs extends Model
             'quantitiy_in_inventory',
             'trial_date',
             'features',
+        'iam_account_id',
+        'iam_user_id'
     ];
 
     /**
