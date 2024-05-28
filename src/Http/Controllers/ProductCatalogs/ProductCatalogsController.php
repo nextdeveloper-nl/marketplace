@@ -55,7 +55,7 @@ class ProductCatalogsController extends AbstractController
      */
     public function doAction($objectId, $action)
     {
-        $actionId = ProductCatalogsService::doAction($objectId, $action);
+        $actionId = ProductCatalogsService::doAction($objectId, $action, request()->all());
 
         return $this->withArray(
             [

@@ -55,7 +55,7 @@ class ProductsController extends AbstractController
      */
     public function doAction($objectId, $action)
     {
-        $actionId = ProductsService::doAction($objectId, $action);
+        $actionId = ProductsService::doAction($objectId, $action, request()->all());
 
         return $this->withArray(
             [

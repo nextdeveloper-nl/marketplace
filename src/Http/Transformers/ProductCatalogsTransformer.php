@@ -38,6 +38,6 @@ class ProductCatalogsTransformer extends AbstractProductCatalogsTransformer
             $transformed
         );
 
-        return parent::transform($model);
+        return $transformed;
     }
 }

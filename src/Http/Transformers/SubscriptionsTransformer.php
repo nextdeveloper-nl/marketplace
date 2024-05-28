@@ -38,6 +38,6 @@ class SubscriptionsTransformer extends AbstractSubscriptionsTransformer
             $transformed
         );
 
-        return parent::transform($model);
+        return $transformed;
     }
 }

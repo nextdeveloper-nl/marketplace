@@ -52,7 +52,7 @@ class ProductsTransformer extends AbstractProductsTransformer
             $transformed
         );
 
-        return parent::transform($model);
+        return $transformed;
     }
 
     public function includeBlogs(Products $model)

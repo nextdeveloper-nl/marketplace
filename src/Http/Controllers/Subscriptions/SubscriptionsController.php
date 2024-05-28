@@ -55,7 +55,7 @@ class SubscriptionsController extends AbstractController
      */
     public function doAction($objectId, $action)
     {
-        $actionId = SubscriptionsService::doAction($objectId, $action);
+        $actionId = SubscriptionsService::doAction($objectId, $action, request()->all());
 
         return $this->withArray(
             [
