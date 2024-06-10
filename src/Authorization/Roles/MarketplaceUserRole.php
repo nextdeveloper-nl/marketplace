@@ -59,10 +59,9 @@ class MarketplaceUserRole extends AbstractRole implements IAuthorizationRole
             return;
         }
 
-        if($model->getTable() == 'marketplace_markets') {
+        if($model->getTable() == 'marketplace_product_catalogs') {
             $builder->where([
-                'is_public' => true,
-                'is_active' => true
+                'is_public' => true
             ])->orWhere([
                 'iam_account_id' => UserHelper::currentAccount()->id,
             ]);
