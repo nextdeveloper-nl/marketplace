@@ -34,7 +34,7 @@ class MarketplaceUserRole extends AbstractRole implements IAuthorizationRole
     {
         //  If the request is a GET request, we will allow the user to see the public markets
 
-        if($model->getTable() == 'marketplace_products') {
+        if($model->getTable() == 'marketplace_products' || $model->getTable() == 'marketplace_products_perspective') {
             $publicMarkets = Markets::withoutGlobalScope(AuthorizationScope::class)
                 ->where('is_public', '=', 'true')
                 ->pluck('id');
@@ -48,7 +48,7 @@ class MarketplaceUserRole extends AbstractRole implements IAuthorizationRole
             return;
         }
 
-        if($model->getTable() == 'marketplace_markets') {
+        if($model->getTable() == 'marketplace_markets' || $model->getTable() == 'marketplace_markets_perspective') {
             $builder->where([
                 'is_public' => true,
                 'is_active' => true
@@ -59,7 +59,7 @@ class MarketplaceUserRole extends AbstractRole implements IAuthorizationRole
             return;
         }
 
-        if($model->getTable() == 'marketplace_product_catalogs') {
+        if($model->getTable() == 'marketplace_product_catalogs' || $model->getTable() == 'marketplace_product_catalogs_perspective') {
             $builder->where([
                 'is_public' => true
             ])->orWhere([
