@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Model;
 use NextDeveloper\Commons\Database\Traits\Filterable;
+use NextDeveloper\Commons\Database\Traits\HasStates;
 use NextDeveloper\Marketplace\Database\Observers\ProductsObserver;
 use NextDeveloper\Commons\Database\Traits\UuidId;
 use NextDeveloper\Commons\Common\Cache\Traits\CleanCache;
@@ -29,6 +30,7 @@ use NextDeveloper\Commons\Database\Traits\Taggable;
  * @property string $slug
  * @property string $version
  * @property $product_type
+ * @property boolean $is_service
  * @property boolean $is_in_maintenance
  * @property boolean $is_public
  * @property boolean $is_invisible
@@ -36,19 +38,18 @@ use NextDeveloper\Commons\Database\Traits\Taggable;
  * @property integer $common_category_id
  * @property integer $iam_account_id
  * @property integer $iam_user_id
+ * @property integer $marketplace_market_id
  * @property array $tags
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
- * @property boolean $is_service
- * @property integer $marketplace_market_id
  * @property string $sales_pitch
+ * @property boolean $is_approved
  */
 class Products extends Model
 {
-    use Filterable, UuidId, CleanCache, Taggable;
+    use Filterable, UuidId, CleanCache, Taggable, HasStates;
     use SoftDeletes;
-
 
     public $timestamps = true;
 
@@ -73,6 +74,7 @@ class Products extends Model
             'slug',
             'version',
             'product_type',
+            'is_service',
             'is_in_maintenance',
             'is_public',
             'is_invisible',
@@ -80,10 +82,10 @@ class Products extends Model
             'common_category_id',
             'iam_account_id',
             'iam_user_id',
-            'tags',
-            'is_service',
             'marketplace_market_id',
+            'tags',
             'sales_pitch',
+            'is_approved',
     ];
 
     /**
@@ -117,18 +119,19 @@ class Products extends Model
     'eula' => 'string',
     'slug' => 'string',
     'version' => 'string',
+    'is_service' => 'boolean',
     'is_in_maintenance' => 'boolean',
     'is_public' => 'boolean',
     'is_invisible' => 'boolean',
     'is_active' => 'boolean',
     'common_category_id' => 'integer',
+    'marketplace_market_id' => 'integer',
     'tags' => \NextDeveloper\Commons\Database\Casts\TextArray::class,
     'created_at' => 'datetime',
     'updated_at' => 'datetime',
     'deleted_at' => 'datetime',
-    'is_service' => 'boolean',
-    'marketplace_market_id' => 'integer',
     'sales_pitch' => 'string',
+    'is_approved' => 'boolean',
     ];
 
     /**
@@ -189,20 +192,32 @@ class Products extends Model
         }
     }
 
+    public function categories() : \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\NextDeveloper\Commons\Database\Models\Categories::class);
+    }
+    
+    public function accounts() : \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Accounts::class);
+    }
+    
+    public function users() : \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Users::class);
+    }
+    
+    public function markets() : \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\Markets::class);
+    }
+    
+    public function productCatalogs() : \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\ProductCatalogs::class);
+    }
+
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }

@@ -3,43 +3,44 @@
 namespace NextDeveloper\Marketplace\Database\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use NextDeveloper\Commons\Database\Traits\HasStates;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Model;
 use NextDeveloper\Commons\Database\Traits\Filterable;
-use NextDeveloper\Commons\Database\Traits\HasStates;
-use NextDeveloper\Marketplace\Database\Observers\MarketsObserver;
+use NextDeveloper\Marketplace\Database\Observers\ProductCatalogsPerspectiveObserver;
 use NextDeveloper\Commons\Database\Traits\UuidId;
 use NextDeveloper\Commons\Common\Cache\Traits\CleanCache;
 use NextDeveloper\Commons\Database\Traits\Taggable;
 
 /**
- * Markets model.
+ * ProductCatalogsPerspective model.
  *
  * @package  NextDeveloper\Marketplace\Database\Models
  * @property integer $id
  * @property string $uuid
  * @property string $name
- * @property string $description
- * @property integer $common_domain_id
+ * @property $price
+ * @property $args
+ * @property array $tags
+ * @property integer $quantity_in_inventory
+ * @property string $sku
  * @property boolean $is_public
- * @property boolean $is_active
- * @property integer $common_currency_id
- * @property integer $common_language_id
- * @property integer $common_country_id
+ * @property array $features
+ * @property string $product
  * @property integer $iam_account_id
  * @property integer $iam_user_id
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
  */
-class Markets extends Model
+class ProductCatalogsPerspective extends Model
 {
     use Filterable, UuidId, CleanCache, Taggable, HasStates;
     use SoftDeletes;
 
     public $timestamps = true;
 
-    protected $table = 'marketplace_markets';
+    protected $table = 'marketplace_product_catalogs_perspective';
 
 
     /**
@@ -49,13 +50,14 @@ class Markets extends Model
 
     protected $fillable = [
             'name',
-            'description',
-            'common_domain_id',
+            'price',
+            'args',
+            'tags',
+            'quantity_in_inventory',
+            'sku',
             'is_public',
-            'is_active',
-            'common_currency_id',
-            'common_language_id',
-            'common_country_id',
+            'features',
+            'product',
             'iam_account_id',
             'iam_user_id',
     ];
@@ -82,13 +84,13 @@ class Markets extends Model
     protected $casts = [
     'id' => 'integer',
     'name' => 'string',
-    'description' => 'string',
-    'common_domain_id' => 'integer',
+    'args' => 'array',
+    'tags' => \NextDeveloper\Commons\Database\Casts\TextArray::class,
+    'quantity_in_inventory' => 'integer',
+    'sku' => 'string',
     'is_public' => 'boolean',
-    'is_active' => 'boolean',
-    'common_currency_id' => 'integer',
-    'common_language_id' => 'integer',
-    'common_country_id' => 'integer',
+    'features' => \NextDeveloper\Commons\Database\Casts\TextArray::class,
+    'product' => 'string',
     'created_at' => 'datetime',
     'updated_at' => 'datetime',
     'deleted_at' => 'datetime',
@@ -125,7 +127,7 @@ class Markets extends Model
         parent::boot();
 
         //  We create and add Observer even if we wont use it.
-        parent::observe(MarketsObserver::class);
+        parent::observe(ProductCatalogsPerspectiveObserver::class);
 
         self::registerScopes();
     }
@@ -133,7 +135,7 @@ class Markets extends Model
     public static function registerScopes()
     {
         $globalScopes = config('marketplace.scopes.global');
-        $modelScopes = config('marketplace.scopes.marketplace_markets');
+        $modelScopes = config('marketplace.scopes.marketplace_product_catalogs_perspective');
 
         if(!$modelScopes) { $modelScopes = [];
         }
@@ -152,41 +154,5 @@ class Markets extends Model
         }
     }
 
-    public function products() : \Illuminate\Database\Eloquent\Relations\HasMany
-    {
-        return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\Products::class);
-    }
-
-    public function accounts() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Accounts::class);
-    }
-    
-    public function users() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Users::class);
-    }
-    
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

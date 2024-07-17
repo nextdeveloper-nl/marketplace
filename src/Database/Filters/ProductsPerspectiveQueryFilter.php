@@ -10,28 +10,8 @@ use NextDeveloper\Commons\Database\Filters\AbstractQueryFilter;
  * This class automatically puts where clause on database so that use can filter
  * data returned from the query.
  */
-class ProductsQueryFilter extends AbstractQueryFilter
+class ProductsPerspectiveQueryFilter extends AbstractQueryFilter
 {
-    /**
-     * Filter by tags
-     *
-     * @param  $values
-     * @return Builder
-     */
-    public function tags($values)
-    {
-        $tags = explode(',', $values);
-
-        $search = '';
-
-        for($i = 0; $i < count($tags); $i++) {
-            $search .= "'" . trim($tags[$i]) . "',";
-        }
-
-        $search = substr($search, 0, -1);
-
-        return $this->builder->whereRaw('tags @> ARRAY[' . $search . ']');
-    }
 
     /**
      * @var Builder
@@ -53,26 +33,6 @@ class ProductsQueryFilter extends AbstractQueryFilter
         return $this->builder->where('content', 'like', '%' . $value . '%');
     }
     
-    public function afterSalesIntroduction($value)
-    {
-        return $this->builder->where('after_sales_introduction', 'like', '%' . $value . '%');
-    }
-    
-    public function supportContent($value)
-    {
-        return $this->builder->where('support_content', 'like', '%' . $value . '%');
-    }
-    
-    public function refundPolicy($value)
-    {
-        return $this->builder->where('refund_policy', 'like', '%' . $value . '%');
-    }
-    
-    public function eula($value)
-    {
-        return $this->builder->where('eula', 'like', '%' . $value . '%');
-    }
-    
     public function slug($value)
     {
         return $this->builder->where('slug', 'like', '%' . $value . '%');
@@ -83,9 +43,37 @@ class ProductsQueryFilter extends AbstractQueryFilter
         return $this->builder->where('version', 'like', '%' . $value . '%');
     }
     
-    public function salesPitch($value)
+    public function category($value)
     {
-        return $this->builder->where('sales_pitch', 'like', '%' . $value . '%');
+        return $this->builder->where('category', 'like', '%' . $value . '%');
+    }
+    
+    public function marketplace($value)
+    {
+        return $this->builder->where('marketplace', 'like', '%' . $value . '%');
+    }
+    
+    public function maintainer($value)
+    {
+        return $this->builder->where('maintainer', 'like', '%' . $value . '%');
+    }
+    
+    public function responsible($value)
+    {
+        return $this->builder->where('responsible', 'like', '%' . $value . '%');
+    }
+
+    public function productCatalogCount($value)
+    {
+        $operator = substr($value, 0, 1);
+
+        if ($operator != '<' || $operator != '>') {
+            $operator = '=';
+        } else {
+            $value = substr($value, 1);
+        }
+
+        return $this->builder->where('product_catalog_count', $operator, $value);
     }
 
     public function isService($value)
@@ -133,15 +121,6 @@ class ProductsQueryFilter extends AbstractQueryFilter
         return $this->builder->where('is_active', $value);
     }
 
-    public function isApproved($value)
-    {
-        if(!is_bool($value)) {
-            $value = false;
-        }
-
-        return $this->builder->where('is_approved', $value);
-    }
-
     public function createdAtStart($date)
     {
         return $this->builder->where('created_at', '>=', $date);
@@ -181,6 +160,15 @@ class ProductsQueryFilter extends AbstractQueryFilter
         }
     }
 
+    public function marketplaceMarketId($value)
+    {
+            $marketplaceMarket = \NextDeveloper\Marketplace\Database\Models\Markets::where('uuid', $value)->first();
+
+        if($marketplaceMarket) {
+            return $this->builder->where('marketplace_market_id', '=', $marketplaceMarket->id);
+        }
+    }
+
     public function iamAccountId($value)
     {
             $iamAccount = \NextDeveloper\IAM\Database\Models\Accounts::where('uuid', $value)->first();
@@ -199,36 +187,5 @@ class ProductsQueryFilter extends AbstractQueryFilter
         }
     }
 
-    public function marketplaceMarketId($value)
-    {
-            $marketplaceMarket = \NextDeveloper\Marketplace\Database\Models\Markets::where('uuid', $value)->first();
-
-        if($marketplaceMarket) {
-            return $this->builder->where('marketplace_market_id', '=', $marketplaceMarket->id);
-        }
-    }
-
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

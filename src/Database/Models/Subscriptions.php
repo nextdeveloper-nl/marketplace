@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Model;
 use NextDeveloper\Commons\Database\Traits\Filterable;
+use NextDeveloper\Commons\Database\Traits\HasStates;
 use NextDeveloper\Marketplace\Database\Observers\SubscriptionsObserver;
 use NextDeveloper\Commons\Database\Traits\UuidId;
 use NextDeveloper\Commons\Common\Cache\Traits\CleanCache;
@@ -31,9 +32,8 @@ use NextDeveloper\Commons\Database\Traits\Taggable;
  */
 class Subscriptions extends Model
 {
-    use Filterable, UuidId, CleanCache, Taggable;
+    use Filterable, UuidId, CleanCache, Taggable, HasStates;
     use SoftDeletes;
-
 
     public $timestamps = true;
 
@@ -148,20 +148,21 @@ class Subscriptions extends Model
         }
     }
 
+    public function accounts() : \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Accounts::class);
+    }
+    
+    public function users() : \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Users::class);
+    }
+    
+    public function productCatalogs() : \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\ProductCatalogs::class);
+    }
+    
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

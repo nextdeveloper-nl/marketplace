@@ -38,9 +38,13 @@ class SubscriptionsQueryFilter extends AbstractQueryFilter
      */
     protected $builder;
 
-    public function isValid()
+    public function isValid($value)
     {
-        return $this->builder->where('is_valid', true);
+        if(!is_bool($value)) {
+            $value = false;
+        }
+
+        return $this->builder->where('is_valid', $value);
     }
 
     public function subscriptionStartsAtStart($date)
@@ -121,6 +125,12 @@ class SubscriptionsQueryFilter extends AbstractQueryFilter
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
+
+
+
+
+
 
 
 

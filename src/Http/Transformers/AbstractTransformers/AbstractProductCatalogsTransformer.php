@@ -55,6 +55,8 @@ class AbstractProductCatalogsTransformer extends AbstractTransformer
     public function transform(ProductCatalogs $model)
     {
                                                 $marketplaceProductId = \NextDeveloper\Marketplace\Database\Models\Products::where('id', $model->marketplace_product_id)->first();
+                                                            $iamUserId = \NextDeveloper\IAM\Database\Models\Users::where('id', $model->iam_user_id)->first();
+                                                            $iamAccountId = \NextDeveloper\IAM\Database\Models\Accounts::where('id', $model->iam_account_id)->first();
                         
         return $this->buildPayload(
             [
@@ -69,9 +71,12 @@ class AbstractProductCatalogsTransformer extends AbstractTransformer
             'updated_at'  =>  $model->updated_at,
             'deleted_at'  =>  $model->deleted_at,
             'sku'  =>  $model->sku,
-            'quantitiy_in_inventory'  =>  $model->quantitiy_in_inventory,
             'trial_date'  =>  $model->trial_date,
             'features'  =>  $model->features,
+            'iam_user_id'  =>  $iamUserId ? $iamUserId->uuid : null,
+            'iam_account_id'  =>  $iamAccountId ? $iamAccountId->uuid : null,
+            'is_public'  =>  $model->is_public,
+            'quantity_in_inventory'  =>  $model->quantity_in_inventory,
             ]
         );
     }
@@ -160,6 +165,12 @@ class AbstractProductCatalogsTransformer extends AbstractTransformer
         return $this->collection($addresses, new AddressesTransformer());
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
+
+
+
+
+
 
 
 

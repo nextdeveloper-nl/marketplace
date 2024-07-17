@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Model;
 use NextDeveloper\Commons\Database\Traits\Filterable;
+use NextDeveloper\Commons\Database\Traits\HasStates;
 use NextDeveloper\Marketplace\Database\Observers\ProductCatalogsObserver;
 use NextDeveloper\Commons\Database\Traits\UuidId;
 use NextDeveloper\Commons\Common\Cache\Traits\CleanCache;
@@ -27,15 +28,17 @@ use NextDeveloper\Commons\Database\Traits\Taggable;
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
  * @property string $sku
- * @property integer $quantitiy_in_inventory
  * @property integer $trial_date
  * @property array $features
+ * @property integer $iam_user_id
+ * @property integer $iam_account_id
+ * @property boolean $is_public
+ * @property integer $quantity_in_inventory
  */
 class ProductCatalogs extends Model
 {
-    use Filterable, UuidId, CleanCache, Taggable;
+    use Filterable, UuidId, CleanCache, Taggable, HasStates;
     use SoftDeletes;
-
 
     public $timestamps = true;
 
@@ -55,11 +58,12 @@ class ProductCatalogs extends Model
             'marketplace_product_id',
             'tags',
             'sku',
-            'quantitiy_in_inventory',
             'trial_date',
             'features',
-        'iam_account_id',
-        'iam_user_id'
+            'iam_user_id',
+            'iam_account_id',
+            'is_public',
+            'quantity_in_inventory',
     ];
 
     /**
@@ -92,9 +96,10 @@ class ProductCatalogs extends Model
     'updated_at' => 'datetime',
     'deleted_at' => 'datetime',
     'sku' => 'string',
-    'quantitiy_in_inventory' => 'integer',
     'trial_date' => 'integer',
     'features' => \NextDeveloper\Commons\Database\Casts\TextArray::class,
+    'is_public' => 'boolean',
+    'quantity_in_inventory' => 'integer',
     ];
 
     /**
@@ -155,20 +160,16 @@ class ProductCatalogs extends Model
         }
     }
 
+    public function subscriptions() : \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\Subscriptions::class);
+    }
+
+    public function products() : \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\Products::class);
+    }
+    
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

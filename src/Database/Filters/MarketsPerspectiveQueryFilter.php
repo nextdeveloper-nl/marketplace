@@ -10,7 +10,7 @@ use NextDeveloper\Commons\Database\Filters\AbstractQueryFilter;
  * This class automatically puts where clause on database so that use can filter
  * data returned from the query.
  */
-class MarketsQueryFilter extends AbstractQueryFilter
+class MarketsPerspectiveQueryFilter extends AbstractQueryFilter
 {
 
     /**
@@ -26,6 +26,49 @@ class MarketsQueryFilter extends AbstractQueryFilter
     public function description($value)
     {
         return $this->builder->where('description', 'like', '%' . $value . '%');
+    }
+    
+    public function domain($value)
+    {
+        return $this->builder->where('domain', 'like', '%' . $value . '%');
+    }
+    
+    public function currency($value)
+    {
+        return $this->builder->where('currency', 'like', '%' . $value . '%');
+    }
+    
+    public function language($value)
+    {
+        return $this->builder->where('language', 'like', '%' . $value . '%');
+    }
+    
+    public function country($value)
+    {
+        return $this->builder->where('country', 'like', '%' . $value . '%');
+    }
+    
+    public function maintainer($value)
+    {
+        return $this->builder->where('maintainer', 'like', '%' . $value . '%');
+    }
+    
+    public function responsible($value)
+    {
+        return $this->builder->where('responsible', 'like', '%' . $value . '%');
+    }
+
+    public function productCount($value)
+    {
+        $operator = substr($value, 0, 1);
+
+        if ($operator != '<' || $operator != '>') {
+            $operator = '=';
+        } else {
+            $value = substr($value, 1);
+        }
+
+        return $this->builder->where('product_count', $operator, $value);
     }
 
     public function isPublic($value)
@@ -131,26 +174,4 @@ class MarketsQueryFilter extends AbstractQueryFilter
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

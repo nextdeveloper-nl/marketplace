@@ -3,43 +3,54 @@
 namespace NextDeveloper\Marketplace\Database\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use NextDeveloper\Commons\Database\Traits\HasStates;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Model;
 use NextDeveloper\Commons\Database\Traits\Filterable;
-use NextDeveloper\Commons\Database\Traits\HasStates;
-use NextDeveloper\Marketplace\Database\Observers\MarketsObserver;
+use NextDeveloper\Marketplace\Database\Observers\ProductsPerspectiveObserver;
 use NextDeveloper\Commons\Database\Traits\UuidId;
 use NextDeveloper\Commons\Common\Cache\Traits\CleanCache;
 use NextDeveloper\Commons\Database\Traits\Taggable;
 
 /**
- * Markets model.
+ * ProductsPerspective model.
  *
  * @package  NextDeveloper\Marketplace\Database\Models
  * @property integer $id
  * @property string $uuid
  * @property string $name
  * @property string $description
- * @property integer $common_domain_id
+ * @property string $content
+ * @property array $highlights
+ * @property $subscription_type
+ * @property string $slug
+ * @property string $version
+ * @property boolean $is_service
+ * @property boolean $is_in_maintenance
  * @property boolean $is_public
+ * @property boolean $is_invisible
  * @property boolean $is_active
- * @property integer $common_currency_id
- * @property integer $common_language_id
- * @property integer $common_country_id
+ * @property string $category
+ * @property integer $common_category_id
+ * @property string $marketplace
+ * @property integer $marketplace_market_id
+ * @property string $maintainer
+ * @property string $responsible
+ * @property integer $product_catalog_count
  * @property integer $iam_account_id
  * @property integer $iam_user_id
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
  */
-class Markets extends Model
+class ProductsPerspective extends Model
 {
     use Filterable, UuidId, CleanCache, Taggable, HasStates;
     use SoftDeletes;
 
     public $timestamps = true;
 
-    protected $table = 'marketplace_markets';
+    protected $table = 'marketplace_products_perspective';
 
 
     /**
@@ -50,12 +61,23 @@ class Markets extends Model
     protected $fillable = [
             'name',
             'description',
-            'common_domain_id',
+            'content',
+            'highlights',
+            'subscription_type',
+            'slug',
+            'version',
+            'is_service',
+            'is_in_maintenance',
             'is_public',
+            'is_invisible',
             'is_active',
-            'common_currency_id',
-            'common_language_id',
-            'common_country_id',
+            'category',
+            'common_category_id',
+            'marketplace',
+            'marketplace_market_id',
+            'maintainer',
+            'responsible',
+            'product_catalog_count',
             'iam_account_id',
             'iam_user_id',
     ];
@@ -83,12 +105,22 @@ class Markets extends Model
     'id' => 'integer',
     'name' => 'string',
     'description' => 'string',
-    'common_domain_id' => 'integer',
+    'content' => 'string',
+    'highlights' => \NextDeveloper\Commons\Database\Casts\TextArray::class,
+    'slug' => 'string',
+    'version' => 'string',
+    'is_service' => 'boolean',
+    'is_in_maintenance' => 'boolean',
     'is_public' => 'boolean',
+    'is_invisible' => 'boolean',
     'is_active' => 'boolean',
-    'common_currency_id' => 'integer',
-    'common_language_id' => 'integer',
-    'common_country_id' => 'integer',
+    'category' => 'string',
+    'common_category_id' => 'integer',
+    'marketplace' => 'string',
+    'marketplace_market_id' => 'integer',
+    'maintainer' => 'string',
+    'responsible' => 'string',
+    'product_catalog_count' => 'integer',
     'created_at' => 'datetime',
     'updated_at' => 'datetime',
     'deleted_at' => 'datetime',
@@ -125,7 +157,7 @@ class Markets extends Model
         parent::boot();
 
         //  We create and add Observer even if we wont use it.
-        parent::observe(MarketsObserver::class);
+        parent::observe(ProductsPerspectiveObserver::class);
 
         self::registerScopes();
     }
@@ -133,7 +165,7 @@ class Markets extends Model
     public static function registerScopes()
     {
         $globalScopes = config('marketplace.scopes.global');
-        $modelScopes = config('marketplace.scopes.marketplace_markets');
+        $modelScopes = config('marketplace.scopes.marketplace_products_perspective');
 
         if(!$modelScopes) { $modelScopes = [];
         }
@@ -152,41 +184,5 @@ class Markets extends Model
         }
     }
 
-    public function products() : \Illuminate\Database\Eloquent\Relations\HasMany
-    {
-        return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\Products::class);
-    }
-
-    public function accounts() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Accounts::class);
-    }
-    
-    public function users() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Users::class);
-    }
-    
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
