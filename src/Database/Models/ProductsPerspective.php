@@ -25,6 +25,7 @@ use NextDeveloper\Commons\Database\Traits\Taggable;
  * @property $subscription_type
  * @property string $slug
  * @property string $version
+ * @property string $sales_pitch
  * @property boolean $is_service
  * @property boolean $is_in_maintenance
  * @property boolean $is_public
@@ -37,6 +38,7 @@ use NextDeveloper\Commons\Database\Traits\Taggable;
  * @property string $maintainer
  * @property string $responsible
  * @property integer $product_catalog_count
+ * @property array $tags
  * @property integer $iam_account_id
  * @property integer $iam_user_id
  * @property \Carbon\Carbon $created_at
@@ -66,6 +68,7 @@ class ProductsPerspective extends Model
             'subscription_type',
             'slug',
             'version',
+            'sales_pitch',
             'is_service',
             'is_in_maintenance',
             'is_public',
@@ -78,6 +81,7 @@ class ProductsPerspective extends Model
             'maintainer',
             'responsible',
             'product_catalog_count',
+            'tags',
             'iam_account_id',
             'iam_user_id',
     ];
@@ -109,6 +113,7 @@ class ProductsPerspective extends Model
     'highlights' => \NextDeveloper\Commons\Database\Casts\TextArray::class,
     'slug' => 'string',
     'version' => 'string',
+    'sales_pitch' => 'string',
     'is_service' => 'boolean',
     'is_in_maintenance' => 'boolean',
     'is_public' => 'boolean',
@@ -121,6 +126,7 @@ class ProductsPerspective extends Model
     'maintainer' => 'string',
     'responsible' => 'string',
     'product_catalog_count' => 'integer',
+    'tags' => \NextDeveloper\Commons\Database\Casts\TextArray::class,
     'created_at' => 'datetime',
     'updated_at' => 'datetime',
     'deleted_at' => 'datetime',
@@ -185,5 +191,6 @@ class ProductsPerspective extends Model
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 }

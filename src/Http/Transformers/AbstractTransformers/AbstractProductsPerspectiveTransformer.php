@@ -69,6 +69,7 @@ class AbstractProductsPerspectiveTransformer extends AbstractTransformer
             'subscription_type'  =>  $model->subscription_type,
             'slug'  =>  $model->slug,
             'version'  =>  $model->version,
+            'sales_pitch'  =>  $model->sales_pitch,
             'is_service'  =>  $model->is_service,
             'is_in_maintenance'  =>  $model->is_in_maintenance,
             'is_public'  =>  $model->is_public,
@@ -81,6 +82,7 @@ class AbstractProductsPerspectiveTransformer extends AbstractTransformer
             'maintainer'  =>  $model->maintainer,
             'responsible'  =>  $model->responsible,
             'product_catalog_count'  =>  $model->product_catalog_count,
+            'tags'  =>  $model->tags,
             'iam_account_id'  =>  $iamAccountId ? $iamAccountId->uuid : null,
             'iam_user_id'  =>  $iamUserId ? $iamUserId->uuid : null,
             'created_at'  =>  $model->created_at,
@@ -174,5 +176,6 @@ class AbstractProductsPerspectiveTransformer extends AbstractTransformer
         return $this->collection($addresses, new AddressesTransformer());
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 }
