@@ -74,7 +74,6 @@ class AbstractProductsTransformer extends AbstractTransformer
             'slug'  =>  $model->slug,
             'version'  =>  $model->version,
             'product_type'  =>  $model->product_type,
-            'is_service'  =>  $model->is_service,
             'is_in_maintenance'  =>  $model->is_in_maintenance,
             'is_public'  =>  $model->is_public,
             'is_invisible'  =>  $model->is_invisible,
@@ -82,11 +81,12 @@ class AbstractProductsTransformer extends AbstractTransformer
             'common_category_id'  =>  $commonCategoryId ? $commonCategoryId->uuid : null,
             'iam_account_id'  =>  $iamAccountId ? $iamAccountId->uuid : null,
             'iam_user_id'  =>  $iamUserId ? $iamUserId->uuid : null,
-            'marketplace_market_id'  =>  $marketplaceMarketId ? $marketplaceMarketId->uuid : null,
             'tags'  =>  $model->tags,
             'created_at'  =>  $model->created_at,
             'updated_at'  =>  $model->updated_at,
             'deleted_at'  =>  $model->deleted_at,
+            'is_service'  =>  $model->is_service,
+            'marketplace_market_id'  =>  $marketplaceMarketId ? $marketplaceMarketId->uuid : null,
             'sales_pitch'  =>  $model->sales_pitch,
             'is_approved'  =>  $model->is_approved,
             ]
@@ -177,6 +177,9 @@ class AbstractProductsTransformer extends AbstractTransformer
         return $this->collection($addresses, new AddressesTransformer());
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
+
+
 
 
 

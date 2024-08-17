@@ -112,15 +112,6 @@ class MarketsQueryFilter extends AbstractQueryFilter
         }
     }
 
-    public function iamAccountId($value)
-    {
-            $iamAccount = \NextDeveloper\IAM\Database\Models\Accounts::where('uuid', $value)->first();
-
-        if($iamAccount) {
-            return $this->builder->where('iam_account_id', '=', $iamAccount->id);
-        }
-    }
-
     public function iamUserId($value)
     {
             $iamUser = \NextDeveloper\IAM\Database\Models\Users::where('uuid', $value)->first();
@@ -130,7 +121,19 @@ class MarketsQueryFilter extends AbstractQueryFilter
         }
     }
 
+    public function iamAccountId($value)
+    {
+            $iamAccount = \NextDeveloper\IAM\Database\Models\Accounts::where('uuid', $value)->first();
+
+        if($iamAccount) {
+            return $this->builder->where('iam_account_id', '=', $iamAccount->id);
+        }
+    }
+
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
+
+
 
 
 

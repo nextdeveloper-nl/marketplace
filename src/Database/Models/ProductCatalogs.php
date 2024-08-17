@@ -28,12 +28,12 @@ use NextDeveloper\Commons\Database\Traits\Taggable;
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
  * @property string $sku
+ * @property integer $quantity_in_inventory
  * @property integer $trial_date
  * @property array $features
- * @property integer $iam_user_id
- * @property integer $iam_account_id
  * @property boolean $is_public
- * @property integer $quantity_in_inventory
+ * @property integer $iam_account_id
+ * @property integer $iam_user_id
  */
 class ProductCatalogs extends Model
 {
@@ -58,12 +58,12 @@ class ProductCatalogs extends Model
             'marketplace_product_id',
             'tags',
             'sku',
+            'quantity_in_inventory',
             'trial_date',
             'features',
-            'iam_user_id',
-            'iam_account_id',
             'is_public',
-            'quantity_in_inventory',
+            'iam_account_id',
+            'iam_user_id',
     ];
 
     /**
@@ -96,10 +96,10 @@ class ProductCatalogs extends Model
     'updated_at' => 'datetime',
     'deleted_at' => 'datetime',
     'sku' => 'string',
+    'quantity_in_inventory' => 'integer',
     'trial_date' => 'integer',
     'features' => \NextDeveloper\Commons\Database\Casts\TextArray::class,
     'is_public' => 'boolean',
-    'quantity_in_inventory' => 'integer',
     ];
 
     /**
@@ -171,5 +171,8 @@ class ProductCatalogs extends Model
     }
     
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
+
+
 
 }

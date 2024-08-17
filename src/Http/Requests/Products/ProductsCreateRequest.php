@@ -24,14 +24,14 @@ class ProductsCreateRequest extends AbstractFormRequest
         'subscription_type' => '',
         'version' => 'nullable|string',
         'product_type' => '',
-        'is_service' => 'boolean',
         'is_in_maintenance' => 'boolean',
         'is_public' => 'boolean',
         'is_invisible' => 'boolean',
         'is_active' => 'boolean',
         'common_category_id' => 'nullable|exists:common_categories,uuid|uuid',
-        'marketplace_market_id' => 'required|exists:marketplace_markets,uuid|uuid',
         'tags' => '',
+        'is_service' => 'boolean',
+        'marketplace_market_id' => 'required|exists:marketplace_markets,uuid|uuid',
         'sales_pitch' => 'nullable|string',
         ];
     }
