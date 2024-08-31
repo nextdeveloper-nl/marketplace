@@ -4,7 +4,7 @@ namespace NextDeveloper\Marketplace\Database\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
 use NextDeveloper\Commons\Database\Filters\AbstractQueryFilter;
-                
+
 
 /**
  * This class automatically puts where clause on database so that use can filter
@@ -37,52 +37,52 @@ class ProductsPerspectiveQueryFilter extends AbstractQueryFilter
      * @var Builder
      */
     protected $builder;
-    
+
     public function name($value)
     {
         return $this->builder->where('name', 'like', '%' . $value . '%');
     }
-    
+
     public function description($value)
     {
         return $this->builder->where('description', 'like', '%' . $value . '%');
     }
-    
+
     public function content($value)
     {
         return $this->builder->where('content', 'like', '%' . $value . '%');
     }
-    
+
     public function slug($value)
     {
         return $this->builder->where('slug', 'like', '%' . $value . '%');
     }
-    
+
     public function version($value)
     {
         return $this->builder->where('version', 'like', '%' . $value . '%');
     }
-    
+
     public function salesPitch($value)
     {
         return $this->builder->where('sales_pitch', 'like', '%' . $value . '%');
     }
-    
+
     public function category($value)
     {
         return $this->builder->where('category', 'like', '%' . $value . '%');
     }
-    
+
     public function marketplace($value)
     {
         return $this->builder->where('marketplace', 'like', '%' . $value . '%');
     }
-    
+
     public function maintainer($value)
     {
         return $this->builder->where('maintainer', 'like', '%' . $value . '%');
     }
-    
+
     public function responsible($value)
     {
         return $this->builder->where('responsible', 'like', '%' . $value . '%');
@@ -144,6 +144,11 @@ class ProductsPerspectiveQueryFilter extends AbstractQueryFilter
         }
 
         return $this->builder->where('is_active', $value);
+    }
+
+    public function isApproved($value)
+    {
+        return $this->builder->where('is_approved', $value);
     }
 
     public function createdAtStart($date)
