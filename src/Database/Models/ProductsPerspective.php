@@ -56,107 +56,108 @@ class ProductsPerspective extends Model
 
 
     /**
-     @var array
+     * @var array
      */
     protected $guarded = [];
 
     protected $fillable = [
-            'name',
-            'description',
-            'content',
-            'highlights',
-            'subscription_type',
-            'slug',
-            'version',
-            'sales_pitch',
-            'is_service',
-            'is_in_maintenance',
-            'is_public',
-            'is_invisible',
-            'is_active',
-            'category',
-            'common_category_id',
-            'marketplace',
-            'marketplace_market_id',
-            'maintainer',
-            'responsible',
-            'product_catalog_count',
-            'tags',
-            'iam_account_id',
-            'iam_user_id',
+        'name',
+        'description',
+        'content',
+        'highlights',
+        'subscription_type',
+        'slug',
+        'version',
+        'sales_pitch',
+        'is_service',
+        'is_in_maintenance',
+        'is_public',
+        'is_invisible',
+        'is_active',
+        'category',
+        'common_category_id',
+        'marketplace',
+        'marketplace_market_id',
+        'maintainer',
+        'responsible',
+        'product_catalog_count',
+        'tags',
+        'iam_account_id',
+        'iam_user_id',
     ];
 
     /**
-      Here we have the fulltext fields. We can use these for fulltext search if enabled.
+     * Here we have the fulltext fields. We can use these for fulltext search if enabled.
      */
     protected $fullTextFields = [
 
     ];
 
     /**
-     @var array
+     * @var array
      */
     protected $appends = [
 
     ];
 
     /**
-     We are casting fields to objects so that we can work on them better
+     * We are casting fields to objects so that we can work on them better
      *
-     @var array
+     * @var array
      */
     protected $casts = [
-    'id' => 'integer',
-    'name' => 'string',
-    'description' => 'string',
-    'content' => 'string',
-    'highlights' => \NextDeveloper\Commons\Database\Casts\TextArray::class,
-    'slug' => 'string',
-    'version' => 'string',
-    'sales_pitch' => 'string',
-    'is_service' => 'boolean',
-    'is_in_maintenance' => 'boolean',
-    'is_public' => 'boolean',
-    'is_invisible' => 'boolean',
-    'is_active' => 'boolean',
-    'category' => 'string',
-    'common_category_id' => 'integer',
-    'marketplace' => 'string',
-    'marketplace_market_id' => 'integer',
-    'maintainer' => 'string',
-    'responsible' => 'string',
-    'product_catalog_count' => 'integer',
-    'tags' => \NextDeveloper\Commons\Database\Casts\TextArray::class,
-    'created_at' => 'datetime',
-    'updated_at' => 'datetime',
-    'deleted_at' => 'datetime',
+        'id' => 'integer',
+        'name' => 'string',
+        'description' => 'string',
+        'content' => 'string',
+        'highlights' => \NextDeveloper\Commons\Database\Casts\TextArray::class,
+        'slug' => 'string',
+        'version' => 'string',
+        'sales_pitch' => 'string',
+        'is_service' => 'boolean',
+        'is_in_maintenance' => 'boolean',
+        'is_public' => 'boolean',
+        'is_invisible' => 'boolean',
+        'is_active' => 'boolean',
+        'category' => 'string',
+        'common_category_id' => 'integer',
+        'marketplace' => 'string',
+        'marketplace_market_id' => 'integer',
+        'maintainer' => 'string',
+        'responsible' => 'string',
+        'product_catalog_count' => 'integer',
+        'has_free_trial' => 'boolean',
+        'tags' => \NextDeveloper\Commons\Database\Casts\TextArray::class,
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
     /**
-     We are casting data fields.
+     * We are casting data fields.
      *
-     @var array
+     * @var array
      */
     protected $dates = [
-    'created_at',
-    'updated_at',
-    'deleted_at',
+        'created_at',
+        'updated_at',
+        'deleted_at',
     ];
 
     /**
-     @var array
+     * @var array
      */
     protected $with = [
 
     ];
 
     /**
-     @var int
+     * @var int
      */
     protected $perPage = 20;
 
     /**
-     @return void
+     * @return void
      */
     public static function boot()
     {
@@ -173,9 +174,11 @@ class ProductsPerspective extends Model
         $globalScopes = config('marketplace.scopes.global');
         $modelScopes = config('marketplace.scopes.marketplace_products_perspective');
 
-        if(!$modelScopes) { $modelScopes = [];
+        if (!$modelScopes) {
+            $modelScopes = [];
         }
-        if (!$globalScopes) { $globalScopes = [];
+        if (!$globalScopes) {
+            $globalScopes = [];
         }
 
         $scopes = array_merge(
@@ -183,7 +186,7 @@ class ProductsPerspective extends Model
             $modelScopes
         );
 
-        if($scopes) {
+        if ($scopes) {
             foreach ($scopes as $scope) {
                 static::addGlobalScope(app($scope));
             }

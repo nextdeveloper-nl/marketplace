@@ -54,40 +54,41 @@ class AbstractProductsPerspectiveTransformer extends AbstractTransformer
      */
     public function transform(ProductsPerspective $model)
     {
-                                                $commonCategoryId = \NextDeveloper\Commons\Database\Models\Categories::where('id', $model->common_category_id)->first();
-                                                            $marketplaceMarketId = \NextDeveloper\Marketplace\Database\Models\Markets::where('id', $model->marketplace_market_id)->first();
-                                                            $iamAccountId = \NextDeveloper\IAM\Database\Models\Accounts::where('id', $model->iam_account_id)->first();
-                                                            $iamUserId = \NextDeveloper\IAM\Database\Models\Users::where('id', $model->iam_user_id)->first();
-                        
+        $commonCategoryId = \NextDeveloper\Commons\Database\Models\Categories::where('id', $model->common_category_id)->first();
+        $marketplaceMarketId = \NextDeveloper\Marketplace\Database\Models\Markets::where('id', $model->marketplace_market_id)->first();
+        $iamAccountId = \NextDeveloper\IAM\Database\Models\Accounts::where('id', $model->iam_account_id)->first();
+        $iamUserId = \NextDeveloper\IAM\Database\Models\Users::where('id', $model->iam_user_id)->first();
+
         return $this->buildPayload(
             [
-            'id'  =>  $model->uuid,
-            'name'  =>  $model->name,
-            'description'  =>  $model->description,
-            'content'  =>  $model->content,
-            'highlights'  =>  $model->highlights,
-            'subscription_type'  =>  $model->subscription_type,
-            'slug'  =>  $model->slug,
-            'version'  =>  $model->version,
-            'sales_pitch'  =>  $model->sales_pitch,
-            'is_service'  =>  $model->is_service,
-            'is_in_maintenance'  =>  $model->is_in_maintenance,
-            'is_public'  =>  $model->is_public,
-            'is_invisible'  =>  $model->is_invisible,
-            'is_active'  =>  $model->is_active,
-            'category'  =>  $model->category,
-            'common_category_id'  =>  $commonCategoryId ? $commonCategoryId->uuid : null,
-            'marketplace'  =>  $model->marketplace,
-            'marketplace_market_id'  =>  $marketplaceMarketId ? $marketplaceMarketId->uuid : null,
-            'maintainer'  =>  $model->maintainer,
-            'responsible'  =>  $model->responsible,
-            'product_catalog_count'  =>  $model->product_catalog_count,
-            'tags'  =>  $model->tags,
-            'iam_account_id'  =>  $iamAccountId ? $iamAccountId->uuid : null,
-            'iam_user_id'  =>  $iamUserId ? $iamUserId->uuid : null,
-            'created_at'  =>  $model->created_at,
-            'updated_at'  =>  $model->updated_at,
-            'deleted_at'  =>  $model->deleted_at,
+                'id' => $model->uuid,
+                'name' => $model->name,
+                'description' => $model->description,
+                'content' => $model->content,
+                'highlights' => $model->highlights,
+                'subscription_type' => $model->subscription_type,
+                'slug' => $model->slug,
+                'version' => $model->version,
+                'sales_pitch' => $model->sales_pitch,
+                'is_service' => $model->is_service,
+                'is_in_maintenance' => $model->is_in_maintenance,
+                'is_public' => $model->is_public,
+                'is_invisible' => $model->is_invisible,
+                'is_active' => $model->is_active,
+                'category' => $model->category,
+                'common_category_id' => $commonCategoryId ? $commonCategoryId->uuid : null,
+                'marketplace' => $model->marketplace,
+                'marketplace_market_id' => $marketplaceMarketId ? $marketplaceMarketId->uuid : null,
+                'maintainer' => $model->maintainer,
+                'responsible' => $model->responsible,
+                'product_catalog_count' => $model->product_catalog_count,
+                'has_free_trial'    =>  $model->has_free_trial,
+                'tags' => $model->tags,
+                'iam_account_id' => $iamAccountId ? $iamAccountId->uuid : null,
+                'iam_user_id' => $iamUserId ? $iamUserId->uuid : null,
+                'created_at' => $model->created_at,
+                'updated_at' => $model->updated_at,
+                'deleted_at' => $model->deleted_at,
             ]
         );
     }
