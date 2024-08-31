@@ -11,7 +11,7 @@ use NextDeveloper\IAM\Database\Models\Users;
 use NextDeveloper\IAM\Database\Scopes\AuthorizationScope;
 use NextDeveloper\IAM\Helpers\UserHelper;
 use NextDeveloper\Marketplace\Database\Models\Markets;
-
+use NextDeveloper\Marketplace\Database\Models\Products;
 
 class MarketplaceSuccessManagerRole extends AbstractRole implements IAuthorizationRole
 {
@@ -33,6 +33,19 @@ class MarketplaceSuccessManagerRole extends AbstractRole implements IAuthorizati
      */
     public function apply(Builder $builder, Model $model)
     {
+        if($model->getTable() == 'marketplace_product_catalogs' || $model->getTable() == 'marketplace_product_catalogs_perspective') {
+            $publicProducts = Products::withoutGlobalScope(AuthorizationScope::class)
+                ->where('is_public', '=', 'true')
+                ->pluck('id');
+
+            $builder->where([
+                'iam_account_id'    =>  UserHelper::currentAccount()->id
+            ])->orWhereIn('marketplace_product_id', $publicProducts)
+            ->where('is_public', true);
+
+            return;
+        }
+
         //  If the request is a GET request, we will allow the user to see the public markets
         if($model->getTable() == 'marketplace_products' || $model->getTable() == 'marketplace_products_perspective') {
             $publicMarkets = Markets::withoutGlobalScope(AuthorizationScope::class)
@@ -40,8 +53,7 @@ class MarketplaceSuccessManagerRole extends AbstractRole implements IAuthorizati
                 ->pluck('id');
 
             $builder->where([
-                'iam_account_id'    =>  UserHelper::currentAccount()->id,
-                'iam_user_id'       =>  UserHelper::me()->id
+                'iam_account_id'    =>  UserHelper::currentAccount()->id
             ])->orWhereIn('marketplace_market_id', $publicMarkets)
                 ->where('is_active', true);
 
