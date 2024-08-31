@@ -7,6 +7,7 @@ use NextDeveloper\Commons\Common\Cache\CacheHelper;
 use NextDeveloper\Marketplace\Database\Models\ProductsPerspective;
 use NextDeveloper\Commons\Http\Transformers\AbstractTransformer;
 use NextDeveloper\Marketplace\Http\Transformers\AbstractTransformers\AbstractProductsPerspectiveTransformer;
+use NextDeveloper\Partnership\Database\Models\Accounts;
 
 /**
  * Class ProductsPerspectiveTransformer. This class is being used to manipulate the data we are serving to the customer
@@ -15,7 +16,6 @@ use NextDeveloper\Marketplace\Http\Transformers\AbstractTransformers\AbstractPro
  */
 class ProductsPerspectiveTransformer extends AbstractProductsPerspectiveTransformer
 {
-
     /**
      * @param ProductsPerspective $model
      *
