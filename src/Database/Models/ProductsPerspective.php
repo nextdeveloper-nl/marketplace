@@ -127,6 +127,8 @@ class ProductsPerspective extends Model
         'responsible' => 'string',
         'product_catalog_count' => 'integer',
         'has_free_trial' => 'boolean',
+        'starting_from'     =>  'integer',
+        'currency_code'     =>  'string',
         'tags' => \NextDeveloper\Commons\Database\Casts\TextArray::class,
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
