@@ -2,7 +2,7 @@
 
 namespace NextDeveloper\Marketplace\Services;
 
-use NextDeveloper\IAM\Database\Scopes\AuthorizationScope;
+use NextDeveloper\Marketplace\Database\Models\ProductCatalogs;
 use NextDeveloper\Marketplace\Database\Models\ProductsPerspective;
 use NextDeveloper\Marketplace\Services\AbstractServices\AbstractProductsPerspectiveService;
 
