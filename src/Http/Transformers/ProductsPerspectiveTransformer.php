@@ -3,6 +3,9 @@
 namespace NextDeveloper\Marketplace\Http\Transformers;
 
 use Illuminate\Support\Facades\Cache;
+use NextDeveloper\Blogs\Database\Models\Posts;
+use NextDeveloper\Blogs\Database\Models\PostsPerspective;
+use NextDeveloper\Blogs\Http\Transformers\PostsPerspectiveTransformer;
 use NextDeveloper\Commons\Common\Cache\CacheHelper;
 use NextDeveloper\Marketplace\Database\Models\ProductCatalogs;
 use NextDeveloper\Marketplace\Database\Models\ProductsPerspective;
@@ -21,6 +24,7 @@ class ProductsPerspectiveTransformer extends AbstractProductsPerspectiveTransfor
     public function __construct()
     {
         parent::addInclude('catalogs');
+        parent::addInclude('blogs');
     }
 
     /**
@@ -46,6 +50,13 @@ class ProductsPerspectiveTransformer extends AbstractProductsPerspectiveTransfor
         );
 
         return $transformed;
+    }
+
+    public function includeBlogs(ProductsPerspective $model)
+    {
+        $blogs = PostsPerspective::whereRaw('tags @> ARRAY[\'' . $model->slug . '\']')->get();
+
+        return $this->collection($blogs, app(PostsPerspectiveTransformer::class));
     }
 
     public function includeCatalogs(ProductsPerspective $model)
