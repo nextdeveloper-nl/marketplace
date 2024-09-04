@@ -4,7 +4,7 @@ namespace NextDeveloper\Marketplace\Database\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
 use NextDeveloper\Commons\Database\Filters\AbstractQueryFilter;
-        
+
 
 /**
  * This class automatically puts where clause on database so that use can filter
@@ -37,17 +37,17 @@ class ProductCatalogsPerspectiveQueryFilter extends AbstractQueryFilter
      * @var Builder
      */
     protected $builder;
-    
+
     public function name($value)
     {
         return $this->builder->where('name', 'like', '%' . $value . '%');
     }
-    
+
     public function sku($value)
     {
         return $this->builder->where('sku', 'like', '%' . $value . '%');
     }
-    
+
     public function product($value)
     {
         return $this->builder->where('product', 'like', '%' . $value . '%');
@@ -68,9 +68,7 @@ class ProductCatalogsPerspectiveQueryFilter extends AbstractQueryFilter
 
     public function isPublic($value)
     {
-        if(!is_bool($value)) {
-            $value = false;
-        }
+
 
         return $this->builder->where('is_public', $value);
     }
