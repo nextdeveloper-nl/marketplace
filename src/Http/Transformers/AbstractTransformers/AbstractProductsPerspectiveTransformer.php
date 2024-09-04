@@ -84,7 +84,7 @@ class AbstractProductsPerspectiveTransformer extends AbstractTransformer
                 'responsible' => $model->responsible,
                 'product_catalog_count' => $model->product_catalog_count,
                 'has_free_trial'    =>  $model->has_free_trial,
-                'meeting_link'      =>  $model->meeting_link,
+                'partner_meeting_link'      =>  $model->partner_meeting_link,
                 'starting_from'     =>  $model->starting_from,
                 'currency_code'     =>  $model->currency_code,
                 'tags' => $model->tags,
