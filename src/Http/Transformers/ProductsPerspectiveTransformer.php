@@ -3,6 +3,7 @@
 namespace NextDeveloper\Marketplace\Http\Transformers;
 
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 use NextDeveloper\Blogs\Database\Models\Posts;
 use NextDeveloper\Blogs\Database\Models\PostsPerspective;
 use NextDeveloper\Blogs\Http\Transformers\PostsPerspectiveTransformer;
@@ -43,6 +44,7 @@ class ProductsPerspectiveTransformer extends AbstractProductsPerspectiveTransfor
         }
 
         $transformed = parent::transform($model);
+        $transformed['sales_pitch_short'] = Str::words($transformed['sales_pitch'], 20);
 
         Cache::set(
             CacheHelper::getKey('ProductsPerspective', $model->uuid, 'Transformed'),

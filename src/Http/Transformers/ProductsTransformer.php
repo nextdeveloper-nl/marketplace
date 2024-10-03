@@ -65,4 +65,9 @@ class ProductsTransformer extends AbstractProductsTransformer
 
         return $this->collection($blogs, new \NextDeveloper\Blogs\Http\Transformers\PostsTransformer());
     }
+
+    public function includeCatalogs()
+    {
+
+    }
 }

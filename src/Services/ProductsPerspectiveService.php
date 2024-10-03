@@ -2,6 +2,10 @@
 
 namespace NextDeveloper\Marketplace\Services;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Str;
+use NextDeveloper\Marketplace\Database\Filters\ProductsQueryFilter;
 use NextDeveloper\Marketplace\Database\Models\ProductCatalogs;
 use NextDeveloper\Marketplace\Database\Models\ProductsPerspective;
 use NextDeveloper\Marketplace\Services\AbstractServices\AbstractProductsPerspectiveService;

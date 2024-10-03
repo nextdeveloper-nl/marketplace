@@ -13,6 +13,8 @@ class ProductHighlight extends Services
         $this->name = 'Marketplace Service';
         $this->description = 'Marketplace as a service';
 
+        $this->addCatalog(new ProductCatalog());
+
         parent::__construct();
     }
 }
