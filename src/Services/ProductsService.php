@@ -16,7 +16,8 @@ class ProductsService extends AbstractProductsService
 {
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
-    public static function get(ProductsQueryFilter $filter = null, array $params = []) {
+    public static function get(ProductsQueryFilter $filter = null, array $params = []): \Illuminate\Database\Eloquent\Collection|\Illuminate\Contracts\Pagination\LengthAwarePaginator
+    {
         $result = self::get($filter, $params);
 
         dd($result);
