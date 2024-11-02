@@ -35,8 +35,9 @@ use NextDeveloper\Commons\Database\Traits\Taggable;
  */
 class ProductCatalogsPerspective extends Model
 {
-    use Filterable, UuidId, CleanCache, Taggable, HasStates;
+    use Filterable, UuidId, CleanCache, Taggable;
     use SoftDeletes;
+
 
     public $timestamps = true;
 
@@ -155,6 +156,7 @@ class ProductCatalogsPerspective extends Model
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 }

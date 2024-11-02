@@ -24,6 +24,7 @@ class ProductCatalogsUpdateRequest extends AbstractFormRequest
         'trial_date' => 'integer',
         'features' => 'nullable',
         'is_public' => 'boolean',
+        'common_currency_id' => 'nullable|exists:common_currencies,uuid|uuid',
         ];
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n

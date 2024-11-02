@@ -4,7 +4,7 @@ namespace NextDeveloper\Marketplace\Database\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
 use NextDeveloper\Commons\Database\Filters\AbstractQueryFilter;
-
+                        
 
 /**
  * This class automatically puts where clause on database so that use can filter
@@ -17,42 +17,42 @@ class MarketsPerspectiveQueryFilter extends AbstractQueryFilter
      * @var Builder
      */
     protected $builder;
-
+    
     public function name($value)
     {
         return $this->builder->where('name', 'like', '%' . $value . '%');
     }
-
+    
     public function description($value)
     {
         return $this->builder->where('description', 'like', '%' . $value . '%');
     }
-
+    
     public function domain($value)
     {
         return $this->builder->where('domain', 'like', '%' . $value . '%');
     }
-
+    
     public function currency($value)
     {
         return $this->builder->where('currency', 'like', '%' . $value . '%');
     }
-
+    
     public function language($value)
     {
         return $this->builder->where('language', 'like', '%' . $value . '%');
     }
-
+    
     public function country($value)
     {
         return $this->builder->where('country', 'like', '%' . $value . '%');
     }
-
+    
     public function maintainer($value)
     {
         return $this->builder->where('maintainer', 'like', '%' . $value . '%');
     }
-
+    
     public function responsible($value)
     {
         return $this->builder->where('responsible', 'like', '%' . $value . '%');
@@ -73,14 +73,18 @@ class MarketsPerspectiveQueryFilter extends AbstractQueryFilter
 
     public function isPublic($value)
     {
-
+        if(!is_bool($value)) {
+            $value = false;
+        }
 
         return $this->builder->where('is_public', $value);
     }
 
     public function isActive($value)
     {
-
+        if(!is_bool($value)) {
+            $value = false;
+        }
 
         return $this->builder->where('is_active', $value);
     }
@@ -170,6 +174,7 @@ class MarketsPerspectiveQueryFilter extends AbstractQueryFilter
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 }
