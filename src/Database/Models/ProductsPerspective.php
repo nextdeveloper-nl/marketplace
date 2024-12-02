@@ -31,13 +31,23 @@ use NextDeveloper\Commons\Database\Traits\Taggable;
  * @property boolean $is_public
  * @property boolean $is_invisible
  * @property boolean $is_active
+ * @property boolean $is_approved
  * @property string $category
  * @property integer $common_category_id
  * @property string $marketplace
  * @property integer $marketplace_market_id
  * @property string $maintainer
+ * @property string $about_maintainer
  * @property string $responsible
  * @property integer $product_catalog_count
+ * @property boolean $has_free_trial
+ * @property $starting_from
+ * @property string $currency_code
+ * @property string $partner_meeting_link
+ * @property string $refund_policy
+ * @property string $after_sales_introduction
+ * @property string $support_content
+ * @property string $eula
  * @property array $tags
  * @property integer $iam_account_id
  * @property integer $iam_user_id
@@ -47,8 +57,9 @@ use NextDeveloper\Commons\Database\Traits\Taggable;
  */
 class ProductsPerspective extends Model
 {
-    use Filterable, UuidId, CleanCache, Taggable, HasStates;
+    use Filterable, UuidId, CleanCache, Taggable;
     use SoftDeletes;
+
 
     public $timestamps = true;
 
@@ -56,110 +67,126 @@ class ProductsPerspective extends Model
 
 
     /**
-     * @var array
+     @var array
      */
     protected $guarded = [];
 
     protected $fillable = [
-        'name',
-        'description',
-        'content',
-        'highlights',
-        'subscription_type',
-        'slug',
-        'version',
-        'sales_pitch',
-        'is_service',
-        'is_in_maintenance',
-        'is_public',
-        'is_invisible',
-        'is_active',
-        'category',
-        'common_category_id',
-        'marketplace',
-        'marketplace_market_id',
-        'maintainer',
-        'responsible',
-        'product_catalog_count',
-        'tags',
-        'iam_account_id',
-        'iam_user_id',
+            'name',
+            'description',
+            'content',
+            'highlights',
+            'subscription_type',
+            'slug',
+            'version',
+            'sales_pitch',
+            'is_service',
+            'is_in_maintenance',
+            'is_public',
+            'is_invisible',
+            'is_active',
+            'is_approved',
+            'category',
+            'common_category_id',
+            'marketplace',
+            'marketplace_market_id',
+            'maintainer',
+            'about_maintainer',
+            'responsible',
+            'product_catalog_count',
+            'has_free_trial',
+            'starting_from',
+            'currency_code',
+            'partner_meeting_link',
+            'refund_policy',
+            'after_sales_introduction',
+            'support_content',
+            'eula',
+            'tags',
+            'iam_account_id',
+            'iam_user_id',
     ];
 
     /**
-     * Here we have the fulltext fields. We can use these for fulltext search if enabled.
+      Here we have the fulltext fields. We can use these for fulltext search if enabled.
      */
     protected $fullTextFields = [
 
     ];
 
     /**
-     * @var array
+     @var array
      */
     protected $appends = [
 
     ];
 
     /**
-     * We are casting fields to objects so that we can work on them better
+     We are casting fields to objects so that we can work on them better
      *
-     * @var array
+     @var array
      */
     protected $casts = [
-        'id' => 'integer',
-        'name' => 'string',
-        'description' => 'string',
-        'content' => 'string',
-        'highlights' => \NextDeveloper\Commons\Database\Casts\TextArray::class,
-        'slug' => 'string',
-        'version' => 'string',
-        'sales_pitch' => 'string',
-        'is_service' => 'boolean',
-        'is_in_maintenance' => 'boolean',
-        'is_public' => 'boolean',
-        'is_invisible' => 'boolean',
-        'is_active' => 'boolean',
-        'category' => 'string',
-        'common_category_id' => 'integer',
-        'marketplace' => 'string',
-        'marketplace_market_id' => 'integer',
-        'maintainer' => 'string',
-        'responsible' => 'string',
-        'product_catalog_count' => 'integer',
-        'has_free_trial' => 'boolean',
-        'starting_from'     =>  'integer',
-        'currency_code'     =>  'string',
-        'tags' => \NextDeveloper\Commons\Database\Casts\TextArray::class,
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
+    'id' => 'integer',
+    'name' => 'string',
+    'description' => 'string',
+    'content' => 'string',
+    'highlights' => \NextDeveloper\Commons\Database\Casts\TextArray::class,
+    'slug' => 'string',
+    'version' => 'string',
+    'sales_pitch' => 'string',
+    'is_service' => 'boolean',
+    'is_in_maintenance' => 'boolean',
+    'is_public' => 'boolean',
+    'is_invisible' => 'boolean',
+    'is_active' => 'boolean',
+    'is_approved' => 'boolean',
+    'category' => 'string',
+    'common_category_id' => 'integer',
+    'marketplace' => 'string',
+    'marketplace_market_id' => 'integer',
+    'maintainer' => 'string',
+    'about_maintainer' => 'string',
+    'responsible' => 'string',
+    'product_catalog_count' => 'integer',
+    'has_free_trial' => 'boolean',
+    'currency_code' => 'string',
+    'partner_meeting_link' => 'string',
+    'refund_policy' => 'string',
+    'after_sales_introduction' => 'string',
+    'support_content' => 'string',
+    'eula' => 'string',
+    'tags' => \NextDeveloper\Commons\Database\Casts\TextArray::class,
+    'created_at' => 'datetime',
+    'updated_at' => 'datetime',
+    'deleted_at' => 'datetime',
     ];
 
     /**
-     * We are casting data fields.
+     We are casting data fields.
      *
-     * @var array
+     @var array
      */
     protected $dates = [
-        'created_at',
-        'updated_at',
-        'deleted_at',
+    'created_at',
+    'updated_at',
+    'deleted_at',
     ];
 
     /**
-     * @var array
+     @var array
      */
     protected $with = [
 
     ];
 
     /**
-     * @var int
+     @var int
      */
     protected $perPage = 20;
 
     /**
-     * @return void
+     @return void
      */
     public static function boot()
     {
@@ -176,11 +203,9 @@ class ProductsPerspective extends Model
         $globalScopes = config('marketplace.scopes.global');
         $modelScopes = config('marketplace.scopes.marketplace_products_perspective');
 
-        if (!$modelScopes) {
-            $modelScopes = [];
+        if(!$modelScopes) { $modelScopes = [];
         }
-        if (!$globalScopes) {
-            $globalScopes = [];
+        if (!$globalScopes) { $globalScopes = [];
         }
 
         $scopes = array_merge(
@@ -188,7 +213,7 @@ class ProductsPerspective extends Model
             $modelScopes
         );
 
-        if ($scopes) {
+        if($scopes) {
             foreach ($scopes as $scope) {
                 static::addGlobalScope(app($scope));
             }
@@ -196,6 +221,7 @@ class ProductsPerspective extends Model
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 }
