@@ -25,15 +25,13 @@ class ProductsPerspectiveService extends AbstractProductsPerspectiveService
 {
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
-    public static function getPublicProducts($domainUuid) : ?Collection
+    public static function getPublicProducts($marketUuid) : ?Collection
     {
         try {
-            $domain = Domains::where('uuid', $domainUuid)->first();
+            $marketplace = Markets::where('id', $marketUuid)->first();
         } catch (\Exception $e) {
             return new Collection();
         }
-
-        $marketplace = Markets::where('common_domain_id', $domain->id)->first();
 
         $products = ProductsPerspective::withoutGlobalScope(AuthorizationScope::class)
             ->withoutGlobalScope(LimitScope::class)
