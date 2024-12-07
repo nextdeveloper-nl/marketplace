@@ -4,7 +4,7 @@ namespace NextDeveloper\Marketplace\Database\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
 use NextDeveloper\Commons\Database\Filters\AbstractQueryFilter;
-
+                
 
 /**
  * This class automatically puts where clause on database so that use can filter
@@ -37,17 +37,17 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
      * @var Builder
      */
     protected $builder;
-
+    
     public function name($value)
     {
         return $this->builder->where('name', 'like', '%' . $value . '%');
     }
-
+    
     public function agreement($value)
     {
         return $this->builder->where('agreement', 'like', '%' . $value . '%');
     }
-
+    
     public function sku($value)
     {
         return $this->builder->where('sku', 'like', '%' . $value . '%');
@@ -81,7 +81,9 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
 
     public function isPublic($value)
     {
-
+        if(!is_bool($value)) {
+            $value = false;
+        }
 
         return $this->builder->where('is_public', $value);
     }
@@ -143,7 +145,17 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
         }
     }
 
+    public function commonCurrencyId($value)
+    {
+            $commonCurrency = \NextDeveloper\Commons\Database\Models\Currencies::where('uuid', $value)->first();
+
+        if($commonCurrency) {
+            return $this->builder->where('common_currency_id', '=', $commonCurrency->id);
+        }
+    }
+
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 

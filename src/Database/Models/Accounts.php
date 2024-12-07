@@ -6,37 +6,24 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Model;
 use NextDeveloper\Commons\Database\Traits\Filterable;
-use NextDeveloper\Commons\Database\Traits\HasStates;
-use NextDeveloper\Marketplace\Database\Observers\ProductCatalogsObserver;
+use NextDeveloper\Marketplace\Database\Observers\AccountsObserver;
 use NextDeveloper\Commons\Database\Traits\UuidId;
 use NextDeveloper\Commons\Common\Cache\Traits\CleanCache;
 use NextDeveloper\Commons\Database\Traits\Taggable;
 
 /**
- * ProductCatalogs model.
+ * Accounts model.
  *
  * @package  NextDeveloper\Marketplace\Database\Models
  * @property integer $id
  * @property string $uuid
- * @property string $name
- * @property string $agreement
- * @property $args
- * @property $price
- * @property integer $marketplace_product_id
- * @property array $tags
+ * @property integer $iam_account_id
+ * @property boolean $is_service_enabled
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
- * @property string $sku
- * @property integer $quantity_in_inventory
- * @property integer $trial_date
- * @property array $features
- * @property boolean $is_public
- * @property integer $iam_account_id
- * @property integer $iam_user_id
- * @property integer $common_currency_id
  */
-class ProductCatalogs extends Model
+class Accounts extends Model
 {
     use Filterable, UuidId, CleanCache, Taggable;
     use SoftDeletes;
@@ -44,7 +31,7 @@ class ProductCatalogs extends Model
 
     public $timestamps = true;
 
-    protected $table = 'marketplace_product_catalogs';
+    protected $table = 'marketplace_accounts';
 
 
     /**
@@ -53,20 +40,8 @@ class ProductCatalogs extends Model
     protected $guarded = [];
 
     protected $fillable = [
-            'name',
-            'agreement',
-            'args',
-            'price',
-            'marketplace_product_id',
-            'tags',
-            'sku',
-            'quantity_in_inventory',
-            'trial_date',
-            'features',
-            'is_public',
             'iam_account_id',
-            'iam_user_id',
-            'common_currency_id',
+            'is_service_enabled',
     ];
 
     /**
@@ -90,20 +65,10 @@ class ProductCatalogs extends Model
      */
     protected $casts = [
     'id' => 'integer',
-    'name' => 'string',
-    'agreement' => 'string',
-    'args' => 'array',
-    'marketplace_product_id' => 'integer',
-    'tags' => \NextDeveloper\Commons\Database\Casts\TextArray::class,
+    'is_service_enabled' => 'boolean',
     'created_at' => 'datetime',
     'updated_at' => 'datetime',
     'deleted_at' => 'datetime',
-    'sku' => 'string',
-    'quantity_in_inventory' => 'integer',
-    'trial_date' => 'integer',
-    'features' => \NextDeveloper\Commons\Database\Casts\TextArray::class,
-    'is_public' => 'boolean',
-    'common_currency_id' => 'integer',
     ];
 
     /**
@@ -137,7 +102,7 @@ class ProductCatalogs extends Model
         parent::boot();
 
         //  We create and add Observer even if we wont use it.
-        parent::observe(ProductCatalogsObserver::class);
+        parent::observe(AccountsObserver::class);
 
         self::registerScopes();
     }
@@ -145,7 +110,7 @@ class ProductCatalogs extends Model
     public static function registerScopes()
     {
         $globalScopes = config('marketplace.scopes.global');
-        $modelScopes = config('marketplace.scopes.marketplace_product_catalogs');
+        $modelScopes = config('marketplace.scopes.marketplace_accounts');
 
         if(!$modelScopes) { $modelScopes = [];
         }
@@ -165,10 +130,4 @@ class ProductCatalogs extends Model
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
-
-
-
-
-
-
 }

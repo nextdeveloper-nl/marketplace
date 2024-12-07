@@ -81,6 +81,7 @@ class MarketplaceUserRole extends AbstractRole implements IAuthorizationRole
     {
         return [
             'marketplace_markets:read',
+            'marketplace_markets:create',
             'marketplace_products:read',
             'marketplace_product_catalogs:read',
             'marketplace_subscriptions:read',

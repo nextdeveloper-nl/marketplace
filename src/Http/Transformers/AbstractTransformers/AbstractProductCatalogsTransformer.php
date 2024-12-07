@@ -57,6 +57,7 @@ class AbstractProductCatalogsTransformer extends AbstractTransformer
                                                 $marketplaceProductId = \NextDeveloper\Marketplace\Database\Models\Products::where('id', $model->marketplace_product_id)->first();
                                                             $iamAccountId = \NextDeveloper\IAM\Database\Models\Accounts::where('id', $model->iam_account_id)->first();
                                                             $iamUserId = \NextDeveloper\IAM\Database\Models\Users::where('id', $model->iam_user_id)->first();
+                                                            $commonCurrencyId = \NextDeveloper\Commons\Database\Models\Currencies::where('id', $model->common_currency_id)->first();
                         
         return $this->buildPayload(
             [
@@ -77,6 +78,7 @@ class AbstractProductCatalogsTransformer extends AbstractTransformer
             'is_public'  =>  $model->is_public,
             'iam_account_id'  =>  $iamAccountId ? $iamAccountId->uuid : null,
             'iam_user_id'  =>  $iamUserId ? $iamUserId->uuid : null,
+            'common_currency_id'  =>  $commonCurrencyId ? $commonCurrencyId->uuid : null,
             ]
         );
     }
@@ -165,6 +167,7 @@ class AbstractProductCatalogsTransformer extends AbstractTransformer
         return $this->collection($addresses, new AddressesTransformer());
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 

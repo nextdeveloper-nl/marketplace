@@ -4,7 +4,7 @@ namespace NextDeveloper\Marketplace\Database\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
 use NextDeveloper\Commons\Database\Filters\AbstractQueryFilter;
-
+                
 
 /**
  * This class automatically puts where clause on database so that use can filter
@@ -37,55 +37,90 @@ class ProductsPerspectiveQueryFilter extends AbstractQueryFilter
      * @var Builder
      */
     protected $builder;
-
+    
     public function name($value)
     {
         return $this->builder->where('name', 'like', '%' . $value . '%');
     }
-
+    
     public function description($value)
     {
         return $this->builder->where('description', 'like', '%' . $value . '%');
     }
-
+    
     public function content($value)
     {
         return $this->builder->where('content', 'like', '%' . $value . '%');
     }
-
+    
     public function slug($value)
     {
         return $this->builder->where('slug', 'like', '%' . $value . '%');
     }
-
+    
     public function version($value)
     {
         return $this->builder->where('version', 'like', '%' . $value . '%');
     }
-
+    
     public function salesPitch($value)
     {
         return $this->builder->where('sales_pitch', 'like', '%' . $value . '%');
     }
-
+    
     public function category($value)
     {
         return $this->builder->where('category', 'like', '%' . $value . '%');
     }
-
+    
     public function marketplace($value)
     {
         return $this->builder->where('marketplace', 'like', '%' . $value . '%');
     }
-
+    
     public function maintainer($value)
     {
         return $this->builder->where('maintainer', 'like', '%' . $value . '%');
     }
-
+    
+    public function aboutMaintainer($value)
+    {
+        return $this->builder->where('about_maintainer', 'like', '%' . $value . '%');
+    }
+    
     public function responsible($value)
     {
         return $this->builder->where('responsible', 'like', '%' . $value . '%');
+    }
+    
+    public function currencyCode($value)
+    {
+        return $this->builder->where('currency_code', 'like', '%' . $value . '%');
+    }
+    
+    public function partnerMeetingLink($value)
+    {
+        return $this->builder->where('partner_meeting_link', 'like', '%' . $value . '%');
+    }
+    
+    public function refundPolicy($value)
+    {
+        return $this->builder->where('refund_policy', 'like', '%' . $value . '%');
+    }
+    
+    public function afterSalesIntroduction($value)
+    {
+        return $this->builder->where('after_sales_introduction', 'like', '%' . $value . '%');
+    }
+    
+    public function supportContent($value)
+    {
+        return $this->builder->where('support_content', 'like', '%' . $value . '%');
+    }
+    
+    public function eula($value)
+    {
+        return $this->builder->where('eula', 'like', '%' . $value . '%');
     }
 
     public function productCatalogCount($value)
@@ -103,41 +138,55 @@ class ProductsPerspectiveQueryFilter extends AbstractQueryFilter
 
     public function isService($value)
     {
-
+        if(!is_bool($value)) {
+            $value = false;
+        }
 
         return $this->builder->where('is_service', $value);
     }
 
     public function isInMaintenance($value)
     {
-
+        if(!is_bool($value)) {
+            $value = false;
+        }
 
         return $this->builder->where('is_in_maintenance', $value);
     }
 
     public function isPublic($value)
     {
-
+        if(!is_bool($value)) {
+            $value = false;
+        }
 
         return $this->builder->where('is_public', $value);
     }
 
     public function isInvisible($value)
     {
-
+        if(!is_bool($value)) {
+            $value = false;
+        }
 
         return $this->builder->where('is_invisible', $value);
     }
 
     public function isActive($value)
     {
-
+        if(!is_bool($value)) {
+            $value = false;
+        }
 
         return $this->builder->where('is_active', $value);
     }
 
     public function isApproved($value)
     {
+        if(!is_bool($value)) {
+            $value = false;
+        }
+
         return $this->builder->where('is_approved', $value);
     }
 
@@ -208,6 +257,7 @@ class ProductsPerspectiveQueryFilter extends AbstractQueryFilter
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 }
