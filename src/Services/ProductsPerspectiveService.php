@@ -28,7 +28,7 @@ class ProductsPerspectiveService extends AbstractProductsPerspectiveService
     public static function getPublicProducts($marketUuid) : ?Collection
     {
         try {
-            $marketplace = Markets::where('id', $marketUuid)->first();
+            $marketplace = Markets::where('uuid', $marketUuid)->first();
         } catch (\Exception $e) {
             return new Collection();
         }
