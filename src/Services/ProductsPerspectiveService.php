@@ -6,8 +6,10 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Str;
 use NextDeveloper\Commons\Database\GlobalScopes\LimitScope;
+use NextDeveloper\Commons\Database\Models\Domains;
 use NextDeveloper\IAM\Database\Scopes\AuthorizationScope;
 use NextDeveloper\Marketplace\Database\Filters\ProductsQueryFilter;
+use NextDeveloper\Marketplace\Database\Models\Markets;
 use NextDeveloper\Marketplace\Database\Models\ProductCatalogs;
 use NextDeveloper\Marketplace\Database\Models\ProductsPerspective;
 use NextDeveloper\Marketplace\Services\AbstractServices\AbstractProductsPerspectiveService;
@@ -23,14 +25,23 @@ class ProductsPerspectiveService extends AbstractProductsPerspectiveService
 {
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
-    public static function getPublicProducts() : ?Collection
+    public static function getPublicProducts($domainUuid) : ?Collection
     {
+        try {
+            $domain = Domains::where('uuid', $domainUuid)->first();
+        } catch (\Exception $e) {
+            return new Collection();
+        }
+
+        $marketplace = Markets::where('common_domain_id', $domain->id)->first();
+
         $products = ProductsPerspective::withoutGlobalScope(AuthorizationScope::class)
             ->withoutGlobalScope(LimitScope::class)
             ->where('is_public', true)
             ->where('is_active', true)
             ->where('is_in_maintenance', false)
             ->where('is_invisible', false)
+            ->where('marketplace_market_id', $marketplace->id)
             ->get();
 
         return $products;
