@@ -57,6 +57,16 @@ class MarketplaceVendorRole extends AbstractRole implements IAuthorizationRole
             return;
         }
 
+        if($model->getTable() == 'marketplace_product_catalogs' || $model->getTable() == 'marketplace_product_catalogs_perspective') {
+            $builder->where([
+                'is_public' => true
+            ])->orWhere([
+                'iam_account_id' => UserHelper::currentAccount()->id,
+            ]);
+
+            return;
+        }
+
         $builder->where('iam_account_id', '=', UserHelper::currentAccount()->id);
     }
 
