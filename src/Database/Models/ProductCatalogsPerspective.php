@@ -59,6 +59,7 @@ class ProductCatalogsPerspective extends Model
             'is_public',
             'features',
             'product',
+        'trial_date',
             'iam_account_id',
             'iam_user_id',
     ];
