@@ -23,9 +23,11 @@ use NextDeveloper\Commons\Database\Traits\Taggable;
  * @property $args
  * @property array $tags
  * @property integer $quantity_in_inventory
+ * @property integer $trial_date
  * @property string $sku
  * @property boolean $is_public
  * @property array $features
+ * @property integer $marketplace_product_id
  * @property string $product
  * @property integer $iam_account_id
  * @property integer $iam_user_id
@@ -35,9 +37,8 @@ use NextDeveloper\Commons\Database\Traits\Taggable;
  */
 class ProductCatalogsPerspective extends Model
 {
-    use Filterable, UuidId, CleanCache, Taggable;
+    use Filterable, UuidId, CleanCache, Taggable, HasStates;
     use SoftDeletes;
-
 
     public $timestamps = true;
 
@@ -55,11 +56,12 @@ class ProductCatalogsPerspective extends Model
             'args',
             'tags',
             'quantity_in_inventory',
+            'trial_date',
             'sku',
             'is_public',
             'features',
+            'marketplace_product_id',
             'product',
-        'trial_date',
             'iam_account_id',
             'iam_user_id',
     ];
@@ -89,9 +91,11 @@ class ProductCatalogsPerspective extends Model
     'args' => 'array',
     'tags' => \NextDeveloper\Commons\Database\Casts\TextArray::class,
     'quantity_in_inventory' => 'integer',
+    'trial_date' => 'integer',
     'sku' => 'string',
     'is_public' => 'boolean',
     'features' => \NextDeveloper\Commons\Database\Casts\TextArray::class,
+    'marketplace_product_id' => 'integer',
     'product' => 'string',
     'created_at' => 'datetime',
     'updated_at' => 'datetime',
@@ -157,6 +161,7 @@ class ProductCatalogsPerspective extends Model
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 

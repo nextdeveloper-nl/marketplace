@@ -107,27 +107,6 @@ Route::prefix('marketplace')->group(
             }
         );
 
-        Route::prefix('product-catalogs-perspective')->group(
-            function () {
-                Route::get('/', 'ProductCatalogsPerspective\ProductCatalogsPerspectiveController@index');
-                Route::get('/actions', 'ProductCatalogsPerspective\ProductCatalogsPerspectiveController@getActions');
-
-                Route::get('{mpcp}/tags ', 'ProductCatalogsPerspective\ProductCatalogsPerspectiveController@tags');
-                Route::post('{mpcp}/tags ', 'ProductCatalogsPerspective\ProductCatalogsPerspectiveController@saveTags');
-                Route::get('{mpcp}/addresses ', 'ProductCatalogsPerspective\ProductCatalogsPerspectiveController@addresses');
-                Route::post('{mpcp}/addresses ', 'ProductCatalogsPerspective\ProductCatalogsPerspectiveController@saveAddresses');
-
-                Route::get('/{mpcp}/{subObjects}', 'ProductCatalogsPerspective\ProductCatalogsPerspectiveController@relatedObjects');
-                Route::get('/{mpcp}', 'ProductCatalogsPerspective\ProductCatalogsPerspectiveController@show');
-
-                Route::post('/', 'ProductCatalogsPerspective\ProductCatalogsPerspectiveController@store');
-                Route::post('/{mpcp}/do/{action}', 'ProductCatalogsPerspective\ProductCatalogsPerspectiveController@doAction');
-
-                Route::patch('/{mpcp}', 'ProductCatalogsPerspective\ProductCatalogsPerspectiveController@update');
-                Route::delete('/{mpcp}', 'ProductCatalogsPerspective\ProductCatalogsPerspectiveController@destroy');
-            }
-        );
-
         Route::prefix('products-perspective')->group(
             function () {
                 Route::get('/', 'ProductsPerspective\ProductsPerspectiveController@index');
@@ -167,6 +146,27 @@ Route::prefix('marketplace')->group(
 
                 Route::patch('/{marketplace_markets_perspective}', 'MarketsPerspective\MarketsPerspectiveController@update');
                 Route::delete('/{marketplace_markets_perspective}', 'MarketsPerspective\MarketsPerspectiveController@destroy');
+            }
+        );
+
+        Route::prefix('product-catalogs-perspective')->group(
+            function () {
+                Route::get('/', 'ProductCatalogsPerspective\ProductCatalogsPerspectiveController@index');
+                Route::get('/actions', 'ProductCatalogsPerspective\ProductCatalogsPerspectiveController@getActions');
+
+                Route::get('{mpcp}/tags ', 'ProductCatalogsPerspective\ProductCatalogsPerspectiveController@tags');
+                Route::post('{mpcp}/tags ', 'ProductCatalogsPerspective\ProductCatalogsPerspectiveController@saveTags');
+                Route::get('{mpcp}/addresses ', 'ProductCatalogsPerspective\ProductCatalogsPerspectiveController@addresses');
+                Route::post('{mpcp}/addresses ', 'ProductCatalogsPerspective\ProductCatalogsPerspectiveController@saveAddresses');
+
+                Route::get('/{mpcp}/{subObjects}', 'ProductCatalogsPerspective\ProductCatalogsPerspectiveController@relatedObjects');
+                Route::get('/{mpcp}', 'ProductCatalogsPerspective\ProductCatalogsPerspectiveController@show');
+
+                Route::post('/', 'ProductCatalogsPerspective\ProductCatalogsPerspectiveController@store');
+                Route::post('/{mpcp}/do/{action}', 'ProductCatalogsPerspective\ProductCatalogsPerspectiveController@doAction');
+
+                Route::patch('/{mpcp}', 'ProductCatalogsPerspective\ProductCatalogsPerspectiveController@update');
+                Route::delete('/{mpcp}', 'ProductCatalogsPerspective\ProductCatalogsPerspectiveController@destroy');
             }
         );
 
@@ -319,8 +319,17 @@ Route::prefix('marketplace')->group(
 
 
 
+
+
+
+
+
+
+
+
     }
 );
+
 
 
 
