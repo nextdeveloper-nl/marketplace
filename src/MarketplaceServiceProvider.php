@@ -32,7 +32,6 @@ class MarketplaceServiceProvider extends AbstractServiceProvider {
 //        $this->bootErrorHandler();
         $this->bootChannelRoutes();
         $this->bootModelBindings();
-        $this->bootEvents();
         $this->bootLogger();
     }
 
@@ -79,23 +78,6 @@ class MarketplaceServiceProvider extends AbstractServiceProvider {
     private function bootChannelRoutes() {
         if (file_exists(($file = $this->dir.'/../config/channel.routes.php'))) {
             require_once $file;
-        }
-    }
-
-    /**
-     * @return void
-     */
-    protected function bootEvents() {
-        $configs = config()->all();
-
-        foreach ($configs as $key => $value) {
-            if (config()->has($key.'.events')) {
-                foreach (config($key.'.events') as $event => $handlers) {
-                    foreach ($handlers as $handler) {
-                        $this->app['events']->listen($event, $handler);
-                    }
-                }
-            }
         }
     }
 
