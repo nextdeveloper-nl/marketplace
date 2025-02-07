@@ -107,6 +107,27 @@ Route::prefix('marketplace')->group(
             }
         );
 
+        Route::prefix('providers')->group(
+            function () {
+                Route::get('/', 'Providers\ProvidersController@index');
+                Route::get('/actions', 'Providers\ProvidersController@getActions');
+
+                Route::get('{marketplace_providers}/tags ', 'Providers\ProvidersController@tags');
+                Route::post('{marketplace_providers}/tags ', 'Providers\ProvidersController@saveTags');
+                Route::get('{marketplace_providers}/addresses ', 'Providers\ProvidersController@addresses');
+                Route::post('{marketplace_providers}/addresses ', 'Providers\ProvidersController@saveAddresses');
+
+                Route::get('/{marketplace_providers}/{subObjects}', 'Providers\ProvidersController@relatedObjects');
+                Route::get('/{marketplace_providers}', 'Providers\ProvidersController@show');
+
+                Route::post('/', 'Providers\ProvidersController@store');
+                Route::post('/{marketplace_providers}/do/{action}', 'Providers\ProvidersController@doAction');
+
+                Route::patch('/{marketplace_providers}', 'Providers\ProvidersController@update');
+                Route::delete('/{marketplace_providers}', 'Providers\ProvidersController@destroy');
+            }
+        );
+
         Route::prefix('products-perspective')->group(
             function () {
                 Route::get('/', 'ProductsPerspective\ProductsPerspectiveController@index');
@@ -327,8 +348,18 @@ Route::prefix('marketplace')->group(
 
 
 
+
+
+
+
+
+
+
+
+
     }
 );
+
 
 
 

@@ -66,7 +66,11 @@ class MarketplaceAdminRole extends AbstractRole implements IAuthorizationRole
             'marketplace_subscriptions:read',
             'marketplace_subscriptions:update',
             'marketplace_subscriptions:create',
-            'marketplace_subscriptions:delete'
+            'marketplace_subscriptions:delete',
+            'marketplace_providers:read',
+            'marketplace_providers:update',
+            'marketplace_providers:create',
+            'marketplace_providers:delete',
         ];
     }
 

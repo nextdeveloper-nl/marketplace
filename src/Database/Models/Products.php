@@ -86,6 +86,7 @@ class Products extends Model
             'marketplace_market_id',
             'sales_pitch',
             'is_approved',
+        'marketplace_provider_id',
     ];
 
     /**
@@ -201,22 +202,22 @@ class Products extends Model
     {
         return $this->belongsTo(\NextDeveloper\Commons\Database\Models\Categories::class);
     }
-    
+
     public function accounts() : \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Accounts::class);
     }
-    
+
     public function users() : \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Users::class);
     }
-    
+
     public function markets() : \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\Markets::class);
     }
-    
+
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
 
 
