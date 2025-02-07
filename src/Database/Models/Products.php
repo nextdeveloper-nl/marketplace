@@ -45,6 +45,7 @@ use NextDeveloper\Commons\Database\Traits\Taggable;
  * @property integer $marketplace_market_id
  * @property string $sales_pitch
  * @property boolean $is_approved
+ * @property integer $marketplace_provider_id
  */
 class Products extends Model
 {
@@ -86,7 +87,7 @@ class Products extends Model
             'marketplace_market_id',
             'sales_pitch',
             'is_approved',
-        'marketplace_provider_id',
+            'marketplace_provider_id',
     ];
 
     /**
@@ -133,6 +134,7 @@ class Products extends Model
     'marketplace_market_id' => 'integer',
     'sales_pitch' => 'string',
     'is_approved' => 'boolean',
+    'marketplace_provider_id' => 'integer',
     ];
 
     /**

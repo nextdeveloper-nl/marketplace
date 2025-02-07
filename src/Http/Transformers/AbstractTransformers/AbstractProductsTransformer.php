@@ -89,6 +89,7 @@ class AbstractProductsTransformer extends AbstractTransformer
             'marketplace_market_id'  =>  $marketplaceMarketId ? $marketplaceMarketId->uuid : null,
             'sales_pitch'  =>  $model->sales_pitch,
             'is_approved'  =>  $model->is_approved,
+            'marketplace_provider_id'  =>  $marketplaceProviderId ? $marketplaceProviderId->uuid : null,
             ]
         );
     }

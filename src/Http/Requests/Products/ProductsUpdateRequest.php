@@ -33,6 +33,7 @@ class ProductsUpdateRequest extends AbstractFormRequest
         'is_service' => 'boolean',
         'marketplace_market_id' => 'nullable|exists:marketplace_markets,uuid|uuid',
         'sales_pitch' => 'nullable|string',
+        'marketplace_provider_id' => 'nullable|exists:marketplace_providers,uuid|uuid',
         ];
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n
