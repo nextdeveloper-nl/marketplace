@@ -64,11 +64,15 @@ class AbstractProductsService
         if($enablePaginate) {
             //  We are using this because we have been experiencing huge security problem when we use the paginate method.
             //  The reason was, when the pagination method was using, somehow paginate was discarding all the filters.
+            $modelCount = $model->count();
+            $page = array_key_exists('page', $params) ? $params['page'] : 1;
+            $items = $model->skip(($page - 1) * $perPage)->take($perPage)->get();
+
             return new \Illuminate\Pagination\LengthAwarePaginator(
-                $model->skip(($request->get('page', 1) - 1) * $perPage)->take($perPage)->get(),
-                $model->count(),
+                $items,
+                $modelCount,
                 $perPage,
-                $request->get('page', 1)
+                $page
             );
         }
 
@@ -182,7 +186,7 @@ class AbstractProductsService
                 $data['iam_account_id']
             );
         }
-            
+
         if(!array_key_exists('iam_account_id', $data)) {
             $data['iam_account_id'] = UserHelper::currentAccount()->id;
         }
@@ -192,7 +196,7 @@ class AbstractProductsService
                 $data['iam_user_id']
             );
         }
-                    
+
         if(!array_key_exists('iam_user_id', $data)) {
             $data['iam_user_id']    = UserHelper::me()->id;
         }
@@ -202,7 +206,7 @@ class AbstractProductsService
                 $data['marketplace_market_id']
             );
         }
-                        
+
         try {
             $model = Products::create($data);
         } catch(\Exception $e) {
@@ -274,7 +278,7 @@ class AbstractProductsService
                 $data['marketplace_market_id']
             );
         }
-    
+
         Events::fire('updating:NextDeveloper\Marketplace\Products', $model);
 
         try {
