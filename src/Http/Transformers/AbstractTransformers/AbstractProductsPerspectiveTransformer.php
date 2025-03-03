@@ -58,7 +58,7 @@ class AbstractProductsPerspectiveTransformer extends AbstractTransformer
                                                             $marketplaceMarketId = \NextDeveloper\Marketplace\Database\Models\Markets::where('id', $model->marketplace_market_id)->first();
                                                             $iamAccountId = \NextDeveloper\IAM\Database\Models\Accounts::where('id', $model->iam_account_id)->first();
                                                             $iamUserId = \NextDeveloper\IAM\Database\Models\Users::where('id', $model->iam_user_id)->first();
-                        
+
         return $this->buildPayload(
             [
             'id'  =>  $model->uuid,
@@ -125,7 +125,8 @@ class AbstractProductsPerspectiveTransformer extends AbstractTransformer
 
     public function includeMedia(ProductsPerspective $model)
     {
-        $media = Media::where('object_type', get_class($model))
+        $media = Media::withoutGlobalScope(AuthorizationScope::class)
+            ->where('object_type', get_class($model))
             ->where('object_id', $model->id)
             ->get();
 
