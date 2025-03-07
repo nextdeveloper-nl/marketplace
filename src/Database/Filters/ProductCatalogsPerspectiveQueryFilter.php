@@ -4,7 +4,7 @@ namespace NextDeveloper\Marketplace\Database\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
 use NextDeveloper\Commons\Database\Filters\AbstractQueryFilter;
-
+            
 
 /**
  * This class automatically puts where clause on database so that use can filter
@@ -37,25 +37,25 @@ class ProductCatalogsPerspectiveQueryFilter extends AbstractQueryFilter
      * @var Builder
      */
     protected $builder;
-
+    
     public function name($value)
     {
         return $this->builder->where('name', 'like', '%' . $value . '%');
     }
 
-
+        
     public function sku($value)
     {
         return $this->builder->where('sku', 'like', '%' . $value . '%');
     }
 
-
+        
     public function product($value)
     {
         return $this->builder->where('product', 'like', '%' . $value . '%');
     }
 
-
+    
     public function quantityInInventory($value)
     {
         $operator = substr($value, 0, 1);
@@ -74,7 +74,7 @@ class ProductCatalogsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->quantityInInventory($value);
     }
-
+    
     public function trialDate($value)
     {
         $operator = substr($value, 0, 1);
@@ -93,7 +93,7 @@ class ProductCatalogsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->trialDate($value);
     }
-
+    
     public function isPublic($value)
     {
         return $this->builder->where('is_public', $value);
@@ -104,7 +104,7 @@ class ProductCatalogsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->isPublic($value);
     }
-
+     
     public function createdAtStart($date)
     {
         return $this->builder->where('created_at', '>=', $date);
@@ -185,7 +185,7 @@ class ProductCatalogsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->marketplaceProduct($value);
     }
-
+    
     public function iamAccountId($value)
     {
             $iamAccount = \NextDeveloper\IAM\Database\Models\Accounts::where('uuid', $value)->first();
@@ -195,7 +195,7 @@ class ProductCatalogsPerspectiveQueryFilter extends AbstractQueryFilter
         }
     }
 
-
+    
     public function iamUserId($value)
     {
             $iamUser = \NextDeveloper\IAM\Database\Models\Users::where('uuid', $value)->first();
@@ -205,8 +205,9 @@ class ProductCatalogsPerspectiveQueryFilter extends AbstractQueryFilter
         }
     }
 
-
+    
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 

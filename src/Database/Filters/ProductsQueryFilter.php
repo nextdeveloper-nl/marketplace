@@ -4,7 +4,7 @@ namespace NextDeveloper\Marketplace\Database\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
 use NextDeveloper\Commons\Database\Filters\AbstractQueryFilter;
-                
+                    
 
 /**
  * This class automatically puts where clause on database so that use can filter
@@ -300,7 +300,23 @@ class ProductsQueryFilter extends AbstractQueryFilter
         return $this->marketplaceMarket($value);
     }
     
+    public function marketplaceProviderId($value)
+    {
+            $marketplaceProvider = \NextDeveloper\Marketplace\Database\Models\Providers::where('uuid', $value)->first();
+
+        if($marketplaceProvider) {
+            return $this->builder->where('marketplace_provider_id', '=', $marketplaceProvider->id);
+        }
+    }
+
+        //  This is an alias function of marketplaceProvider
+    public function marketplace_provider_id($value)
+    {
+        return $this->marketplaceProvider($value);
+    }
+    
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 

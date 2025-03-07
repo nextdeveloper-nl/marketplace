@@ -11,6 +11,7 @@ use NextDeveloper\Marketplace\Database\Observers\ProductCatalogsObserver;
 use NextDeveloper\Commons\Database\Traits\UuidId;
 use NextDeveloper\Commons\Common\Cache\Traits\CleanCache;
 use NextDeveloper\Commons\Database\Traits\Taggable;
+use NextDeveloper\Commons\Database\Traits\RunAsAdministrator;
 
 /**
  * ProductCatalogs model.
@@ -38,7 +39,7 @@ use NextDeveloper\Commons\Database\Traits\Taggable;
  */
 class ProductCatalogs extends Model
 {
-    use Filterable, UuidId, CleanCache, Taggable, HasStates;
+    use Filterable, UuidId, CleanCache, Taggable, HasStates, RunAsAdministrator;
     use SoftDeletes;
 
     public $timestamps = true;
@@ -163,17 +164,18 @@ class ProductCatalogs extends Model
         }
     }
 
+    public function products() : \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\Products::class);
+    }
+    
     public function subscriptions() : \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\Subscriptions::class);
     }
 
-    public function products() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\Products::class);
-    }
-
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 

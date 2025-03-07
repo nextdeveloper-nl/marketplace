@@ -11,6 +11,7 @@ use NextDeveloper\Marketplace\Database\Observers\MarketsPerspectiveObserver;
 use NextDeveloper\Commons\Database\Traits\UuidId;
 use NextDeveloper\Commons\Common\Cache\Traits\CleanCache;
 use NextDeveloper\Commons\Database\Traits\Taggable;
+use NextDeveloper\Commons\Database\Traits\RunAsAdministrator;
 
 /**
  * MarketsPerspective model.
@@ -41,7 +42,7 @@ use NextDeveloper\Commons\Database\Traits\Taggable;
  */
 class MarketsPerspective extends Model
 {
-    use Filterable, UuidId, CleanCache, Taggable, HasStates;
+    use Filterable, UuidId, CleanCache, Taggable, HasStates, RunAsAdministrator;
     use SoftDeletes;
 
     public $timestamps = true;
@@ -174,6 +175,7 @@ class MarketsPerspective extends Model
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 

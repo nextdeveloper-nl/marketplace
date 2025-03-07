@@ -10,6 +10,8 @@ use NextDeveloper\Marketplace\Database\Observers\ProvidersObserver;
 use NextDeveloper\Commons\Database\Traits\UuidId;
 use NextDeveloper\Commons\Common\Cache\Traits\CleanCache;
 use NextDeveloper\Commons\Database\Traits\Taggable;
+use NextDeveloper\Commons\Database\Traits\HasStates;
+use NextDeveloper\Commons\Database\Traits\RunAsAdministrator;
 
 /**
  * Providers model.
@@ -30,9 +32,8 @@ use NextDeveloper\Commons\Database\Traits\Taggable;
  */
 class Providers extends Model
 {
-    use Filterable, UuidId, CleanCache, Taggable;
+    use Filterable, UuidId, CleanCache, Taggable, HasStates, RunAsAdministrator;
     use SoftDeletes;
-
 
     public $timestamps = true;
 
@@ -143,6 +144,27 @@ class Providers extends Model
         }
     }
 
+    public function products() : \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\Products::class);
+    }
+
+    public function markets() : \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\Markets::class);
+    }
+    
+    public function accounts() : \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Accounts::class);
+    }
+    
+    public function users() : \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Users::class);
+    }
+    
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 }

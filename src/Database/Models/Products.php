@@ -11,6 +11,7 @@ use NextDeveloper\Marketplace\Database\Observers\ProductsObserver;
 use NextDeveloper\Commons\Database\Traits\UuidId;
 use NextDeveloper\Commons\Common\Cache\Traits\CleanCache;
 use NextDeveloper\Commons\Database\Traits\Taggable;
+use NextDeveloper\Commons\Database\Traits\RunAsAdministrator;
 
 /**
  * Products model.
@@ -49,7 +50,7 @@ use NextDeveloper\Commons\Database\Traits\Taggable;
  */
 class Products extends Model
 {
-    use Filterable, UuidId, CleanCache, Taggable, HasStates;
+    use Filterable, UuidId, CleanCache, Taggable, HasStates, RunAsAdministrator;
     use SoftDeletes;
 
     public $timestamps = true;
@@ -195,32 +196,38 @@ class Products extends Model
         }
     }
 
+    public function markets() : \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\Markets::class);
+    }
+    
+    public function categories() : \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\NextDeveloper\Commons\Database\Models\Categories::class);
+    }
+    
+    public function accounts() : \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Accounts::class);
+    }
+    
+    public function users() : \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Users::class);
+    }
+    
+    public function providers() : \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\Providers::class);
+    }
+    
     public function productCatalogs() : \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\ProductCatalogs::class);
     }
 
-    public function categories() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\Commons\Database\Models\Categories::class);
-    }
-
-    public function accounts() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Accounts::class);
-    }
-
-    public function users() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Users::class);
-    }
-
-    public function markets() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\Markets::class);
-    }
-
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 

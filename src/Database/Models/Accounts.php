@@ -11,6 +11,7 @@ use NextDeveloper\Commons\Database\Traits\UuidId;
 use NextDeveloper\Commons\Common\Cache\Traits\CleanCache;
 use NextDeveloper\Commons\Database\Traits\Taggable;
 use NextDeveloper\Commons\Database\Traits\HasStates;
+use NextDeveloper\Commons\Database\Traits\RunAsAdministrator;
 
 /**
  * Accounts model.
@@ -26,7 +27,7 @@ use NextDeveloper\Commons\Database\Traits\HasStates;
  */
 class Accounts extends Model
 {
-    use Filterable, UuidId, CleanCache, Taggable, HasStates;
+    use Filterable, UuidId, CleanCache, Taggable, HasStates, RunAsAdministrator;
     use SoftDeletes;
 
     public $timestamps = true;
@@ -135,5 +136,6 @@ class Accounts extends Model
     }
     
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 }
