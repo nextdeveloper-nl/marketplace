@@ -33,10 +33,15 @@ use NextDeveloper\Commons\Database\Traits\RunAsAdministrator;
  */
 class Subscriptions extends Model
 {
-    use Filterable, UuidId, CleanCache, Taggable, HasStates, RunAsAdministrator;
+    use Filterable, CleanCache, Taggable;
+    use UuidId;
     use SoftDeletes;
 
+
     public $timestamps = true;
+
+
+
 
     protected $table = 'marketplace_subscriptions';
 
@@ -149,22 +154,8 @@ class Subscriptions extends Model
         }
     }
 
-    public function productCatalogs() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\ProductCatalogs::class);
-    }
-    
-    public function accounts() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Accounts::class);
-    }
-    
-    public function users() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Users::class);
-    }
-    
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 

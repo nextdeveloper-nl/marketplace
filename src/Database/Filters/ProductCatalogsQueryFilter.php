@@ -42,20 +42,17 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
     {
         return $this->builder->where('name', 'like', '%' . $value . '%');
     }
-
-        
+    
     public function agreement($value)
     {
         return $this->builder->where('agreement', 'like', '%' . $value . '%');
     }
-
-        
+    
     public function sku($value)
     {
         return $this->builder->where('sku', 'like', '%' . $value . '%');
     }
 
-    
     public function quantityInInventory($value)
     {
         $operator = substr($value, 0, 1);
@@ -69,12 +66,6 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
         return $this->builder->where('quantity_in_inventory', $operator, $value);
     }
 
-        //  This is an alias function of quantityInInventory
-    public function quantity_in_inventory($value)
-    {
-        return $this->quantityInInventory($value);
-    }
-    
     public function trialDate($value)
     {
         $operator = substr($value, 0, 1);
@@ -88,23 +79,15 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
         return $this->builder->where('trial_date', $operator, $value);
     }
 
-        //  This is an alias function of trialDate
-    public function trial_date($value)
-    {
-        return $this->trialDate($value);
-    }
-    
     public function isPublic($value)
     {
+        if(!is_bool($value)) {
+            $value = false;
+        }
+
         return $this->builder->where('is_public', $value);
     }
 
-        //  This is an alias function of isPublic
-    public function is_public($value)
-    {
-        return $this->isPublic($value);
-    }
-     
     public function createdAtStart($date)
     {
         return $this->builder->where('created_at', '>=', $date);
@@ -113,18 +96,6 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
     public function createdAtEnd($date)
     {
         return $this->builder->where('created_at', '<=', $date);
-    }
-
-    //  This is an alias function of createdAt
-    public function created_at_start($value)
-    {
-        return $this->createdAtStart($value);
-    }
-
-    //  This is an alias function of createdAt
-    public function created_at_end($value)
-    {
-        return $this->createdAtEnd($value);
     }
 
     public function updatedAtStart($date)
@@ -137,18 +108,6 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
         return $this->builder->where('updated_at', '<=', $date);
     }
 
-    //  This is an alias function of updatedAt
-    public function updated_at_start($value)
-    {
-        return $this->updatedAtStart($value);
-    }
-
-    //  This is an alias function of updatedAt
-    public function updated_at_end($value)
-    {
-        return $this->updatedAtEnd($value);
-    }
-
     public function deletedAtStart($date)
     {
         return $this->builder->where('deleted_at', '>=', $date);
@@ -157,18 +116,6 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
     public function deletedAtEnd($date)
     {
         return $this->builder->where('deleted_at', '<=', $date);
-    }
-
-    //  This is an alias function of deletedAt
-    public function deleted_at_start($value)
-    {
-        return $this->deletedAtStart($value);
-    }
-
-    //  This is an alias function of deletedAt
-    public function deleted_at_end($value)
-    {
-        return $this->deletedAtEnd($value);
     }
 
     public function marketplaceProductId($value)
@@ -180,12 +127,6 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
         }
     }
 
-        //  This is an alias function of marketplaceProduct
-    public function marketplace_product_id($value)
-    {
-        return $this->marketplaceProduct($value);
-    }
-    
     public function iamAccountId($value)
     {
             $iamAccount = \NextDeveloper\IAM\Database\Models\Accounts::where('uuid', $value)->first();
@@ -195,7 +136,6 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
         }
     }
 
-    
     public function iamUserId($value)
     {
             $iamUser = \NextDeveloper\IAM\Database\Models\Users::where('uuid', $value)->first();
@@ -205,7 +145,6 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
         }
     }
 
-    
     public function commonCurrencyId($value)
     {
             $commonCurrency = \NextDeveloper\Commons\Database\Models\Currencies::where('uuid', $value)->first();
@@ -215,13 +154,8 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
         }
     }
 
-        //  This is an alias function of commonCurrency
-    public function common_currency_id($value)
-    {
-        return $this->commonCurrency($value);
-    }
-    
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 

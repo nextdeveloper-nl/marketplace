@@ -47,13 +47,21 @@ use NextDeveloper\Commons\Database\Traits\RunAsAdministrator;
  * @property string $sales_pitch
  * @property boolean $is_approved
  * @property integer $marketplace_provider_id
+ * @property $payment_gateway_mappings
+ * @property boolean $is_additional_product
+ * @property integer $parent_marketplace_product_id
  */
 class Products extends Model
 {
-    use Filterable, UuidId, CleanCache, Taggable, HasStates, RunAsAdministrator;
+    use Filterable, CleanCache, Taggable;
+    use UuidId;
     use SoftDeletes;
 
+
     public $timestamps = true;
+
+
+
 
     protected $table = 'marketplace_products';
 
@@ -89,6 +97,9 @@ class Products extends Model
             'sales_pitch',
             'is_approved',
             'marketplace_provider_id',
+            'payment_gateway_mappings',
+            'is_additional_product',
+            'parent_marketplace_product_id',
     ];
 
     /**
@@ -136,6 +147,9 @@ class Products extends Model
     'sales_pitch' => 'string',
     'is_approved' => 'boolean',
     'marketplace_provider_id' => 'integer',
+    'payment_gateway_mappings' => 'array',
+    'is_additional_product' => 'boolean',
+    'parent_marketplace_product_id' => 'integer',
     ];
 
     /**
@@ -196,37 +210,8 @@ class Products extends Model
         }
     }
 
-    public function markets() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\Markets::class);
-    }
-    
-    public function categories() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\Commons\Database\Models\Categories::class);
-    }
-    
-    public function accounts() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Accounts::class);
-    }
-    
-    public function users() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Users::class);
-    }
-    
-    public function providers() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\Providers::class);
-    }
-    
-    public function productCatalogs() : \Illuminate\Database\Eloquent\Relations\HasMany
-    {
-        return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\ProductCatalogs::class);
-    }
-
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 

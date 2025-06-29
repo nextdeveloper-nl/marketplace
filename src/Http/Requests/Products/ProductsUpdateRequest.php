@@ -34,6 +34,9 @@ class ProductsUpdateRequest extends AbstractFormRequest
         'marketplace_market_id' => 'nullable|exists:marketplace_markets,uuid|uuid',
         'sales_pitch' => 'nullable|string',
         'marketplace_provider_id' => 'nullable|exists:marketplace_providers,uuid|uuid',
+        'payment_gateway_mappings' => 'nullable',
+        'is_additional_product' => 'boolean',
+        'parent_marketplace_product_id' => 'nullable|exists:parent_marketplace_products,uuid|uuid',
         ];
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n
