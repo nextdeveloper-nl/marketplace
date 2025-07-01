@@ -7,4 +7,8 @@ return [
             '\NextDeveloper\Commons\Database\GlobalScopes\LimitScope',
         ]
     ],
+    'schedule' => [
+        'enabled' => env('MARKETPLACE_SCHEDULE_ENABLED', true),
+        'cron' => env('MARKETPLACE_SCHEDULE_CRON', '*/30 * * * * *'),
+    ]
 ];

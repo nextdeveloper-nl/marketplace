@@ -62,6 +62,7 @@ trait MarketplaceProviderTestTraits
                 'description'  =>  'a',
                 'action'  =>  'a',
                 'url'  =>  'a',
+                'adapter'  =>  'a',
                             ],
                 ['http_errors' => false]
             ]
@@ -407,6 +408,25 @@ trait MarketplaceProviderTestTraits
             $request = new Request(
                 [
                 'url'  =>  'a'
+                ]
+            );
+
+            $filter = new MarketplaceProviderQueryFilter($request);
+
+            $model = \NextDeveloper\Marketplace\Database\Models\MarketplaceProvider::filter($filter)->first();
+        } catch (\Exception $e) {
+            $this->assertFalse(false, $e->getMessage());
+        }
+
+        $this->assertTrue(true);
+    }
+
+    public function test_marketplaceprovider_event_adapter_filter()
+    {
+        try {
+            $request = new Request(
+                [
+                'adapter'  =>  'a'
                 ]
             );
 

@@ -29,13 +29,21 @@ use NextDeveloper\Commons\Database\Traits\RunAsAdministrator;
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
+ * @property $api_config
+ * @property boolean $is_active
+ * @property string $adapter
  */
 class Providers extends Model
 {
-    use Filterable, UuidId, CleanCache, Taggable, HasStates, RunAsAdministrator;
+    use Filterable, CleanCache, Taggable;
+    use UuidId;
     use SoftDeletes;
 
+
     public $timestamps = true;
+
+
+
 
     protected $table = 'marketplace_providers';
 
@@ -53,6 +61,9 @@ class Providers extends Model
             'marketplace_market_id',
             'iam_account_id',
             'iam_user_id',
+            'api_config',
+            'is_active',
+            'adapter',
     ];
 
     /**
@@ -84,6 +95,9 @@ class Providers extends Model
     'created_at' => 'datetime',
     'updated_at' => 'datetime',
     'deleted_at' => 'datetime',
+    'api_config' => 'array',
+    'is_active' => 'boolean',
+    'adapter' => 'string',
     ];
 
     /**
@@ -144,27 +158,8 @@ class Providers extends Model
         }
     }
 
-    public function products() : \Illuminate\Database\Eloquent\Relations\HasMany
-    {
-        return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\Products::class);
-    }
-
-    public function markets() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\Markets::class);
-    }
-    
-    public function accounts() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Accounts::class);
-    }
-    
-    public function users() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Users::class);
-    }
-    
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 }

@@ -71,6 +71,9 @@ class AbstractProvidersTransformer extends AbstractTransformer
             'created_at'  =>  $model->created_at,
             'updated_at'  =>  $model->updated_at,
             'deleted_at'  =>  $model->deleted_at,
+            'api_config'  =>  $model->api_config,
+            'is_active'  =>  $model->is_active,
+            'adapter'  =>  $model->adapter,
             ]
         );
     }
@@ -159,6 +162,7 @@ class AbstractProvidersTransformer extends AbstractTransformer
         return $this->collection($addresses, new AddressesTransformer());
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 }

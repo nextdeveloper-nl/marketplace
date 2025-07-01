@@ -3,6 +3,7 @@
 namespace NextDeveloper\Marketplace;
 
 use GuzzleHttp\Client as GuzzleClient;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Log;
 use NextDeveloper\Commons\AbstractServiceProvider;
 
@@ -33,6 +34,7 @@ class MarketplaceServiceProvider extends AbstractServiceProvider {
         $this->bootChannelRoutes();
         $this->bootModelBindings();
         $this->bootLogger();
+        $this->bootSchedule();
     }
 
     /**
@@ -101,7 +103,7 @@ class MarketplaceServiceProvider extends AbstractServiceProvider {
     protected function registerCommands() {
         if ($this->app->runningInConsole()) {
             $this->commands([
-
+                \NextDeveloper\Marketplace\Console\Commands\FetchProviderOrdersCommand::class,
             ]);
         }
     }
@@ -124,4 +126,16 @@ class MarketplaceServiceProvider extends AbstractServiceProvider {
         return $isSuccessfull;
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
+
+    protected function bootSchedule(): void
+    {
+        $this->app->booted(function () {
+            $schedule = $this->app->make(Schedule::class);
+
+            $schedule->command('nextdeveloper:fetch-provider-orders')
+                ->everyThirtySeconds()
+                ->when(config('marketplace.schedule.enabled'));
+        });
+    }
 }

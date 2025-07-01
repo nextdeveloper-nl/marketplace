@@ -35,10 +35,15 @@ use NextDeveloper\Commons\Database\Traits\RunAsAdministrator;
  */
 class Markets extends Model
 {
-    use Filterable, UuidId, CleanCache, Taggable, HasStates, RunAsAdministrator;
+    use Filterable, CleanCache, Taggable;
+    use UuidId;
     use SoftDeletes;
 
+
     public $timestamps = true;
+
+
+
 
     protected $table = 'marketplace_markets';
 
@@ -153,27 +158,8 @@ class Markets extends Model
         }
     }
 
-    public function accounts() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Accounts::class);
-    }
-    
-    public function users() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Users::class);
-    }
-    
-    public function products() : \Illuminate\Database\Eloquent\Relations\HasMany
-    {
-        return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\Products::class);
-    }
-
-    public function providers() : \Illuminate\Database\Eloquent\Relations\HasMany
-    {
-        return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\Providers::class);
-    }
-
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 
