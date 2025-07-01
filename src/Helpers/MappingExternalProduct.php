@@ -3,6 +3,7 @@
 namespace NextDeveloper\Marketplace\Helpers;
 
 
+use NextDeveloper\IAM\Database\Scopes\AuthorizationScope;
 use NextDeveloper\Marketplace\Database\Models\ProductCatalogMappings;
 use NextDeveloper\Marketplace\Database\Models\ProductCatalogs;
 use NextDeveloper\Marketplace\Database\Models\Products;
@@ -48,7 +49,8 @@ class MappingExternalProduct
             ]);
         }
 
-        $mappedProduct = ProductCatalogMappings::where('marketplace_provider_id', $providerId)
+        $mappedProduct = ProductCatalogMappings::withoutGlobalScope(AuthorizationScope::class)
+            ->where('marketplace_provider_id', $providerId)
             ->where('external_catalog_id', $productId)
             ->first();
 
