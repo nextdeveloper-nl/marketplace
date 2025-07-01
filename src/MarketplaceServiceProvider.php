@@ -134,7 +134,7 @@ class MarketplaceServiceProvider extends AbstractServiceProvider {
             $schedule = $this->app->make(Schedule::class);
 
             $schedule->command('nextdeveloper:fetch-provider-orders')
-                ->everyThirtySeconds()
+                ->everyTenSeconds()
                 ->when(config('marketplace.schedule.enabled'));
         });
     }
