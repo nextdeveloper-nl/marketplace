@@ -4,6 +4,7 @@ namespace NextDeveloper\Marketplace\Services\Marketplaces\Adapters;
 
 use Illuminate\Support\Carbon;
 use Exception;
+use NextDeveloper\IAM\Database\Scopes\AuthorizationScope;
 use NextDeveloper\Marketplace\Helpers\MappingExternalProduct;
 use Throwable;
 use Illuminate\Support\Collection;
@@ -645,7 +646,8 @@ class TrendyolGoYemekAdapter implements MarketplaceAdapter
         $productIds = [];
 
         foreach ($ingredientIds as $ingredientId) {
-            $mappedIngredient = ProductCatalogMappings::where('marketplace_provider_id', $providerId)
+            $mappedIngredient = ProductCatalogMappings::withoutGlobalScope(AuthorizationScope::class)
+                ->where('marketplace_provider_id', $providerId)
                 ->where('external_catalog_id', $ingredientId)
                 ->first();
 
