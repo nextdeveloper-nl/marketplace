@@ -9,6 +9,7 @@ use NextDeveloper\Commons\Exceptions\NotFoundException;
 use NextDeveloper\IAM\Helpers\UserHelper;
 use NextDeveloper\Marketplace\Database\Models\Markets;
 use NextDeveloper\Marketplace\Database\Models\Providers;
+use NextDeveloper\Marketplace\Helpers\MappingExternalProduct;
 use NextDeveloper\Marketplace\Services\Marketplaces\Adapters\TrendyolGoYemekAdapter;
 
 class TrendyolGoYemekService
@@ -188,7 +189,7 @@ class TrendyolGoYemekService
         }
 
         // Map product to catalog
-        $mappedProduct = $this->adapter->mapProduct($mainProduct, $this->provider->id, true);
+        $mappedProduct = MappingExternalProduct::mapProduct($mainProduct, $this->provider->id, true);
         if (!$mappedProduct) {
             Log::warning(__METHOD__ . " - No product mapping found", ['product' => $mainProduct]);
             return false;

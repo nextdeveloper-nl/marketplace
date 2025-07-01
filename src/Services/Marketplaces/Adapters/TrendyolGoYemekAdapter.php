@@ -4,6 +4,7 @@ namespace NextDeveloper\Marketplace\Services\Marketplaces\Adapters;
 
 use Illuminate\Support\Carbon;
 use Exception;
+use NextDeveloper\Marketplace\Helpers\MappingExternalProduct;
 use Throwable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
@@ -492,57 +493,6 @@ class TrendyolGoYemekAdapter implements MarketplaceAdapter
     }
 
     /**
-     * Map product from marketplace to internal product
-     */
-    public function mapProduct($product, $providerId, bool $returnMainProduct = false)
-    {
-        $productId = $product['id'] ?? null;
-
-        if (!$productId) {
-            Log::warning('No product ID found in raw product data', ['raw_product_data' => $product]);
-            return null;
-        }
-
-        $mappedProduct = ProductCatalogMappings::where('marketplace_provider_id', $providerId)
-            ->where('external_catalog_id', $productId)
-            ->first();
-
-        if (!$mappedProduct) {
-            Log::warning('No product mapping found', [
-                'external_catalog_id' => $productId,
-                'provider_id' => $providerId,
-            ]);
-            return null;
-        }
-
-        $productCatalog = ProductCatalogs::find($mappedProduct->marketplace_product_catalog_id);
-
-        if (!$productCatalog) {
-            Log::warning('No product catalog found', [
-                'mapped_product_id' => $mappedProduct->id,
-                'provider_id' => $providerId,
-            ]);
-            return null;
-        }
-
-        if (!$returnMainProduct) {
-            return $productCatalog;
-        }
-
-        $mainProduct = Products::find($productCatalog->marketplace_product_id);
-
-        if (!$mainProduct) {
-            Log::warning('No main product found', [
-                'product_catalog_id' => $productCatalog->id,
-                'provider_id' => $providerId,
-            ]);
-            return null;
-        }
-
-        return $mainProduct;
-    }
-
-    /**
      * Update or create order
      */
     public function updateOrCreateOrder($order): ?Orders
@@ -612,7 +562,7 @@ class TrendyolGoYemekAdapter implements MarketplaceAdapter
     private function processOrderItem(array $item, $orderId, $providerId): void
     {
         try {
-            $mappedProduct = $this->mapProduct($item, $providerId);
+            $mappedProduct = MappingExternalProduct::mapProduct($item, $providerId);
 
             if (!$mappedProduct) {
                 Log::warning('No product mapping found for order item', [
@@ -868,28 +818,6 @@ class TrendyolGoYemekAdapter implements MarketplaceAdapter
         ]));
     }
 
-    /**
-     * Log authentication success
-     */
-    private function logAuthSuccess(string $responseBody): void
-    {
-        Log::info(__METHOD__ . ' - Authentication successful', [
-            'supplier_id' => $this->supplierId,
-            'response_preview' => substr($responseBody, 0, 200),
-        ]);
-    }
-
-    /**
-     * Log authentication failure
-     */
-    private function logAuthFailure(array $response): void
-    {
-        Log::error('Authentication test failed', [
-            'status_code' => $response['status_code'],
-            'response_body' => $response['body'],
-            'supplier_id' => $this->supplierId,
-        ]);
-    }
 
     /**
      * Log status update result
