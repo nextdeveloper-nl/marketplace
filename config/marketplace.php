@@ -8,7 +8,7 @@ return [
         ]
     ],
     'schedule' => [
-        'enabled' => env('MARKETPLACE_SCHEDULE_ENABLED', true),
+        'enabled' => env('MARKETPLACE_SCHEDULE_ENABLED', false),
         'cron' => env('MARKETPLACE_SCHEDULE_CRON', '*/30 * * * * *'),
     ]
 ];
