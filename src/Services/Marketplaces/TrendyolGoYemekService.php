@@ -86,8 +86,7 @@ class TrendyolGoYemekService
 
         if (is_array($this->provider->api_config)) {
             $apiConfig = $this->provider->api_config;
-        }
-        else {
+        } else {
             //check if api_config is a valid JSON string
             if (json_decode($this->provider->api_config) === null && json_last_error() !== JSON_ERROR_NONE) {
                 $message = "Provider '{$this->provider->name}' has invalid API configuration format.";
@@ -108,6 +107,8 @@ class TrendyolGoYemekService
             'api_key' => $apiConfig['api_key'],
             'supplier_id' => $apiConfig['supplier_id'],
             'api_secret' => $apiConfig['api_secret'],
+            'default_ingredient_ids' => $apiConfig['default_ingredient_ids'] ?? [],
+            'default_ingredient_source_name' => $apiConfig['default_ingredient_source_name'] ?? '',
         ];
     }
 
@@ -122,17 +123,20 @@ class TrendyolGoYemekService
         try {
             $orders = $this->adapter->fetchOrders($date);
 
+            Log::info(__METHOD__ . " - Fetched orders for date: " . $date->format('Y-m-d H:i:s'), [
+                'orders' => $orders,
+            ]);
+
             if (empty($orders)) {
                 Log::info(__METHOD__ . " - No orders found for date: " . $date->format('Y-m-d H:i:s'));
                 return;
             }
 
             $this->processOrders($orders);
-
         } catch (Exception $e) {
             Log::error(__METHOD__ . " - Error fetching orders: " . $e->getMessage(), [
                 'date' => $date->format('Y-m-d H:i:s'),
-                'exception' => $e
+                'exception' => $e,
             ]);
             throw $e;
         }
@@ -157,7 +161,7 @@ class TrendyolGoYemekService
                 $failedCount++;
                 Log::error(__METHOD__ . " - Error processing individual order", [
                     'order' => $rawOrder,
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
             }
         }
@@ -165,7 +169,7 @@ class TrendyolGoYemekService
         Log::info(__METHOD__ . " - Order processing completed", [
             'total' => count($orders),
             'processed' => $processedCount,
-            'failed' => $failedCount
+            'failed' => $failedCount,
         ]);
     }
 
@@ -181,67 +185,49 @@ class TrendyolGoYemekService
         $normalizedOrder = $this->adapter->normalizeOrderData($rawOrder);
         $orderItems = $normalizedOrder['items'] ?? collect();
 
-        // Find the main product
-        $mainProduct = $this->findMainProduct($orderItems);
-        if (!$mainProduct) {
-            Log::warning(__METHOD__ . " - No main product found", ['order' => $normalizedOrder]);
-            return false;
+        foreach ($orderItems as $orderItem) {
+            // Map product to catalog
+            $mappedProduct = MappingExternalProduct::mapMainProduct($orderItem['id'], $this->provider->id);
+            if (!$mappedProduct) {
+                Log::warning(__METHOD__ . " - No product mapping found", ['product' => $orderItem]);
+                return false;
+            }
+
+            // Prepare order for a database
+            $orderData = $this->prepareOrderForDatabase($normalizedOrder, $mappedProduct, $orderItem['external_line_id']);
+
+            // Create or update order
+            $order = $this->adapter->updateOrCreateOrder($orderData);
+            if (!$order) {
+                Log::error(__METHOD__ . " - Failed to create/update order", ['order_data' => $orderData]);
+                return false;
+            }
+
+            // Process order items
+            $this->adapter->processOrderItems($orderItems, $order->id, $this->provider->id);
+
+            Log::info(__METHOD__ . " - Order processed successfully", [
+                'external_order_id' => $orderData['external_order_id'],
+                'internal_order_id' => $order->id,
+            ]);
         }
-
-        // Map product to catalog
-        $mappedProduct = MappingExternalProduct::mapProduct($mainProduct, $this->provider->id, true);
-        if (!$mappedProduct) {
-            Log::warning(__METHOD__ . " - No product mapping found", ['product' => $mainProduct]);
-            return false;
-        }
-
-        // Prepare order for a database
-        $orderData = $this->prepareOrderForDatabase($normalizedOrder, $mappedProduct);
-
-        // Create or update order
-        $order = $this->adapter->updateOrCreateOrder($orderData);
-        if (!$order) {
-            Log::error(__METHOD__ . " - Failed to create/update order", ['order_data' => $orderData]);
-            return false;
-        }
-
-        // Process order items
-        $this->adapter->processOrderItems($orderItems, $order->id, $this->provider->id);
-
-        Log::info(__METHOD__ . " - Order processed successfully", [
-            'external_order_id' => $orderData['external_order_id'],
-            'internal_order_id' => $order->id
-        ]);
 
         return true;
     }
 
     /**
-     * Find the main product from order items
-     */
-    private function findMainProduct($orderItems)
-    {
-        if (!$orderItems || $orderItems->isEmpty()) {
-            return null;
-        }
-
-        return $orderItems->where('main_item', true)->first();
-    }
-
-    /**
      * Prepare order data for database insertion
      */
-    private function prepareOrderForDatabase(array $normalizedOrder, $mappedProduct): array
+    private function prepareOrderForDatabase(array $normalizedOrder, $mappedProduct, ?string $externalLineId): array
     {
-        // Determine product ID based on mapping
-        $productId = $mappedProduct->parent_marketplace_product_id ?? $mappedProduct->id;
 
         $orderData = $normalizedOrder;
-        $orderData['marketplace_product_id'] = $productId;
+        $orderData['marketplace_product_id'] = $mappedProduct->id;
         $orderData['marketplace_provider_id'] = $this->provider->id;
         $orderData['marketplace_market_id'] = $this->provider->marketplace_market_id;
         $orderData['iam_account_id'] = $this->market->iam_account_id;
         $orderData['iam_user_id'] = $this->market->iam_user_id;
+        $orderData['external_line_id'] = $externalLineId;
 
         // Remove items array as it's processed separately
         unset($orderData['items']);

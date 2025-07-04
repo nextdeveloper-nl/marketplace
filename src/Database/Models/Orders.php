@@ -102,6 +102,7 @@ class Orders extends Model
             'iam_account_id',
             'iam_user_id',
             'customer_note',
+        'external_line_id',
     ];
 
     /**
@@ -150,6 +151,7 @@ class Orders extends Model
     'updated_at' => 'datetime',
     'deleted_at' => 'datetime',
     'customer_note' => 'string',
+        'external_line_id' => 'string',
     ];
 
     /**

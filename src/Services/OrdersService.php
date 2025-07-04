@@ -2,6 +2,7 @@
 
 namespace NextDeveloper\Marketplace\Services;
 
+use NextDeveloper\IAM\Database\Scopes\AuthorizationScope;
 use NextDeveloper\Marketplace\Database\Models\OrderItems;
 use NextDeveloper\Marketplace\Services\AbstractServices\AbstractOrdersService;
 
@@ -19,11 +20,12 @@ class OrdersService extends AbstractOrdersService
 
     public static function deleteOrderItemsByOrderId($ordersId): void
     {
-        $items = OrderItems::where('marketplace_order_id', $ordersId)
+        $items = OrderItems::withoutGlobalScope(AuthorizationScope::class)
+            ->where('marketplace_order_id', $ordersId)
             ->get();
 
         foreach ($items as $item) {
-            $item->delete();
+            $item->forceDelete();
         }
     }
 
