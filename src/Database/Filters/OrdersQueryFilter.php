@@ -52,6 +52,11 @@ class OrdersQueryFilter extends AbstractQueryFilter
     {
         return $this->builder->where('customer_note', 'like', '%' . $value . '%');
     }
+    
+    public function externalLineId($value)
+    {
+        return $this->builder->where('external_line_id', 'like', '%' . $value . '%');
+    }
 
     public function orderedAtStart($date)
     {
@@ -209,4 +214,5 @@ class OrdersQueryFilter extends AbstractQueryFilter
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 }
