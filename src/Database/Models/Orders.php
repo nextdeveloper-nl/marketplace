@@ -50,6 +50,7 @@ use NextDeveloper\Commons\Database\Traits\Taggable;
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
  * @property string $customer_note
+ * @property string $external_line_id
  */
 class Orders extends Model
 {
@@ -102,6 +103,7 @@ class Orders extends Model
             'iam_account_id',
             'iam_user_id',
             'customer_note',
+            'external_line_id',
     ];
 
     /**
@@ -150,6 +152,7 @@ class Orders extends Model
     'updated_at' => 'datetime',
     'deleted_at' => 'datetime',
     'customer_note' => 'string',
+    'external_line_id' => 'string',
     ];
 
     /**
@@ -219,4 +222,5 @@ class Orders extends Model
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 }

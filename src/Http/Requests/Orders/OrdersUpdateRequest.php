@@ -41,6 +41,7 @@ class OrdersUpdateRequest extends AbstractFormRequest
         'last_synced_at' => 'date',
         'sync_error_message' => 'nullable|string',
         'customer_note' => 'nullable|string',
+        'external_line_id' => 'nullable|string|exists:external_lines,uuid|uuid',
         ];
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
