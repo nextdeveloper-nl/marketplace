@@ -88,6 +88,11 @@ class MarketplaceUserRole extends AbstractRole implements IAuthorizationRole
             'marketplace_subscriptions:update',
             'marketplace_subscriptions:create',
             'marketplace_providers:read',
+
+            'marketplace_orders:create',
+            'marketplace_orders:read',
+            'marketplace_orders:update',
+            'marketplace_orders:delete',
         ];
     }
 

@@ -107,6 +107,11 @@ class MarketplaceVendorRole extends AbstractRole implements IAuthorizationRole
             'marketplace_providers:create',
             'marketplace_providers:update',
             'marketplace_providers:delete',
+
+            'marketplace_orders:create',
+            'marketplace_orders:read',
+            'marketplace_orders:update',
+            'marketplace_orders:delete',
         ];
     }
 

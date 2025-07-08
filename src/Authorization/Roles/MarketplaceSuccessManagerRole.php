@@ -106,7 +106,12 @@ class MarketplaceSuccessManagerRole extends AbstractRole implements IAuthorizati
             'marketplace_product_catalogs:delete',
             'marketplace_subscriptions:read',
             'marketplace_subscriptions:update',
-            'marketplace_subscriptions:create'
+            'marketplace_subscriptions:create',
+
+            'marketplace_orders:create',
+            'marketplace_orders:read',
+            'marketplace_orders:update',
+            'marketplace_orders:delete',
         ];
     }
 
