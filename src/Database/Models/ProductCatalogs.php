@@ -180,4 +180,7 @@ class ProductCatalogs extends Model
 
 
 
+
+
+
 }
