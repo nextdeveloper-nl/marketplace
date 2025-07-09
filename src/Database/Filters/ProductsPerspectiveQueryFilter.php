@@ -266,4 +266,5 @@ class ProductsPerspectiveQueryFilter extends AbstractQueryFilter
 
 
 
+
 }
