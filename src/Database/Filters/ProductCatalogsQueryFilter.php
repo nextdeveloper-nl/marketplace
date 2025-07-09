@@ -189,4 +189,5 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
 
 
 
+
 }
