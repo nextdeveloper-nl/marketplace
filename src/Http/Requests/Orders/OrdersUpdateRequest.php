@@ -19,7 +19,7 @@ class OrdersUpdateRequest extends AbstractFormRequest
         'external_order_id' => 'nullable|string|exists:external_orders,uuid|uuid',
         'external_order_number' => 'nullable|string',
         'status' => 'nullable|string',
-        'ordered_at' => 'nullable|date',
+        'ordered_at' => 'date',
         'accepted_at' => 'nullable|date',
         'prepared_at' => 'nullable|date',
         'dispatched_at' => 'nullable|date',
@@ -28,13 +28,13 @@ class OrdersUpdateRequest extends AbstractFormRequest
         'customer_data' => 'nullable',
         'delivery_address' => 'nullable',
         'marketplace_metadata' => 'nullable',
-        'subtotal_amount' => 'nullable',
+        'subtotal_amount' => '',
         'delivery_fee' => '',
         'service_fee' => '',
         'tax_amount' => '',
         'discount_amount' => '',
-        'total_amount' => 'nullable',
-        'order_type' => 'nullable|string',
+        'total_amount' => '',
+        'order_type' => 'string',
         'delivery_method' => 'nullable|string',
         'estimated_delivery_time' => 'nullable|date',
         'raw_order_data' => 'nullable',
@@ -42,6 +42,7 @@ class OrdersUpdateRequest extends AbstractFormRequest
         'sync_error_message' => 'nullable|string',
         'customer_note' => 'nullable|string',
         'external_line_id' => 'nullable|string|exists:external_lines,uuid|uuid',
+        'tags' => '',
         ];
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE

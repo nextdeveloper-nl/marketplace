@@ -97,6 +97,7 @@ class AbstractOrdersTransformer extends AbstractTransformer
             'deleted_at'  =>  $model->deleted_at,
             'customer_note'  =>  $model->customer_note,
             'external_line_id'  =>  $model->external_line_id,
+            'tags'  =>  $model->tags,
             ]
         );
     }
@@ -185,5 +186,9 @@ class AbstractOrdersTransformer extends AbstractTransformer
         return $this->collection($addresses, new AddressesTransformer());
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
+
+
+
 
 }

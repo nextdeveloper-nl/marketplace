@@ -12,6 +12,26 @@ use NextDeveloper\Commons\Database\Filters\AbstractQueryFilter;
  */
 class OrdersQueryFilter extends AbstractQueryFilter
 {
+    /**
+     * Filter by tags
+     *
+     * @param  $values
+     * @return Builder
+     */
+    public function tags($values)
+    {
+        $tags = explode(',', $values);
+
+        $search = '';
+
+        for($i = 0; $i < count($tags); $i++) {
+            $search .= "'" . trim($tags[$i]) . "',";
+        }
+
+        $search = substr($search, 0, -1);
+
+        return $this->builder->whereRaw('tags @> ARRAY[' . $search . ']');
+    }
 
     /**
      * @var Builder
@@ -214,5 +234,9 @@ class OrdersQueryFilter extends AbstractQueryFilter
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
+
+
+
 
 }
