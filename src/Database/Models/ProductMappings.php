@@ -142,4 +142,5 @@ class ProductMappings extends Model
 
 
 
+
 }

@@ -184,4 +184,5 @@ class MarketsPerspectiveQueryFilter extends AbstractQueryFilter
 
 
 
+
 }
