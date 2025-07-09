@@ -58,6 +58,8 @@ class OrderItems extends Model
             'modifiers',
             'special_instructions',
             'item_data',
+        'iam_account_id',
+        'iam_users_id'
     ];
 
     /**
@@ -87,6 +89,8 @@ class OrderItems extends Model
     'modifiers' => 'array',
     'special_instructions' => 'string',
     'item_data' => 'array',
+        'iam_account_id' => 'integer',
+        'iam_users_id' => 'integer',
     'created_at' => 'datetime',
     'updated_at' => 'datetime',
     'deleted_at' => 'datetime',
