@@ -54,27 +54,27 @@ class AbstractOrderItemsTransformer extends AbstractTransformer
      */
     public function transform(OrderItems $model)
     {
-                                                $marketplaceOrderId = \NextDeveloper\Marketplace\Database\Models\Orders::where('id', $model->marketplace_order_id)->first();
-                                                            $marketplaceProductCatalogId = \NextDeveloper\Marketplace\Database\Models\ProductCatalogs::where('id', $model->marketplace_product_catalog_id)->first();
-                                                            $iamAccountId = \NextDeveloper\IAM\Database\Models\Accounts::where('id', $model->iam_account_id)->first();
-                                                            $iamUserId = \NextDeveloper\IAM\Database\Models\Users::where('id', $model->iam_user_id)->first();
-                        
+        $marketplaceOrderId = \NextDeveloper\Marketplace\Database\Models\Orders::where('id', $model->marketplace_order_id)->first();
+        $marketplaceProductCatalogId = \NextDeveloper\Marketplace\Database\Models\ProductCatalogs::where('id', $model->marketplace_product_catalog_id)->first();
+        $iamAccountId = \NextDeveloper\IAM\Database\Models\Accounts::where('id', $model->iam_account_id)->first();
+        $iamUserId = \NextDeveloper\IAM\Database\Models\Users::where('id', $model->iam_user_id)->first();
+
         return $this->buildPayload(
             [
-            'id'  =>  $model->uuid,
-            'marketplace_order_id'  =>  $marketplaceOrderId ? $marketplaceOrderId->uuid : null,
-            'marketplace_product_catalog_id'  =>  $marketplaceProductCatalogId ? $marketplaceProductCatalogId->uuid : null,
-            'quantity'  =>  $model->quantity,
-            'price_per_item'  =>  $model->price_per_item,
-            'total_price'  =>  $model->total_price,
-            'modifiers'  =>  $model->modifiers,
-            'special_instructions'  =>  $model->special_instructions,
-            'item_data'  =>  $model->item_data,
-            'created_at'  =>  $model->created_at,
-            'updated_at'  =>  $model->updated_at,
-            'deleted_at'  =>  $model->deleted_at,
-            'iam_account_id'  =>  $iamAccountId ? $iamAccountId->uuid : null,
-            'iam_user_id'  =>  $iamUserId ? $iamUserId->uuid : null,
+                'id' => $model->uuid,
+                'marketplace_order_id' => $marketplaceOrderId ? $marketplaceOrderId->uuid : null,
+                'marketplace_product_catalog_id' => $marketplaceProductCatalogId ? $marketplaceProductCatalogId->uuid : null,
+                'quantity' => $model->quantity,
+                'price_per_item' => $model->price_per_item,
+                'total_price' => $model->total_price,
+                'modifiers' => $model->modifiers,
+                'special_instructions' => $model->special_instructions,
+                'item_data' => $model->item_data,
+                'created_at' => $model->created_at,
+                'updated_at' => $model->updated_at,
+                'deleted_at' => $model->deleted_at,
+                'iam_account_id' => $iamAccountId ? $iamAccountId->uuid : null,
+                'iam_user_id' => $iamUserId ? $iamUserId->uuid : null,
             ]
         );
     }
@@ -163,10 +163,6 @@ class AbstractOrderItemsTransformer extends AbstractTransformer
         return $this->collection($addresses, new AddressesTransformer());
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
-
-
-
-
 
 
 }

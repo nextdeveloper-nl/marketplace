@@ -134,7 +134,7 @@ class AbstractOrderItemsService
         return OrderItems::where('id', $id)->first();
     }
 
-    
+
     /**
      * This method returns the sub objects of the related models
      *
@@ -183,7 +183,29 @@ class AbstractOrderItemsService
                 $data['marketplace_product_catalog_id']
             );
         }
-                        
+
+        if (array_key_exists('iam_user_id', $data)) {
+            $data['iam_user_id'] = DatabaseHelper::uuidToId(
+                '\NextDeveloper\IAM\Database\Models\Users',
+                $data['iam_user_id']
+            );
+        }
+
+        if(!array_key_exists('iam_user_id', $data)) {
+            $data['iam_user_id']    = UserHelper::me()->id;
+        }
+
+        if (array_key_exists('iam_account_id', $data)) {
+            $data['iam_account_id'] = DatabaseHelper::uuidToId(
+                '\NextDeveloper\IAM\Database\Models\Accounts',
+                $data['iam_account_id']
+            );
+        }
+
+        if(!array_key_exists('iam_account_id', $data)) {
+            $data['iam_account_id'] = UserHelper::currentAccount()->id;
+        }
+
         try {
             $model = OrderItems::create($data);
         } catch(\Exception $e) {
@@ -243,7 +265,7 @@ class AbstractOrderItemsService
                 $data['marketplace_product_catalog_id']
             );
         }
-    
+
         Events::fire('updating:NextDeveloper\Marketplace\OrderItems', $model);
 
         try {
