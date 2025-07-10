@@ -20,19 +20,32 @@ class OrderStatusHistoriesQueryFilter extends AbstractQueryFilter
     
     public function oldStatus($value)
     {
-        return $this->builder->where('old_status', 'like', '%' . $value . '%');
-    }
-    
-    public function newStatus($value)
-    {
-        return $this->builder->where('new_status', 'like', '%' . $value . '%');
-    }
-    
-    public function notes($value)
-    {
-        return $this->builder->where('notes', 'like', '%' . $value . '%');
+        return $this->builder->where('old_status', 'ilike', '%' . $value . '%');
     }
 
+        //  This is an alias function of oldStatus
+    public function old_status($value)
+    {
+        return $this->oldStatus($value);
+    }
+        
+    public function newStatus($value)
+    {
+        return $this->builder->where('new_status', 'ilike', '%' . $value . '%');
+    }
+
+        //  This is an alias function of newStatus
+    public function new_status($value)
+    {
+        return $this->newStatus($value);
+    }
+        
+    public function notes($value)
+    {
+        return $this->builder->where('notes', 'ilike', '%' . $value . '%');
+    }
+
+    
     public function changedAtStart($date)
     {
         return $this->builder->where('changed_at', '>=', $date);
@@ -41,6 +54,18 @@ class OrderStatusHistoriesQueryFilter extends AbstractQueryFilter
     public function changedAtEnd($date)
     {
         return $this->builder->where('changed_at', '<=', $date);
+    }
+
+    //  This is an alias function of changedAt
+    public function changed_at_start($value)
+    {
+        return $this->changedAtStart($value);
+    }
+
+    //  This is an alias function of changedAt
+    public function changed_at_end($value)
+    {
+        return $this->changedAtEnd($value);
     }
 
     public function createdAtStart($date)
@@ -53,6 +78,18 @@ class OrderStatusHistoriesQueryFilter extends AbstractQueryFilter
         return $this->builder->where('created_at', '<=', $date);
     }
 
+    //  This is an alias function of createdAt
+    public function created_at_start($value)
+    {
+        return $this->createdAtStart($value);
+    }
+
+    //  This is an alias function of createdAt
+    public function created_at_end($value)
+    {
+        return $this->createdAtEnd($value);
+    }
+
     public function updatedAtStart($date)
     {
         return $this->builder->where('updated_at', '>=', $date);
@@ -61,6 +98,18 @@ class OrderStatusHistoriesQueryFilter extends AbstractQueryFilter
     public function updatedAtEnd($date)
     {
         return $this->builder->where('updated_at', '<=', $date);
+    }
+
+    //  This is an alias function of updatedAt
+    public function updated_at_start($value)
+    {
+        return $this->updatedAtStart($value);
+    }
+
+    //  This is an alias function of updatedAt
+    public function updated_at_end($value)
+    {
+        return $this->updatedAtEnd($value);
     }
 
     public function deletedAtStart($date)
@@ -73,6 +122,18 @@ class OrderStatusHistoriesQueryFilter extends AbstractQueryFilter
         return $this->builder->where('deleted_at', '<=', $date);
     }
 
+    //  This is an alias function of deletedAt
+    public function deleted_at_start($value)
+    {
+        return $this->deletedAtStart($value);
+    }
+
+    //  This is an alias function of deletedAt
+    public function deleted_at_end($value)
+    {
+        return $this->deletedAtEnd($value);
+    }
+
     public function marketplaceOrderId($value)
     {
             $marketplaceOrder = \NextDeveloper\Marketplace\Database\Models\Orders::where('uuid', $value)->first();
@@ -82,6 +143,12 @@ class OrderStatusHistoriesQueryFilter extends AbstractQueryFilter
         }
     }
 
+        //  This is an alias function of marketplaceOrder
+    public function marketplace_order_id($value)
+    {
+        return $this->marketplaceOrder($value);
+    }
+    
     public function iamAccountId($value)
     {
             $iamAccount = \NextDeveloper\IAM\Database\Models\Accounts::where('uuid', $value)->first();
@@ -91,6 +158,7 @@ class OrderStatusHistoriesQueryFilter extends AbstractQueryFilter
         }
     }
 
+    
     public function iamUserId($value)
     {
             $iamUser = \NextDeveloper\IAM\Database\Models\Users::where('uuid', $value)->first();
@@ -100,7 +168,9 @@ class OrderStatusHistoriesQueryFilter extends AbstractQueryFilter
         }
     }
 
+    
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 

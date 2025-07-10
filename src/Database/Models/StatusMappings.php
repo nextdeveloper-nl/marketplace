@@ -9,6 +9,8 @@ use NextDeveloper\Marketplace\Database\Observers\StatusMappingsObserver;
 use NextDeveloper\Commons\Database\Traits\UuidId;
 use NextDeveloper\Commons\Common\Cache\Traits\CleanCache;
 use NextDeveloper\Commons\Database\Traits\Taggable;
+use NextDeveloper\Commons\Database\Traits\HasStates;
+use NextDeveloper\Commons\Database\Traits\RunAsAdministrator;
 
 /**
  * StatusMappings model.
@@ -23,13 +25,9 @@ use NextDeveloper\Commons\Database\Traits\Taggable;
  */
 class StatusMappings extends Model
 {
-    use Filterable, CleanCache, Taggable;
-
+    use Filterable, UuidId, CleanCache, Taggable, HasStates, RunAsAdministrator;
 
     public $timestamps = false;
-
-
-
 
     protected $table = 'marketplace_status_mappings';
 
@@ -130,7 +128,13 @@ class StatusMappings extends Model
         }
     }
 
+    public function providers() : \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\Providers::class);
+    }
+    
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 

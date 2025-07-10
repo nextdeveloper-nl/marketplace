@@ -39,15 +39,10 @@ use NextDeveloper\Commons\Database\Traits\RunAsAdministrator;
  */
 class ProductCatalogs extends Model
 {
-    use Filterable, CleanCache, Taggable;
-    use UuidId;
+    use Filterable, UuidId, CleanCache, Taggable, HasStates, RunAsAdministrator;
     use SoftDeletes;
 
-
     public $timestamps = true;
-
-
-
 
     protected $table = 'marketplace_product_catalogs';
 
@@ -169,7 +164,28 @@ class ProductCatalogs extends Model
         }
     }
 
+    public function products() : \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\Products::class);
+    }
+    
+    public function subscriptions() : \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\Subscriptions::class);
+    }
+
+    public function orderItems() : \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\OrderItems::class);
+    }
+
+    public function productCatalogMappings() : \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\ProductCatalogMappings::class);
+    }
+
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 

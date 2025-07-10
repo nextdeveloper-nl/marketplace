@@ -128,27 +128,6 @@ Route::prefix('marketplace')->group(
             }
         );
 
-        Route::prefix('order-items')->group(
-            function () {
-                Route::get('/', 'OrderItems\OrderItemsController@index');
-                Route::get('/actions', 'OrderItems\OrderItemsController@getActions');
-
-                Route::get('{marketplace_order_items}/tags ', 'OrderItems\OrderItemsController@tags');
-                Route::post('{marketplace_order_items}/tags ', 'OrderItems\OrderItemsController@saveTags');
-                Route::get('{marketplace_order_items}/addresses ', 'OrderItems\OrderItemsController@addresses');
-                Route::post('{marketplace_order_items}/addresses ', 'OrderItems\OrderItemsController@saveAddresses');
-
-                Route::get('/{marketplace_order_items}/{subObjects}', 'OrderItems\OrderItemsController@relatedObjects');
-                Route::get('/{marketplace_order_items}', 'OrderItems\OrderItemsController@show');
-
-                Route::post('/', 'OrderItems\OrderItemsController@store');
-                Route::post('/{marketplace_order_items}/do/{action}', 'OrderItems\OrderItemsController@doAction');
-
-                Route::patch('/{marketplace_order_items}', 'OrderItems\OrderItemsController@update');
-                Route::delete('/{marketplace_order_items}', 'OrderItems\OrderItemsController@destroy');
-            }
-        );
-
         Route::prefix('orders')->group(
             function () {
                 Route::get('/', 'Orders\OrdersController@index');
@@ -167,6 +146,27 @@ Route::prefix('marketplace')->group(
 
                 Route::patch('/{marketplace_orders}', 'Orders\OrdersController@update');
                 Route::delete('/{marketplace_orders}', 'Orders\OrdersController@destroy');
+            }
+        );
+
+        Route::prefix('order-items')->group(
+            function () {
+                Route::get('/', 'OrderItems\OrderItemsController@index');
+                Route::get('/actions', 'OrderItems\OrderItemsController@getActions');
+
+                Route::get('{marketplace_order_items}/tags ', 'OrderItems\OrderItemsController@tags');
+                Route::post('{marketplace_order_items}/tags ', 'OrderItems\OrderItemsController@saveTags');
+                Route::get('{marketplace_order_items}/addresses ', 'OrderItems\OrderItemsController@addresses');
+                Route::post('{marketplace_order_items}/addresses ', 'OrderItems\OrderItemsController@saveAddresses');
+
+                Route::get('/{marketplace_order_items}/{subObjects}', 'OrderItems\OrderItemsController@relatedObjects');
+                Route::get('/{marketplace_order_items}', 'OrderItems\OrderItemsController@show');
+
+                Route::post('/', 'OrderItems\OrderItemsController@store');
+                Route::post('/{marketplace_order_items}/do/{action}', 'OrderItems\OrderItemsController@doAction');
+
+                Route::patch('/{marketplace_order_items}', 'OrderItems\OrderItemsController@update');
+                Route::delete('/{marketplace_order_items}', 'OrderItems\OrderItemsController@destroy');
             }
         );
 
@@ -582,8 +582,24 @@ Route::prefix('marketplace')->group(
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 );
+
 
 
 

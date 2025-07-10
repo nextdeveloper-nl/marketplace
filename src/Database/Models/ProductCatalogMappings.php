@@ -10,6 +10,8 @@ use NextDeveloper\Marketplace\Database\Observers\ProductCatalogMappingsObserver;
 use NextDeveloper\Commons\Database\Traits\UuidId;
 use NextDeveloper\Commons\Common\Cache\Traits\CleanCache;
 use NextDeveloper\Commons\Database\Traits\Taggable;
+use NextDeveloper\Commons\Database\Traits\HasStates;
+use NextDeveloper\Commons\Database\Traits\RunAsAdministrator;
 
 /**
  * ProductCatalogMappings model.
@@ -26,15 +28,10 @@ use NextDeveloper\Commons\Database\Traits\Taggable;
  */
 class ProductCatalogMappings extends Model
 {
-    use Filterable, CleanCache, Taggable;
-    use UuidId;
+    use Filterable, UuidId, CleanCache, Taggable, HasStates, RunAsAdministrator;
     use SoftDeletes;
 
-
     public $timestamps = true;
-
-
-
 
     protected $table = 'marketplace_product_catalog_mappings';
 
@@ -137,7 +134,18 @@ class ProductCatalogMappings extends Model
         }
     }
 
+    public function providers() : \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\Providers::class);
+    }
+    
+    public function productCatalogs() : \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\ProductCatalogs::class);
+    }
+    
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 

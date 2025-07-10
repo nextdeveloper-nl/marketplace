@@ -40,13 +40,15 @@ class SubscriptionsQueryFilter extends AbstractQueryFilter
 
     public function isValid($value)
     {
-        if(!is_bool($value)) {
-            $value = false;
-        }
-
         return $this->builder->where('is_valid', $value);
     }
 
+        //  This is an alias function of isValid
+    public function is_valid($value)
+    {
+        return $this->isValid($value);
+    }
+     
     public function subscriptionStartsAtStart($date)
     {
         return $this->builder->where('subscription_starts_at', '>=', $date);
@@ -55,6 +57,18 @@ class SubscriptionsQueryFilter extends AbstractQueryFilter
     public function subscriptionStartsAtEnd($date)
     {
         return $this->builder->where('subscription_starts_at', '<=', $date);
+    }
+
+    //  This is an alias function of subscriptionStartsAt
+    public function subscription_starts_at_start($value)
+    {
+        return $this->subscriptionStartsAtStart($value);
+    }
+
+    //  This is an alias function of subscriptionStartsAt
+    public function subscription_starts_at_end($value)
+    {
+        return $this->subscriptionStartsAtEnd($value);
     }
 
     public function subscriptionEndsAtStart($date)
@@ -67,6 +81,18 @@ class SubscriptionsQueryFilter extends AbstractQueryFilter
         return $this->builder->where('subscription_ends_at', '<=', $date);
     }
 
+    //  This is an alias function of subscriptionEndsAt
+    public function subscription_ends_at_start($value)
+    {
+        return $this->subscriptionEndsAtStart($value);
+    }
+
+    //  This is an alias function of subscriptionEndsAt
+    public function subscription_ends_at_end($value)
+    {
+        return $this->subscriptionEndsAtEnd($value);
+    }
+
     public function createdAtStart($date)
     {
         return $this->builder->where('created_at', '>=', $date);
@@ -75,6 +101,18 @@ class SubscriptionsQueryFilter extends AbstractQueryFilter
     public function createdAtEnd($date)
     {
         return $this->builder->where('created_at', '<=', $date);
+    }
+
+    //  This is an alias function of createdAt
+    public function created_at_start($value)
+    {
+        return $this->createdAtStart($value);
+    }
+
+    //  This is an alias function of createdAt
+    public function created_at_end($value)
+    {
+        return $this->createdAtEnd($value);
     }
 
     public function updatedAtStart($date)
@@ -87,6 +125,18 @@ class SubscriptionsQueryFilter extends AbstractQueryFilter
         return $this->builder->where('updated_at', '<=', $date);
     }
 
+    //  This is an alias function of updatedAt
+    public function updated_at_start($value)
+    {
+        return $this->updatedAtStart($value);
+    }
+
+    //  This is an alias function of updatedAt
+    public function updated_at_end($value)
+    {
+        return $this->updatedAtEnd($value);
+    }
+
     public function deletedAtStart($date)
     {
         return $this->builder->where('deleted_at', '>=', $date);
@@ -95,6 +145,18 @@ class SubscriptionsQueryFilter extends AbstractQueryFilter
     public function deletedAtEnd($date)
     {
         return $this->builder->where('deleted_at', '<=', $date);
+    }
+
+    //  This is an alias function of deletedAt
+    public function deleted_at_start($value)
+    {
+        return $this->deletedAtStart($value);
+    }
+
+    //  This is an alias function of deletedAt
+    public function deleted_at_end($value)
+    {
+        return $this->deletedAtEnd($value);
     }
 
     public function marketplaceProductCatalogId($value)
@@ -106,6 +168,12 @@ class SubscriptionsQueryFilter extends AbstractQueryFilter
         }
     }
 
+        //  This is an alias function of marketplaceProductCatalog
+    public function marketplace_product_catalog_id($value)
+    {
+        return $this->marketplaceProductCatalog($value);
+    }
+    
     public function iamAccountId($value)
     {
             $iamAccount = \NextDeveloper\IAM\Database\Models\Accounts::where('uuid', $value)->first();
@@ -115,6 +183,7 @@ class SubscriptionsQueryFilter extends AbstractQueryFilter
         }
     }
 
+    
     public function iamUserId($value)
     {
             $iamUser = \NextDeveloper\IAM\Database\Models\Users::where('uuid', $value)->first();
@@ -124,7 +193,9 @@ class SubscriptionsQueryFilter extends AbstractQueryFilter
         }
     }
 
+    
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 

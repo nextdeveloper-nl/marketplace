@@ -10,6 +10,8 @@ use NextDeveloper\Marketplace\Database\Observers\OrderItemsObserver;
 use NextDeveloper\Commons\Database\Traits\UuidId;
 use NextDeveloper\Commons\Common\Cache\Traits\CleanCache;
 use NextDeveloper\Commons\Database\Traits\Taggable;
+use NextDeveloper\Commons\Database\Traits\HasStates;
+use NextDeveloper\Commons\Database\Traits\RunAsAdministrator;
 
 /**
  * OrderItems model.
@@ -28,18 +30,15 @@ use NextDeveloper\Commons\Database\Traits\Taggable;
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
+ * @property integer $iam_account_id
+ * @property integer $iam_user_id
  */
 class OrderItems extends Model
 {
-    use Filterable, CleanCache, Taggable;
-    use UuidId;
+    use Filterable, UuidId, CleanCache, Taggable, HasStates, RunAsAdministrator;
     use SoftDeletes;
 
-
     public $timestamps = true;
-
-
-
 
     protected $table = 'marketplace_order_items';
 
@@ -58,8 +57,8 @@ class OrderItems extends Model
             'modifiers',
             'special_instructions',
             'item_data',
-        'iam_account_id',
-        'iam_users_id'
+            'iam_account_id',
+            'iam_user_id',
     ];
 
     /**
@@ -89,8 +88,6 @@ class OrderItems extends Model
     'modifiers' => 'array',
     'special_instructions' => 'string',
     'item_data' => 'array',
-        'iam_account_id' => 'integer',
-        'iam_users_id' => 'integer',
     'created_at' => 'datetime',
     'updated_at' => 'datetime',
     'deleted_at' => 'datetime',
@@ -154,7 +151,18 @@ class OrderItems extends Model
         }
     }
 
+    public function orders() : \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\Orders::class);
+    }
+    
+    public function productCatalogs() : \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\ProductCatalogs::class);
+    }
+    
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 

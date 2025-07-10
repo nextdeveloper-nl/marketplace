@@ -56,13 +56,14 @@ class AbstractProductMappingsTransformer extends AbstractTransformer
     {
                                                 $marketplaceProductId = \NextDeveloper\Marketplace\Database\Models\Products::where('id', $model->marketplace_product_id)->first();
                                                             $marketplaceProviderId = \NextDeveloper\Marketplace\Database\Models\Providers::where('id', $model->marketplace_provider_id)->first();
+                                                            $externalProductId = \NextDeveloper\\Database\Models\ExternalProducts::where('id', $model->external_product_id)->first();
                         
         return $this->buildPayload(
             [
             'id'  =>  $model->uuid,
             'marketplace_product_id'  =>  $marketplaceProductId ? $marketplaceProductId->uuid : null,
             'marketplace_provider_id'  =>  $marketplaceProviderId ? $marketplaceProviderId->uuid : null,
-            'external_product_id'  =>  $model->external_product_id,
+            'external_product_id'  =>  $externalProductId ? $externalProductId->uuid : null,
             'created_at'  =>  $model->created_at,
             'updated_at'  =>  $model->updated_at,
             'deleted_at'  =>  $model->deleted_at,
@@ -154,6 +155,7 @@ class AbstractProductMappingsTransformer extends AbstractTransformer
         return $this->collection($addresses, new AddressesTransformer());
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 

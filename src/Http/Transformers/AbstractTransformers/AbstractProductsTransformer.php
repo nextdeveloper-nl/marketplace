@@ -59,6 +59,7 @@ class AbstractProductsTransformer extends AbstractTransformer
                                                             $iamUserId = \NextDeveloper\IAM\Database\Models\Users::where('id', $model->iam_user_id)->first();
                                                             $marketplaceMarketId = \NextDeveloper\Marketplace\Database\Models\Markets::where('id', $model->marketplace_market_id)->first();
                                                             $marketplaceProviderId = \NextDeveloper\Marketplace\Database\Models\Providers::where('id', $model->marketplace_provider_id)->first();
+                                                            $parentMarketplaceProductId = \NextDeveloper\\Database\Models\ParentMarketplaceProducts::where('id', $model->parent_marketplace_product_id)->first();
                         
         return $this->buildPayload(
             [
@@ -93,7 +94,7 @@ class AbstractProductsTransformer extends AbstractTransformer
             'marketplace_provider_id'  =>  $marketplaceProviderId ? $marketplaceProviderId->uuid : null,
             'payment_gateway_mappings'  =>  $model->payment_gateway_mappings,
             'is_additional_product'  =>  $model->is_additional_product,
-            'parent_marketplace_product_id'  =>  $model->parent_marketplace_product_id,
+            'parent_marketplace_product_id'  =>  $parentMarketplaceProductId ? $parentMarketplaceProductId->uuid : null,
             ]
         );
     }
@@ -182,6 +183,7 @@ class AbstractProductsTransformer extends AbstractTransformer
         return $this->collection($addresses, new AddressesTransformer());
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 
