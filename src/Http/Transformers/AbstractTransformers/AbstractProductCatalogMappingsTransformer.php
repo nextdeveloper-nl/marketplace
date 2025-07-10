@@ -56,14 +56,13 @@ class AbstractProductCatalogMappingsTransformer extends AbstractTransformer
     {
                                                 $marketplaceProductCatalogId = \NextDeveloper\Marketplace\Database\Models\ProductCatalogs::where('id', $model->marketplace_product_catalog_id)->first();
                                                             $marketplaceProviderId = \NextDeveloper\Marketplace\Database\Models\Providers::where('id', $model->marketplace_provider_id)->first();
-                                                            $externalCatalogId = \NextDeveloper\\Database\Models\ExternalCatalogs::where('id', $model->external_catalog_id)->first();
-                        
+
         return $this->buildPayload(
             [
             'id'  =>  $model->uuid,
             'marketplace_product_catalog_id'  =>  $marketplaceProductCatalogId ? $marketplaceProductCatalogId->uuid : null,
             'marketplace_provider_id'  =>  $marketplaceProviderId ? $marketplaceProviderId->uuid : null,
-            'external_catalog_id'  =>  $externalCatalogId ? $externalCatalogId->uuid : null,
+            'external_catalog_id'  =>  $model->external_catalog_id,
             'created_at'  =>  $model->created_at,
             'updated_at'  =>  $model->updated_at,
             'deleted_at'  =>  $model->deleted_at,

@@ -4,7 +4,7 @@ namespace NextDeveloper\Marketplace\Database\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
 use NextDeveloper\Commons\Database\Filters\AbstractQueryFilter;
-                        
+
 
 /**
  * This class automatically puts where clause on database so that use can filter
@@ -37,25 +37,25 @@ class ProductsQueryFilter extends AbstractQueryFilter
      * @var Builder
      */
     protected $builder;
-    
+
     public function name($value)
     {
         return $this->builder->where('name', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function description($value)
     {
         return $this->builder->where('description', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function content($value)
     {
         return $this->builder->where('content', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function afterSalesIntroduction($value)
     {
         return $this->builder->where('after_sales_introduction', 'ilike', '%' . $value . '%');
@@ -66,7 +66,7 @@ class ProductsQueryFilter extends AbstractQueryFilter
     {
         return $this->afterSalesIntroduction($value);
     }
-        
+
     public function supportContent($value)
     {
         return $this->builder->where('support_content', 'ilike', '%' . $value . '%');
@@ -77,7 +77,7 @@ class ProductsQueryFilter extends AbstractQueryFilter
     {
         return $this->supportContent($value);
     }
-        
+
     public function refundPolicy($value)
     {
         return $this->builder->where('refund_policy', 'ilike', '%' . $value . '%');
@@ -88,25 +88,25 @@ class ProductsQueryFilter extends AbstractQueryFilter
     {
         return $this->refundPolicy($value);
     }
-        
+
     public function eula($value)
     {
         return $this->builder->where('eula', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function slug($value)
     {
         return $this->builder->where('slug', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function version($value)
     {
         return $this->builder->where('version', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function salesPitch($value)
     {
         return $this->builder->where('sales_pitch', 'ilike', '%' . $value . '%');
@@ -117,7 +117,7 @@ class ProductsQueryFilter extends AbstractQueryFilter
     {
         return $this->salesPitch($value);
     }
-    
+
     public function isInMaintenance($value)
     {
         return $this->builder->where('is_in_maintenance', $value);
@@ -128,7 +128,7 @@ class ProductsQueryFilter extends AbstractQueryFilter
     {
         return $this->isInMaintenance($value);
     }
-     
+
     public function isPublic($value)
     {
         return $this->builder->where('is_public', $value);
@@ -139,7 +139,7 @@ class ProductsQueryFilter extends AbstractQueryFilter
     {
         return $this->isPublic($value);
     }
-     
+
     public function isInvisible($value)
     {
         return $this->builder->where('is_invisible', $value);
@@ -150,7 +150,7 @@ class ProductsQueryFilter extends AbstractQueryFilter
     {
         return $this->isInvisible($value);
     }
-     
+
     public function isActive($value)
     {
         return $this->builder->where('is_active', $value);
@@ -161,7 +161,7 @@ class ProductsQueryFilter extends AbstractQueryFilter
     {
         return $this->isActive($value);
     }
-     
+
     public function isService($value)
     {
         return $this->builder->where('is_service', $value);
@@ -172,7 +172,7 @@ class ProductsQueryFilter extends AbstractQueryFilter
     {
         return $this->isService($value);
     }
-     
+
     public function isApproved($value)
     {
         return $this->builder->where('is_approved', $value);
@@ -183,7 +183,7 @@ class ProductsQueryFilter extends AbstractQueryFilter
     {
         return $this->isApproved($value);
     }
-     
+
     public function isAdditionalProduct($value)
     {
         return $this->builder->where('is_additional_product', $value);
@@ -194,7 +194,7 @@ class ProductsQueryFilter extends AbstractQueryFilter
     {
         return $this->isAdditionalProduct($value);
     }
-     
+
     public function createdAtStart($date)
     {
         return $this->builder->where('created_at', '>=', $date);
@@ -275,7 +275,7 @@ class ProductsQueryFilter extends AbstractQueryFilter
     {
         return $this->commonCategory($value);
     }
-    
+
     public function iamAccountId($value)
     {
             $iamAccount = \NextDeveloper\IAM\Database\Models\Accounts::where('uuid', $value)->first();
@@ -285,7 +285,7 @@ class ProductsQueryFilter extends AbstractQueryFilter
         }
     }
 
-    
+
     public function iamUserId($value)
     {
             $iamUser = \NextDeveloper\IAM\Database\Models\Users::where('uuid', $value)->first();
@@ -295,7 +295,7 @@ class ProductsQueryFilter extends AbstractQueryFilter
         }
     }
 
-    
+
     public function marketplaceMarketId($value)
     {
             $marketplaceMarket = \NextDeveloper\Marketplace\Database\Models\Markets::where('uuid', $value)->first();
@@ -310,7 +310,7 @@ class ProductsQueryFilter extends AbstractQueryFilter
     {
         return $this->marketplaceMarket($value);
     }
-    
+
     public function marketplaceProviderId($value)
     {
             $marketplaceProvider = \NextDeveloper\Marketplace\Database\Models\Providers::where('uuid', $value)->first();
@@ -325,10 +325,10 @@ class ProductsQueryFilter extends AbstractQueryFilter
     {
         return $this->marketplaceProvider($value);
     }
-    
+
     public function parentMarketplaceProductId($value)
     {
-            $parentMarketplaceProduct = \NextDeveloper\\Database\Models\ParentMarketplaceProducts::where('uuid', $value)->first();
+            $parentMarketplaceProduct = \NextDeveloper\Marketplace\Database\Models\Products::where('uuid', $value)->first();
 
         if($parentMarketplaceProduct) {
             return $this->builder->where('parent_marketplace_product_id', '=', $parentMarketplaceProduct->id);
@@ -340,7 +340,7 @@ class ProductsQueryFilter extends AbstractQueryFilter
     {
         return $this->parentMarketplaceProduct($value);
     }
-    
+
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
 
 

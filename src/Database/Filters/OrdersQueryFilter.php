@@ -4,7 +4,7 @@ namespace NextDeveloper\Marketplace\Database\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
 use NextDeveloper\Commons\Database\Filters\AbstractQueryFilter;
-                            
+
 
 /**
  * This class automatically puts where clause on database so that use can filter
@@ -37,18 +37,7 @@ class OrdersQueryFilter extends AbstractQueryFilter
      * @var Builder
      */
     protected $builder;
-    
-    public function externalOrderId($value)
-    {
-        return $this->builder->where('external_order_id', 'ilike', '%' . $value . '%');
-    }
 
-        //  This is an alias function of externalOrderId
-    public function external_order_id($value)
-    {
-        return $this->externalOrderId($value);
-    }
-        
     public function externalOrderNumber($value)
     {
         return $this->builder->where('external_order_number', 'ilike', '%' . $value . '%');
@@ -59,13 +48,13 @@ class OrdersQueryFilter extends AbstractQueryFilter
     {
         return $this->externalOrderNumber($value);
     }
-        
+
     public function status($value)
     {
         return $this->builder->where('status', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function orderType($value)
     {
         return $this->builder->where('order_type', 'ilike', '%' . $value . '%');
@@ -76,7 +65,7 @@ class OrdersQueryFilter extends AbstractQueryFilter
     {
         return $this->orderType($value);
     }
-        
+
     public function deliveryMethod($value)
     {
         return $this->builder->where('delivery_method', 'ilike', '%' . $value . '%');
@@ -87,7 +76,7 @@ class OrdersQueryFilter extends AbstractQueryFilter
     {
         return $this->deliveryMethod($value);
     }
-        
+
     public function syncErrorMessage($value)
     {
         return $this->builder->where('sync_error_message', 'ilike', '%' . $value . '%');
@@ -98,7 +87,7 @@ class OrdersQueryFilter extends AbstractQueryFilter
     {
         return $this->syncErrorMessage($value);
     }
-        
+
     public function customerNote($value)
     {
         return $this->builder->where('customer_note', 'ilike', '%' . $value . '%');
@@ -109,7 +98,7 @@ class OrdersQueryFilter extends AbstractQueryFilter
     {
         return $this->customerNote($value);
     }
-        
+
     public function externalLineId($value)
     {
         return $this->builder->where('external_line_id', 'ilike', '%' . $value . '%');
@@ -120,7 +109,7 @@ class OrdersQueryFilter extends AbstractQueryFilter
     {
         return $this->externalLineId($value);
     }
-    
+
     public function orderedAtStart($date)
     {
         return $this->builder->where('ordered_at', '>=', $date);
@@ -377,7 +366,7 @@ class OrdersQueryFilter extends AbstractQueryFilter
     {
         return $this->marketplaceMarket($value);
     }
-    
+
     public function marketplaceProviderId($value)
     {
             $marketplaceProvider = \NextDeveloper\Marketplace\Database\Models\Providers::where('uuid', $value)->first();
@@ -392,7 +381,7 @@ class OrdersQueryFilter extends AbstractQueryFilter
     {
         return $this->marketplaceProvider($value);
     }
-    
+
     public function marketplaceProductId($value)
     {
             $marketplaceProduct = \NextDeveloper\Marketplace\Database\Models\Products::where('uuid', $value)->first();
@@ -407,10 +396,10 @@ class OrdersQueryFilter extends AbstractQueryFilter
     {
         return $this->marketplaceProduct($value);
     }
-    
+
     public function externalOrderId($value)
     {
-            $externalOrder = \NextDeveloper\\Database\Models\ExternalOrders::where('uuid', $value)->first();
+            $externalOrder = $value;
 
         if($externalOrder) {
             return $this->builder->where('external_order_id', '=', $externalOrder->id);
@@ -422,7 +411,7 @@ class OrdersQueryFilter extends AbstractQueryFilter
     {
         return $this->externalOrder($value);
     }
-    
+
     public function iamAccountId($value)
     {
             $iamAccount = \NextDeveloper\IAM\Database\Models\Accounts::where('uuid', $value)->first();
@@ -432,7 +421,7 @@ class OrdersQueryFilter extends AbstractQueryFilter
         }
     }
 
-    
+
     public function iamUserId($value)
     {
             $iamUser = \NextDeveloper\IAM\Database\Models\Users::where('uuid', $value)->first();
@@ -442,22 +431,6 @@ class OrdersQueryFilter extends AbstractQueryFilter
         }
     }
 
-    
-    public function externalLineId($value)
-    {
-            $externalLine = \NextDeveloper\\Database\Models\ExternalLines::where('uuid', $value)->first();
-
-        if($externalLine) {
-            return $this->builder->where('external_line_id', '=', $externalLine->id);
-        }
-    }
-
-        //  This is an alias function of externalLine
-    public function external_line_id($value)
-    {
-        return $this->externalLine($value);
-    }
-    
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
 
 

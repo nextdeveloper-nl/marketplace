@@ -57,18 +57,16 @@ class AbstractOrdersTransformer extends AbstractTransformer
                                                 $marketplaceMarketId = \NextDeveloper\Marketplace\Database\Models\Markets::where('id', $model->marketplace_market_id)->first();
                                                             $marketplaceProviderId = \NextDeveloper\Marketplace\Database\Models\Providers::where('id', $model->marketplace_provider_id)->first();
                                                             $marketplaceProductId = \NextDeveloper\Marketplace\Database\Models\Products::where('id', $model->marketplace_product_id)->first();
-                                                            $externalOrderId = \NextDeveloper\\Database\Models\ExternalOrders::where('id', $model->external_order_id)->first();
                                                             $iamAccountId = \NextDeveloper\IAM\Database\Models\Accounts::where('id', $model->iam_account_id)->first();
                                                             $iamUserId = \NextDeveloper\IAM\Database\Models\Users::where('id', $model->iam_user_id)->first();
-                                                            $externalLineId = \NextDeveloper\\Database\Models\ExternalLines::where('id', $model->external_line_id)->first();
-                        
+
         return $this->buildPayload(
             [
             'id'  =>  $model->uuid,
             'marketplace_market_id'  =>  $marketplaceMarketId ? $marketplaceMarketId->uuid : null,
             'marketplace_provider_id'  =>  $marketplaceProviderId ? $marketplaceProviderId->uuid : null,
             'marketplace_product_id'  =>  $marketplaceProductId ? $marketplaceProductId->uuid : null,
-            'external_order_id'  =>  $externalOrderId ? $externalOrderId->uuid : null,
+            'external_order_id'  =>  $model->external_order_id,
             'external_order_number'  =>  $model->external_order_number,
             'status'  =>  $model->status,
             'ordered_at'  =>  $model->ordered_at,
@@ -98,7 +96,7 @@ class AbstractOrdersTransformer extends AbstractTransformer
             'updated_at'  =>  $model->updated_at,
             'deleted_at'  =>  $model->deleted_at,
             'customer_note'  =>  $model->customer_note,
-            'external_line_id'  =>  $externalLineId ? $externalLineId->uuid : null,
+            'external_line_id'  =>  $model->external_line_id,
             'tags'  =>  $model->tags,
             ]
         );
