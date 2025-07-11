@@ -20,16 +20,16 @@ use NextDeveloper\Commons\Http\Transformers\MetaTransformer;
 use NextDeveloper\Commons\Http\Transformers\VotesTransformer;
 use NextDeveloper\Commons\Http\Transformers\AddressesTransformer;
 use NextDeveloper\Commons\Http\Transformers\PhoneNumbersTransformer;
-use NextDeveloper\Marketplace\Database\Models\Subscriptions;
+use NextDeveloper\Marketplace\Database\Models\OrderItemsPerspective;
 use NextDeveloper\Commons\Http\Transformers\AbstractTransformer;
 use NextDeveloper\IAM\Database\Scopes\AuthorizationScope;
 
 /**
- * Class SubscriptionsTransformer. This class is being used to manipulate the data we are serving to the customer
+ * Class OrderItemsPerspectiveTransformer. This class is being used to manipulate the data we are serving to the customer
  *
  * @package NextDeveloper\Marketplace\Http\Transformers
  */
-class AbstractSubscriptionsTransformer extends AbstractTransformer
+class AbstractOrderItemsPerspectiveTransformer extends AbstractTransformer
 {
 
     /**
@@ -48,27 +48,29 @@ class AbstractSubscriptionsTransformer extends AbstractTransformer
     ];
 
     /**
-     * @param Subscriptions $model
+     * @param OrderItemsPerspective $model
      *
      * @return array
      */
-    public function transform(Subscriptions $model)
+    public function transform(OrderItemsPerspective $model)
     {
-                                                $marketplaceProductCatalogId = \NextDeveloper\Marketplace\Database\Models\ProductCatalogs::where('id', $model->marketplace_product_catalog_id)->first();
-                                                            $iamAccountId = \NextDeveloper\IAM\Database\Models\Accounts::where('id', $model->iam_account_id)->first();
-                                                            $iamUserId = \NextDeveloper\IAM\Database\Models\Users::where('id', $model->iam_user_id)->first();
+                                                $marketplaceOrderId = \NextDeveloper\Marketplace\Database\Models\Orders::where('id', $model->marketplace_order_id)->first();
+                                                            $marketplaceProductCatalogId = \NextDeveloper\Marketplace\Database\Models\ProductCatalogs::where('id', $model->marketplace_product_catalog_id)->first();
                         
         return $this->buildPayload(
             [
             'id'  =>  $model->uuid,
+            'name'  =>  $model->name,
+            'marketplace_order_id'  =>  $marketplaceOrderId ? $marketplaceOrderId->uuid : null,
             'marketplace_product_catalog_id'  =>  $marketplaceProductCatalogId ? $marketplaceProductCatalogId->uuid : null,
-            'iam_account_id'  =>  $iamAccountId ? $iamAccountId->uuid : null,
-            'iam_user_id'  =>  $iamUserId ? $iamUserId->uuid : null,
-            'subscription_data'  =>  $model->subscription_data,
-            'subscription_starts_at'  =>  $model->subscription_starts_at,
-            'subscription_ends_at'  =>  $model->subscription_ends_at,
-            'is_valid'  =>  $model->is_valid,
-            'tags'  =>  $model->tags,
+            'quantity'  =>  $model->quantity,
+            'quantity_in_inventory'  =>  $model->quantity_in_inventory,
+            'price_per_item'  =>  $model->price_per_item,
+            'total_price'  =>  $model->total_price,
+            'modifiers'  =>  $model->modifiers,
+            'special_instructions'  =>  $model->special_instructions,
+            'item_data'  =>  $model->item_data,
+            'sku'  =>  $model->sku,
             'created_at'  =>  $model->created_at,
             'updated_at'  =>  $model->updated_at,
             'deleted_at'  =>  $model->deleted_at,
@@ -76,7 +78,7 @@ class AbstractSubscriptionsTransformer extends AbstractTransformer
         );
     }
 
-    public function includeStates(Subscriptions $model)
+    public function includeStates(OrderItemsPerspective $model)
     {
         $states = States::where('object_type', get_class($model))
             ->where('object_id', $model->id)
@@ -85,7 +87,7 @@ class AbstractSubscriptionsTransformer extends AbstractTransformer
         return $this->collection($states, new StatesTransformer());
     }
 
-    public function includeActions(Subscriptions $model)
+    public function includeActions(OrderItemsPerspective $model)
     {
         $input = get_class($model);
         $input = str_replace('\\Database\\Models', '', $input);
@@ -97,7 +99,7 @@ class AbstractSubscriptionsTransformer extends AbstractTransformer
         return $this->collection($actions, new AvailableActionsTransformer());
     }
 
-    public function includeMedia(Subscriptions $model)
+    public function includeMedia(OrderItemsPerspective $model)
     {
         $media = Media::where('object_type', get_class($model))
             ->where('object_id', $model->id)
@@ -106,7 +108,7 @@ class AbstractSubscriptionsTransformer extends AbstractTransformer
         return $this->collection($media, new MediaTransformer());
     }
 
-    public function includeSocialMedia(Subscriptions $model)
+    public function includeSocialMedia(OrderItemsPerspective $model)
     {
         $socialMedia = SocialMedia::where('object_type', get_class($model))
             ->where('object_id', $model->id)
@@ -115,7 +117,7 @@ class AbstractSubscriptionsTransformer extends AbstractTransformer
         return $this->collection($socialMedia, new SocialMediaTransformer());
     }
 
-    public function includeComments(Subscriptions $model)
+    public function includeComments(OrderItemsPerspective $model)
     {
         $comments = Comments::where('object_type', get_class($model))
             ->where('object_id', $model->id)
@@ -124,7 +126,7 @@ class AbstractSubscriptionsTransformer extends AbstractTransformer
         return $this->collection($comments, new CommentsTransformer());
     }
 
-    public function includeVotes(Subscriptions $model)
+    public function includeVotes(OrderItemsPerspective $model)
     {
         $votes = Votes::where('object_type', get_class($model))
             ->where('object_id', $model->id)
@@ -133,7 +135,7 @@ class AbstractSubscriptionsTransformer extends AbstractTransformer
         return $this->collection($votes, new VotesTransformer());
     }
 
-    public function includeMeta(Subscriptions $model)
+    public function includeMeta(OrderItemsPerspective $model)
     {
         $meta = Meta::where('object_type', get_class($model))
             ->where('object_id', $model->id)
@@ -142,7 +144,7 @@ class AbstractSubscriptionsTransformer extends AbstractTransformer
         return $this->collection($meta, new MetaTransformer());
     }
 
-    public function includePhoneNumbers(Subscriptions $model)
+    public function includePhoneNumbers(OrderItemsPerspective $model)
     {
         $phoneNumbers = PhoneNumbers::where('object_type', get_class($model))
             ->where('object_id', $model->id)
@@ -151,7 +153,7 @@ class AbstractSubscriptionsTransformer extends AbstractTransformer
         return $this->collection($phoneNumbers, new PhoneNumbersTransformer());
     }
 
-    public function includeAddresses(Subscriptions $model)
+    public function includeAddresses(OrderItemsPerspective $model)
     {
         $addresses = Addresses::where('object_type', get_class($model))
             ->where('object_id', $model->id)
@@ -160,32 +162,4 @@ class AbstractSubscriptionsTransformer extends AbstractTransformer
         return $this->collection($addresses, new AddressesTransformer());
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

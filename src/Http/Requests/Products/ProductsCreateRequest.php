@@ -36,7 +36,7 @@ class ProductsCreateRequest extends AbstractFormRequest
         'marketplace_provider_id' => 'nullable|exists:marketplace_providers,uuid|uuid',
         'payment_gateway_mappings' => 'nullable',
         'is_additional_product' => 'boolean',
-        'parent_marketplace_product_id' => 'nullable|exists:parent_marketplace_products,uuid|uuid',
+        'parent_marketplace_product_id' => 'nullable|exists:marketplace_products,uuid|uuid',
         ];
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n

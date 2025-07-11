@@ -38,6 +38,17 @@ class OrdersQueryFilter extends AbstractQueryFilter
      */
     protected $builder;
 
+    public function externalOrderId($value)
+    {
+        return $this->builder->where('external_order_id', 'ilike', '%' . $value . '%');
+    }
+
+        //  This is an alias function of externalOrderId
+    public function external_order_id($value)
+    {
+        return $this->externalOrderId($value);
+    }
+
     public function externalOrderNumber($value)
     {
         return $this->builder->where('external_order_number', 'ilike', '%' . $value . '%');
@@ -397,21 +408,6 @@ class OrdersQueryFilter extends AbstractQueryFilter
         return $this->marketplaceProduct($value);
     }
 
-    public function externalOrderId($value)
-    {
-            $externalOrder = $value;
-
-        if($externalOrder) {
-            return $this->builder->where('external_order_id', '=', $externalOrder->id);
-        }
-    }
-
-        //  This is an alias function of externalOrder
-    public function external_order_id($value)
-    {
-        return $this->externalOrder($value);
-    }
-
     public function iamAccountId($value)
     {
             $iamAccount = \NextDeveloper\IAM\Database\Models\Accounts::where('uuid', $value)->first();
@@ -431,7 +427,9 @@ class OrdersQueryFilter extends AbstractQueryFilter
         }
     }
 
+
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 

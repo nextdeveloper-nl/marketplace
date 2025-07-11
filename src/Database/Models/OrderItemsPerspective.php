@@ -3,44 +3,45 @@
 namespace NextDeveloper\Marketplace\Database\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use NextDeveloper\Commons\Database\Traits\HasStates;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Model;
 use NextDeveloper\Commons\Database\Traits\Filterable;
-use NextDeveloper\Commons\Database\Traits\HasStates;
-use NextDeveloper\Marketplace\Database\Observers\MarketsObserver;
+use NextDeveloper\Marketplace\Database\Observers\OrderItemsPerspectiveObserver;
 use NextDeveloper\Commons\Database\Traits\UuidId;
 use NextDeveloper\Commons\Common\Cache\Traits\CleanCache;
 use NextDeveloper\Commons\Database\Traits\Taggable;
 use NextDeveloper\Commons\Database\Traits\RunAsAdministrator;
 
 /**
- * Markets model.
+ * OrderItemsPerspective model.
  *
  * @package  NextDeveloper\Marketplace\Database\Models
  * @property integer $id
  * @property string $uuid
  * @property string $name
- * @property string $description
- * @property integer $common_domain_id
- * @property boolean $is_public
- * @property boolean $is_active
- * @property integer $common_currency_id
- * @property integer $common_language_id
- * @property integer $common_country_id
+ * @property integer $marketplace_order_id
+ * @property integer $marketplace_product_catalog_id
+ * @property integer $quantity
+ * @property integer $quantity_in_inventory
+ * @property $price_per_item
+ * @property $total_price
+ * @property $modifiers
+ * @property string $special_instructions
+ * @property $item_data
+ * @property string $sku
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
- * @property integer $iam_user_id
- * @property integer $iam_account_id
  */
-class Markets extends Model
+class OrderItemsPerspective extends Model
 {
     use Filterable, UuidId, CleanCache, Taggable, HasStates, RunAsAdministrator;
     use SoftDeletes;
 
     public $timestamps = true;
 
-    protected $table = 'marketplace_markets';
+    protected $table = 'marketplace_order_items_perspective';
 
 
     /**
@@ -50,15 +51,16 @@ class Markets extends Model
 
     protected $fillable = [
             'name',
-            'description',
-            'common_domain_id',
-            'is_public',
-            'is_active',
-            'common_currency_id',
-            'common_language_id',
-            'common_country_id',
-            'iam_user_id',
-            'iam_account_id',
+            'marketplace_order_id',
+            'marketplace_product_catalog_id',
+            'quantity',
+            'quantity_in_inventory',
+            'price_per_item',
+            'total_price',
+            'modifiers',
+            'special_instructions',
+            'item_data',
+            'sku',
     ];
 
     /**
@@ -83,13 +85,14 @@ class Markets extends Model
     protected $casts = [
     'id' => 'integer',
     'name' => 'string',
-    'description' => 'string',
-    'common_domain_id' => 'integer',
-    'is_public' => 'boolean',
-    'is_active' => 'boolean',
-    'common_currency_id' => 'integer',
-    'common_language_id' => 'integer',
-    'common_country_id' => 'integer',
+    'marketplace_order_id' => 'integer',
+    'marketplace_product_catalog_id' => 'integer',
+    'quantity' => 'integer',
+    'quantity_in_inventory' => 'integer',
+    'modifiers' => 'array',
+    'special_instructions' => 'string',
+    'item_data' => 'array',
+    'sku' => 'string',
     'created_at' => 'datetime',
     'updated_at' => 'datetime',
     'deleted_at' => 'datetime',
@@ -126,7 +129,7 @@ class Markets extends Model
         parent::boot();
 
         //  We create and add Observer even if we wont use it.
-        parent::observe(MarketsObserver::class);
+        parent::observe(OrderItemsPerspectiveObserver::class);
 
         self::registerScopes();
     }
@@ -134,7 +137,7 @@ class Markets extends Model
     public static function registerScopes()
     {
         $globalScopes = config('marketplace.scopes.global');
-        $modelScopes = config('marketplace.scopes.marketplace_markets');
+        $modelScopes = config('marketplace.scopes.marketplace_order_items_perspective');
 
         if(!$modelScopes) { $modelScopes = [];
         }
@@ -153,43 +156,5 @@ class Markets extends Model
         }
     }
 
-    public function accounts() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Accounts::class);
-    }
-    
-    public function users() : \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Users::class);
-    }
-    
-    public function products() : \Illuminate\Database\Eloquent\Relations\HasMany
-    {
-        return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\Products::class);
-    }
-
-    public function providers() : \Illuminate\Database\Eloquent\Relations\HasMany
-    {
-        return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\Providers::class);
-    }
-
-    public function orders() : \Illuminate\Database\Eloquent\Relations\HasMany
-    {
-        return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\Orders::class);
-    }
-
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

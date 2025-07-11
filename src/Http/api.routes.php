@@ -254,6 +254,27 @@ Route::prefix('marketplace')->group(
             }
         );
 
+        Route::prefix('order-items-perspective')->group(
+            function () {
+                Route::get('/', 'OrderItemsPerspective\OrderItemsPerspectiveController@index');
+                Route::get('/actions', 'OrderItemsPerspective\OrderItemsPerspectiveController@getActions');
+
+                Route::get('{moip}/tags ', 'OrderItemsPerspective\OrderItemsPerspectiveController@tags');
+                Route::post('{moip}/tags ', 'OrderItemsPerspective\OrderItemsPerspectiveController@saveTags');
+                Route::get('{moip}/addresses ', 'OrderItemsPerspective\OrderItemsPerspectiveController@addresses');
+                Route::post('{moip}/addresses ', 'OrderItemsPerspective\OrderItemsPerspectiveController@saveAddresses');
+
+                Route::get('/{moip}/{subObjects}', 'OrderItemsPerspective\OrderItemsPerspectiveController@relatedObjects');
+                Route::get('/{moip}', 'OrderItemsPerspective\OrderItemsPerspectiveController@show');
+
+                Route::post('/', 'OrderItemsPerspective\OrderItemsPerspectiveController@store');
+                Route::post('/{moip}/do/{action}', 'OrderItemsPerspective\OrderItemsPerspectiveController@doAction');
+
+                Route::patch('/{moip}', 'OrderItemsPerspective\OrderItemsPerspectiveController@update');
+                Route::delete('/{moip}', 'OrderItemsPerspective\OrderItemsPerspectiveController@destroy');
+            }
+        );
+
         Route::prefix('markets-perspective')->group(
             function () {
                 Route::get('/', 'MarketsPerspective\MarketsPerspectiveController@index');
@@ -597,8 +618,25 @@ Route::prefix('marketplace')->group(
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 );
+
 
 
 
