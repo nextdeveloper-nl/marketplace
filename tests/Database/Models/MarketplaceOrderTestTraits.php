@@ -66,6 +66,7 @@ trait MarketplaceOrderTestTraits
                 'sync_error_message'  =>  'a',
                 'customer_note'  =>  'a',
                 'external_line_id'  =>  'a',
+                'order_code'  =>  'a',
                     'ordered_at'  =>  now(),
                     'accepted_at'  =>  now(),
                     'prepared_at'  =>  now(),
@@ -495,6 +496,25 @@ trait MarketplaceOrderTestTraits
             $request = new Request(
                 [
                 'external_line_id'  =>  'a'
+                ]
+            );
+
+            $filter = new MarketplaceOrderQueryFilter($request);
+
+            $model = \NextDeveloper\Marketplace\Database\Models\MarketplaceOrder::filter($filter)->first();
+        } catch (\Exception $e) {
+            $this->assertFalse(false, $e->getMessage());
+        }
+
+        $this->assertTrue(true);
+    }
+
+    public function test_marketplaceorder_event_order_code_filter()
+    {
+        try {
+            $request = new Request(
+                [
+                'order_code'  =>  'a'
                 ]
             );
 

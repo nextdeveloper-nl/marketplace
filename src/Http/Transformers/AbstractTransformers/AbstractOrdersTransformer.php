@@ -54,50 +54,50 @@ class AbstractOrdersTransformer extends AbstractTransformer
      */
     public function transform(Orders $model)
     {
-        $marketplaceMarketId = \NextDeveloper\Marketplace\Database\Models\Markets::where('id', $model->marketplace_market_id)->first();
-        $marketplaceProviderId = \NextDeveloper\Marketplace\Database\Models\Providers::where('id', $model->marketplace_provider_id)->first();
-        $marketplaceProductId = \NextDeveloper\Marketplace\Database\Models\Products::where('id', $model->marketplace_product_id)->first();
-        $iamAccountId = \NextDeveloper\IAM\Database\Models\Accounts::where('id', $model->iam_account_id)->first();
-        $iamUserId = \NextDeveloper\IAM\Database\Models\Users::where('id', $model->iam_user_id)->first();
-
+                                                $marketplaceMarketId = \NextDeveloper\Marketplace\Database\Models\Markets::where('id', $model->marketplace_market_id)->first();
+                                                            $marketplaceProviderId = \NextDeveloper\Marketplace\Database\Models\Providers::where('id', $model->marketplace_provider_id)->first();
+                                                            $marketplaceProductId = \NextDeveloper\Marketplace\Database\Models\Products::where('id', $model->marketplace_product_id)->first();
+                                                            $iamAccountId = \NextDeveloper\IAM\Database\Models\Accounts::where('id', $model->iam_account_id)->first();
+                                                            $iamUserId = \NextDeveloper\IAM\Database\Models\Users::where('id', $model->iam_user_id)->first();
+                        
         return $this->buildPayload(
             [
-                'id' => $model->uuid,
-                'marketplace_market_id' => $marketplaceMarketId ? $marketplaceMarketId->uuid : null,
-                'marketplace_provider_id' => $marketplaceProviderId ? $marketplaceProviderId->uuid : null,
-                'marketplace_product_id' => $marketplaceProductId ? $marketplaceProductId->uuid : null,
-                'external_order_id' => $model->external_order_id,
-                'external_order_number' => $model->external_order_number,
-                'status' => $model->status,
-                'ordered_at' => $model->ordered_at,
-                'accepted_at' => $model->accepted_at,
-                'prepared_at' => $model->prepared_at,
-                'dispatched_at' => $model->dispatched_at,
-                'delivered_at' => $model->delivered_at,
-                'cancelled_at' => $model->cancelled_at,
-                'customer_data' => $model->customer_data,
-                'delivery_address' => $model->delivery_address,
-                'marketplace_metadata' => $model->marketplace_metadata,
-                'subtotal_amount' => $model->subtotal_amount,
-                'delivery_fee' => $model->delivery_fee,
-                'service_fee' => $model->service_fee,
-                'tax_amount' => $model->tax_amount,
-                'discount_amount' => $model->discount_amount,
-                'total_amount' => $model->total_amount,
-                'order_type' => $model->order_type,
-                'delivery_method' => $model->delivery_method,
-                'estimated_delivery_time' => $model->estimated_delivery_time,
-                'raw_order_data' => $model->raw_order_data,
-                'last_synced_at' => $model->last_synced_at,
-                'sync_error_message' => $model->sync_error_message,
-                'iam_account_id' => $iamAccountId ? $iamAccountId->uuid : null,
-                'iam_user_id' => $iamUserId ? $iamUserId->uuid : null,
-                'created_at' => $model->created_at,
-                'updated_at' => $model->updated_at,
-                'deleted_at' => $model->deleted_at,
-                'customer_note' => $model->customer_note,
-                'external_line_id' => $model->external_line_id,
-                'tags' => $model->tags,
+            'id'  =>  $model->uuid,
+            'marketplace_market_id'  =>  $marketplaceMarketId ? $marketplaceMarketId->uuid : null,
+            'marketplace_provider_id'  =>  $marketplaceProviderId ? $marketplaceProviderId->uuid : null,
+            'marketplace_product_id'  =>  $marketplaceProductId ? $marketplaceProductId->uuid : null,
+            'external_order_id'  =>  $model->external_order_id,
+            'external_order_number'  =>  $model->external_order_number,
+            'status'  =>  $model->status,
+            'ordered_at'  =>  $model->ordered_at,
+            'accepted_at'  =>  $model->accepted_at,
+            'prepared_at'  =>  $model->prepared_at,
+            'dispatched_at'  =>  $model->dispatched_at,
+            'delivered_at'  =>  $model->delivered_at,
+            'cancelled_at'  =>  $model->cancelled_at,
+            'customer_data'  =>  $model->customer_data,
+            'delivery_address'  =>  $model->delivery_address,
+            'marketplace_metadata'  =>  $model->marketplace_metadata,
+            'subtotal_amount'  =>  $model->subtotal_amount,
+            'delivery_fee'  =>  $model->delivery_fee,
+            'service_fee'  =>  $model->service_fee,
+            'tax_amount'  =>  $model->tax_amount,
+            'discount_amount'  =>  $model->discount_amount,
+            'total_amount'  =>  $model->total_amount,
+            'order_type'  =>  $model->order_type,
+            'delivery_method'  =>  $model->delivery_method,
+            'estimated_delivery_time'  =>  $model->estimated_delivery_time,
+            'raw_order_data'  =>  $model->raw_order_data,
+            'last_synced_at'  =>  $model->last_synced_at,
+            'sync_error_message'  =>  $model->sync_error_message,
+            'iam_account_id'  =>  $iamAccountId ? $iamAccountId->uuid : null,
+            'iam_user_id'  =>  $iamUserId ? $iamUserId->uuid : null,
+            'created_at'  =>  $model->created_at,
+            'updated_at'  =>  $model->updated_at,
+            'deleted_at'  =>  $model->deleted_at,
+            'customer_note'  =>  $model->customer_note,
+            'external_line_id'  =>  $model->external_line_id,
+            'tags'  =>  $model->tags,
             ]
         );
     }

@@ -33,6 +33,16 @@ use NextDeveloper\Commons\Database\Traits\RunAsAdministrator;
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
+ * @property integer $iam_account_id
+ * @property integer $iam_user_id
+ * @property string $delivery_method
+ * @property string $product_name
+ * @property string $provider_name
+ * @property string $order_number
+ * @property string $status
+ * @property \Carbon\Carbon $ordered_at
+ * @property \Carbon\Carbon $accepted_at
+ * @property string $customer_note
  */
 class OrderItemsPerspective extends Model
 {
@@ -61,6 +71,16 @@ class OrderItemsPerspective extends Model
             'special_instructions',
             'item_data',
             'sku',
+            'iam_account_id',
+            'iam_user_id',
+            'delivery_method',
+            'product_name',
+            'provider_name',
+            'order_number',
+            'status',
+            'ordered_at',
+            'accepted_at',
+            'customer_note',
     ];
 
     /**
@@ -96,6 +116,14 @@ class OrderItemsPerspective extends Model
     'created_at' => 'datetime',
     'updated_at' => 'datetime',
     'deleted_at' => 'datetime',
+    'delivery_method' => 'string',
+    'product_name' => 'string',
+    'provider_name' => 'string',
+    'order_number' => 'string',
+    'status' => 'string',
+    'ordered_at' => 'datetime',
+    'accepted_at' => 'datetime',
+    'customer_note' => 'string',
     ];
 
     /**
@@ -107,6 +135,8 @@ class OrderItemsPerspective extends Model
     'created_at',
     'updated_at',
     'deleted_at',
+    'ordered_at',
+    'accepted_at',
     ];
 
     /**
@@ -157,4 +187,5 @@ class OrderItemsPerspective extends Model
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 }

@@ -4,7 +4,7 @@ namespace NextDeveloper\Marketplace\Database\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
 use NextDeveloper\Commons\Database\Filters\AbstractQueryFilter;
-        
+                
 
 /**
  * This class automatically puts where clause on database so that use can filter
@@ -40,6 +40,67 @@ class OrderItemsPerspectiveQueryFilter extends AbstractQueryFilter
         return $this->builder->where('sku', 'ilike', '%' . $value . '%');
     }
 
+        
+    public function deliveryMethod($value)
+    {
+        return $this->builder->where('delivery_method', 'ilike', '%' . $value . '%');
+    }
+
+        //  This is an alias function of deliveryMethod
+    public function delivery_method($value)
+    {
+        return $this->deliveryMethod($value);
+    }
+        
+    public function productName($value)
+    {
+        return $this->builder->where('product_name', 'ilike', '%' . $value . '%');
+    }
+
+        //  This is an alias function of productName
+    public function product_name($value)
+    {
+        return $this->productName($value);
+    }
+        
+    public function providerName($value)
+    {
+        return $this->builder->where('provider_name', 'ilike', '%' . $value . '%');
+    }
+
+        //  This is an alias function of providerName
+    public function provider_name($value)
+    {
+        return $this->providerName($value);
+    }
+        
+    public function orderNumber($value)
+    {
+        return $this->builder->where('order_number', 'ilike', '%' . $value . '%');
+    }
+
+        //  This is an alias function of orderNumber
+    public function order_number($value)
+    {
+        return $this->orderNumber($value);
+    }
+        
+    public function status($value)
+    {
+        return $this->builder->where('status', 'ilike', '%' . $value . '%');
+    }
+
+        
+    public function customerNote($value)
+    {
+        return $this->builder->where('customer_note', 'ilike', '%' . $value . '%');
+    }
+
+        //  This is an alias function of customerNote
+    public function customer_note($value)
+    {
+        return $this->customerNote($value);
+    }
     
     public function quantity($value)
     {
@@ -140,6 +201,50 @@ class OrderItemsPerspectiveQueryFilter extends AbstractQueryFilter
         return $this->deletedAtEnd($value);
     }
 
+    public function orderedAtStart($date)
+    {
+        return $this->builder->where('ordered_at', '>=', $date);
+    }
+
+    public function orderedAtEnd($date)
+    {
+        return $this->builder->where('ordered_at', '<=', $date);
+    }
+
+    //  This is an alias function of orderedAt
+    public function ordered_at_start($value)
+    {
+        return $this->orderedAtStart($value);
+    }
+
+    //  This is an alias function of orderedAt
+    public function ordered_at_end($value)
+    {
+        return $this->orderedAtEnd($value);
+    }
+
+    public function acceptedAtStart($date)
+    {
+        return $this->builder->where('accepted_at', '>=', $date);
+    }
+
+    public function acceptedAtEnd($date)
+    {
+        return $this->builder->where('accepted_at', '<=', $date);
+    }
+
+    //  This is an alias function of acceptedAt
+    public function accepted_at_start($value)
+    {
+        return $this->acceptedAtStart($value);
+    }
+
+    //  This is an alias function of acceptedAt
+    public function accepted_at_end($value)
+    {
+        return $this->acceptedAtEnd($value);
+    }
+
     public function marketplaceOrderId($value)
     {
             $marketplaceOrder = \NextDeveloper\Marketplace\Database\Models\Orders::where('uuid', $value)->first();
@@ -170,5 +275,28 @@ class OrderItemsPerspectiveQueryFilter extends AbstractQueryFilter
         return $this->marketplaceProductCatalog($value);
     }
     
+    public function iamAccountId($value)
+    {
+            $iamAccount = \NextDeveloper\IAM\Database\Models\Accounts::where('uuid', $value)->first();
+
+        if($iamAccount) {
+            return $this->builder->where('iam_account_id', '=', $iamAccount->id);
+        }
+    }
+
+    
+    public function iamUserId($value)
+    {
+            $iamUser = \NextDeveloper\IAM\Database\Models\Users::where('uuid', $value)->first();
+
+        if($iamUser) {
+            return $this->builder->where('iam_user_id', '=', $iamUser->id);
+        }
+    }
+
+    
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
+
+
 }
