@@ -25,7 +25,7 @@ class OrdersService extends AbstractOrdersService
             ->get();
 
         foreach ($items as $item) {
-            $item->forceDelete();
+            $item->delete();
         }
     }
 
