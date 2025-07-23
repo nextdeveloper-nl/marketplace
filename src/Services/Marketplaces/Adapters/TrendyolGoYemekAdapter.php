@@ -40,7 +40,7 @@ class TrendyolGoYemekAdapter implements MarketplaceAdapter
         $this->baseUri = rtrim($config['base_url'] ?? 'https://api.trendyol.com/', '/');
         $this->timeout = $config['timeout'] ?? self::DEFAULT_TIMEOUT;
         $this->defaultIngredientIds = $config['default_ingredient_ids'] ?? [];
-        $this->defaultIngredientSourceName = $config['default_ingredient_source_name'] ?? 'Malzemeler';
+        $this->defaultIngredientSourceName = $config['default_ingredient_source_name'] ?? 'Garnitürler';
     }
 
     /**
@@ -826,7 +826,8 @@ class TrendyolGoYemekAdapter implements MarketplaceAdapter
      */
     private function createRemovedIngredientItems(array $mappedIngredients, $orderId): void
     {
-        $productCatalogs = ProductCatalogs::whereIn('marketplace_product_id', $mappedIngredients['product_ids'])
+        $productCatalogs = ProductCatalogs::withoutGlobalScope(AuthorizationScope::class)
+            ->where('args', 'ilike', '%' . $this->defaultIngredientSourceName . '%')
             ->whereNotIn('id', $mappedIngredients['catalog_ids'])
             ->get();
 
@@ -871,20 +872,8 @@ class TrendyolGoYemekAdapter implements MarketplaceAdapter
             }
 
             if (in_array($item['id'], $this->defaultIngredientIds)) {
-                $product = Products::withoutGlobalScope(AuthorizationScope::class)
-                    ->where('name', $this->defaultIngredientSourceName)
-                    ->first();
-
-                if (!$product) {
-                    Log::warning(__METHOD__ . ' - Default ingredient product not found', [
-                        'order_id' => $orderId,
-                        'product_name' => $this->defaultIngredientSourceName,
-                    ]);
-                    return;
-                }
-
                 $productCatalogs = ProductCatalogs::withoutGlobalScope(AuthorizationScope::class)
-                    ->where('marketplace_product_id', $product->id)
+                    ->where('args', 'ilike', '%' . $this->defaultIngredientSourceName . '%')
                     ->get();
 
                 foreach ($productCatalogs as $productCatalog) {
