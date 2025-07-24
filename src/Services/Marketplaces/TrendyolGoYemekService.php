@@ -121,6 +121,7 @@ class TrendyolGoYemekService
         try {
             $orders = $this->adapter->fetchOrders($date);
 
+
             Log::info(__METHOD__ . " - Fetched orders for date: " . $date->format('Y-m-d H:i:s'), [
                 'orders' => $orders,
             ]);
@@ -183,6 +184,8 @@ class TrendyolGoYemekService
         $normalizedOrder = $this->adapter->normalizeOrderData($rawOrder);
         $orderItems = $normalizedOrder['items'] ?? collect();
 
+
+
         foreach ($orderItems as $orderItem) {
             // Map product to catalog
             $mappedProduct = MappingExternalProduct::mapMainProduct($orderItem['id'], $this->provider, $orderItem['name']);
@@ -203,27 +206,12 @@ class TrendyolGoYemekService
                 return false;
             }
 
-            /**
-             * Note: The 'new' key is used to determine if the order is new or already exists.
-             * If 'new' is false, it means the order already exists in the database,
-             * so we skip processing the items for this order.
-             * This is to avoid duplicate processing of existing orders.
-             * Because the external order ID don't change, we can safely skip processing
-             */
-            if (isset($order['new_order']) && !$order['new_order']) {
-                Log::info(__METHOD__ . " - Order already exists, skipping item processing", [
-                    'external_order_id' => $orderData['external_order_id'],
-                    'internal_order_id' => $order['id'],
-                ]);
-                continue;
-            }
-
             // Process order items
-            $this->adapter->processOrderItems($orderItems, $order['id']);
+            $this->adapter->processOrderItems($orderItem, $order->id);
 
             Log::info(__METHOD__ . " - Order processed successfully", [
                 'external_order_id' => $orderData['external_order_id'],
-                'internal_order_id' => $order['id'],
+                'marketplace_order_id' => $order->id,
             ]);
         }
 

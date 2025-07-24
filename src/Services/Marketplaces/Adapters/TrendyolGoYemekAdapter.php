@@ -40,7 +40,7 @@ class TrendyolGoYemekAdapter implements MarketplaceAdapter
         $this->baseUri = rtrim($config['base_url'] ?? 'https://api.trendyol.com/', '/');
         $this->timeout = $config['timeout'] ?? self::DEFAULT_TIMEOUT;
         $this->defaultIngredientIds = $config['default_ingredient_ids'] ?? [];
-        $this->defaultIngredientSourceName = $config['default_ingredient_source_name'] ?? 'Malzemeler';
+        $this->defaultIngredientSourceName = $config['default_ingredient_source_name'] ?? 'Garnitürler';
     }
 
     /**
@@ -96,12 +96,13 @@ class TrendyolGoYemekAdapter implements MarketplaceAdapter
 
 
         // convert to timestamp milliseconds
-        $sinceMilliseconds = (int)($since->startOfDay()->timestamp * 1000);
-        $endDateMilliseconds = (int)($endDate->endOfDay()->timestamp * 1000);
+        $sinceMilliseconds = (int)($since->startOfDay()->getTimestampMs());
+        $endDateMilliseconds = (int)($endDate->endOfDay()->getTimestampMs());
 
         return [
             'packageModificationStartDate' => $sinceMilliseconds,
             'packageModificationEndDate' => $endDateMilliseconds,
+            'packageStatuses' => 'Created,Picking,Invoiced,Cancelled,UnSupplied,Shipped,Delivered',
         ];
     }
 
@@ -267,7 +268,10 @@ class TrendyolGoYemekAdapter implements MarketplaceAdapter
             return [
                 'external_order_id' => $rawOrder['orderId'] ?? null,
                 'external_order_number' => $rawOrder['orderNumber'] ?? null,
-                'status' => MappingExternalProduct::mapOrderStatus($rawOrder['packageStatus'] ?? 'Received', $this->providers),
+                'status' => MappingExternalProduct::mapOrderStatus(
+                    $rawOrder['packageStatus'] ?? 'Received',
+                    $this->providers,
+                ),
                 'ordered_at' => $this->parseTimestamp($rawOrder['packageCreationDate'] ?? null),
                 'delivered_at' => $this->parseTimestamp($rawOrder['lastModifiedDate'] ?? null),
                 'customer_data' => $this->normalizeCustomerData($rawOrder['customer'] ?? []),
@@ -301,9 +305,10 @@ class TrendyolGoYemekAdapter implements MarketplaceAdapter
 
         try {
             // Convert to DateTime object
-            $dateTime = Carbon::createFromTimestamp($timestamp / 1000);
-            // Format to Y-m-d H:i:s
-            return $dateTime->format('Y-m-d H:i:s');
+            $dateTime = Carbon::createFromTimestampMs($timestamp, config('app.timezone'));
+
+            // Format to 2025-07-22 17:02:31.000000 +03:00 format
+            return $dateTime->format('Y-m-d H:i:s.u P');
         } catch (Exception $e) {
             Log::warning(__METHOD__ . ' - Failed to parse timestamp', [
                 'timestamp' => $timestamp,
@@ -394,7 +399,7 @@ class TrendyolGoYemekAdapter implements MarketplaceAdapter
             $minTime = (int)$rawOrder['estimatedPickupTimeMin'];
 
             // Use only the minimum time (start of the delivery window)
-            $minDate = Carbon::createFromTimestamp($minTime / 1000);
+            $minDate = Carbon::createFromTimestampMs($minTime);
 
             // Return in Y-m-d H:i:s format to ensure proper parsing
             return $minDate->format('Y-m-d H:i:s');
@@ -652,7 +657,7 @@ class TrendyolGoYemekAdapter implements MarketplaceAdapter
     /**
      * Update or create order
      */
-    public function updateOrCreateOrder($order): ?array
+    public function updateOrCreateOrder($order): ?Orders
     {
         try {
             $existingOrder = Orders::withoutGlobalScope(AuthorizationScope::class)
@@ -668,10 +673,7 @@ class TrendyolGoYemekAdapter implements MarketplaceAdapter
                     'external_order_id' => $order['external_order_id'],
                     'marketplace_provider_id' => $order['marketplace_provider_id'],
                 ]);
-                return [
-                    'id' => $existingOrder->id,
-                    'new_order' => false, // Indicate this is an update
-                ];
+                return $existingOrder;
             }
 
             $newOrder = OrdersService::create($order);
@@ -680,10 +682,7 @@ class TrendyolGoYemekAdapter implements MarketplaceAdapter
                 'marketplace_provider_id' => $order['marketplace_provider_id'],
             ]);
 
-            return [
-                'id' => $newOrder->id,
-                'new_order' => true, // Indicate this is a new order
-            ];
+            return $newOrder;
         } catch (Exception $e) {
             Log::error(__METHOD__ . ' - Failed to update or create order', [
                 'order' => $order,
@@ -696,34 +695,27 @@ class TrendyolGoYemekAdapter implements MarketplaceAdapter
     /**
      * Process order items
      */
-    public function processOrderItems($items,  $orderId): void
+    public function processOrderItems($item, $orderId): void
     {
         try {
-
-            // Delete existing order items for this order
-            OrdersService::deleteOrderItemsByOrderId($orderId);
-
-            // Process each item
-            foreach ($items as $item) {
-                if (isset($item['subItems']) && is_array($item['subItems'])) {
-                    foreach ($item['subItems'] as $subItem) {
-                        $this->processOrderItem($subItem, $orderId);
-                    }
+            if (isset($item['subItems']) && is_array($item['subItems'])) {
+                foreach ($item['subItems'] as $subItem) {
+                    $this->processOrderItem($subItem, $orderId);
                 }
+            }
 
-                if (!empty($item['removedIngredients'])) {
-                    $this->processRemovedIngredients($item['removedIngredients'], $orderId);
-                }
+            if (!empty($item['removedIngredients'])) {
+                $this->processRemovedIngredients($item['removedIngredients'], $orderId);
+            }
 
-                if (empty($item['removedIngredients'])) {
-                    $this->processDefaultIngredients($item, $orderId);
-                }
+            if (empty($item['removedIngredients'])) {
+                $this->processDefaultIngredients($item, $orderId);
             }
         } catch (Exception $e) {
             Log::error(__METHOD__ . ' - Failed to process order items', [
                 'order_id' => $orderId,
                 'provider_id' => $this->providers->id,
-                'items' => $items,
+                'items' => $item,
                 'provider_name' => $this->providers->name,
                 'error' => $e->getMessage(),
             ]);
@@ -736,9 +728,31 @@ class TrendyolGoYemekAdapter implements MarketplaceAdapter
     private function processOrderItem(array $item, $orderId): void
     {
         try {
-            $mappedProduct = MappingExternalProduct::mapProductCatalog($item['id'], $this->providers, $item['name'] ?? 'Unknown Product');
+            $mappedProduct = MappingExternalProduct::mapProductCatalog(
+                $item['id'],
+                $this->providers,
+                $item['name'] ?? 'Unknown Product',
+            );
 
-            if (!$mappedProduct) return;
+            if (!$mappedProduct) {
+                return;
+            }
+
+            // Check if the product is already existing in marketplace_order_items
+            $existingItem = OrderItems::withoutGlobalScope(AuthorizationScope::class)
+                ->where('marketplace_order_id', $orderId)
+                ->where('marketplace_product_catalog_id', $mappedProduct->id)
+                ->first();
+
+            if ($existingItem) {
+                Log::info(__METHOD__ . ' - Order item already exists', [
+                    'order_id' => $orderId,
+                    'product_id' => $mappedProduct->id,
+                    'product_name' => $mappedProduct->name,
+                ]);
+                return; // Skip processing if item already exists
+            }
+
 
             $orderItemData = [
                 'marketplace_order_id' => $orderId,
@@ -791,7 +805,11 @@ class TrendyolGoYemekAdapter implements MarketplaceAdapter
         $productIds = [];
 
         foreach ($ingredientIds as $ingredientId) {
-            $mappedIngredient = MappingExternalProduct::mapProductCatalog($ingredientId['id'], $this->providers, $ingredientId['name'] ?? 'Unknown Ingredient');
+            $mappedIngredient = MappingExternalProduct::mapProductCatalog(
+                $ingredientId['id'],
+                $this->providers,
+                $ingredientId['name'] ?? 'Unknown Ingredient',
+            );
 
             $mappedCatalogIds[] = $mappedIngredient->id;
             $productIds[] = $mappedIngredient->marketplace_product_id;
@@ -808,7 +826,8 @@ class TrendyolGoYemekAdapter implements MarketplaceAdapter
      */
     private function createRemovedIngredientItems(array $mappedIngredients, $orderId): void
     {
-        $productCatalogs = ProductCatalogs::whereIn('marketplace_product_id', $mappedIngredients['product_ids'])
+        $productCatalogs = ProductCatalogs::withoutGlobalScope(AuthorizationScope::class)
+            ->where('args', 'ilike', '%' . $this->defaultIngredientSourceName . '%')
             ->whereNotIn('id', $mappedIngredients['catalog_ids'])
             ->get();
 
@@ -819,6 +838,20 @@ class TrendyolGoYemekAdapter implements MarketplaceAdapter
                 'price_per_item' => 0, // Removed ingredients have no price
                 'total_price' => 0,
             ];
+
+            // Check if the order item already exists
+            $existingItem = OrderItems::withoutGlobalScope(AuthorizationScope::class)
+                ->where('marketplace_order_id', $orderId)
+                ->where('marketplace_product_catalog_id', $productCatalog->id)
+                ->first();
+            if ($existingItem) {
+                Log::info(__METHOD__ . ' - Removed ingredient order item already exists', [
+                    'order_id' => $orderId,
+                    'product_catalog_id' => $productCatalog->id,
+                    'product_name' => $productCatalog->name,
+                ]);
+                continue; // Skip processing if item already exists
+            }
 
             OrderItemsService::create($orderItemData);
         }
@@ -839,30 +872,9 @@ class TrendyolGoYemekAdapter implements MarketplaceAdapter
             }
 
             if (in_array($item['id'], $this->defaultIngredientIds)) {
-                $product = Products::withoutGlobalScope(AuthorizationScope::class)
-                    ->where('name', $this->defaultIngredientSourceName)
-                    ->first();
-
-                if (!$product) {
-                    Log::warning(__METHOD__ . ' - Default ingredient product not found', [
-                        'order_id' => $orderId,
-                        'product_name' => $this->defaultIngredientSourceName,
-                    ]);
-                    return;
-                }
-
                 $productCatalogs = ProductCatalogs::withoutGlobalScope(AuthorizationScope::class)
-                    ->where('marketplace_product_id', $product->id)
+                    ->where('args', 'ilike', '%' . $this->defaultIngredientSourceName . '%')
                     ->get();
-
-                if ($productCatalogs->isEmpty()) {
-                    Log::warning(__METHOD__ . ' - No product catalogs found for default ingredient', [
-                        'order_id' => $orderId,
-                        'product_id' => $product->id,
-                        'product_name' => $this->defaultIngredientSourceName,
-                    ]);
-                    return;
-                }
 
                 foreach ($productCatalogs as $productCatalog) {
                     $orderItemData = [
@@ -871,6 +883,21 @@ class TrendyolGoYemekAdapter implements MarketplaceAdapter
                         'price_per_item' => 0, // Default ingredients have no price
                         'total_price' => 0,
                     ];
+
+                    // Check if the order item already exists
+                    $existingItem = OrderItems::withoutGlobalScope(AuthorizationScope::class)
+                        ->where('marketplace_order_id', $orderId)
+                        ->where('marketplace_product_catalog_id', $productCatalog->id)
+                        ->first();
+
+                    if ($existingItem) {
+                        Log::info(__METHOD__ . ' - Default ingredient order item already exists', [
+                            'order_id' => $orderId,
+                            'product_catalog_id' => $productCatalog->id,
+                            'product_name' => $productCatalog->name,
+                        ]);
+                        continue; // Skip processing if item already exists
+                    }
 
                     OrderItemsService::create($orderItemData);
                 }
