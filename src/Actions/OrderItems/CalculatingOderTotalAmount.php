@@ -2,13 +2,19 @@
 
 namespace NextDeveloper\Marketplace\Actions\OrderItems;
 
+use NextDeveloper\Commons\Actions\AbstractAction;
 use NextDeveloper\Commons\Exceptions\NotAllowedException;
 use NextDeveloper\IAM\Database\Scopes\AuthorizationScope;
 use NextDeveloper\Marketplace\Database\Models\OrderItems;
 use NextDeveloper\Marketplace\Database\Models\Orders;
 use NextDeveloper\Marketplace\Database\Models\ProductCatalogs;
-
-class CalculateOrderTotal extends \NextDeveloper\Commons\Actions\AbstractAction
+/**
+ * Class CalculateOrderTotal
+ *
+ * This class is responsible for calculating the total amount of an order based on its items.
+ * It computes the subtotal, tax, and total amounts and updates the order accordingly.
+ */
+class CalculatingOderTotalAmount extends AbstractAction
 {
     private const TAX_RATE = 0.2;
 
