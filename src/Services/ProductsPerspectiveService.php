@@ -29,7 +29,11 @@ class ProductsPerspectiveService extends AbstractProductsPerspectiveService
     public static function getPublicProducts($marketUuid) : ?Collection
     {
         try {
-            $marketplace = Markets::where('uuid', $marketUuid)->first();
+            $market = Markets::withoutGlobalScope(AuthorizationScope::class)->where('uuid', $marketUuid)->first();
+
+            if(!$market->is_public === true) {
+                return new Collection();
+            }
         } catch (\Exception $e) {
             return new Collection();
         }
@@ -40,7 +44,7 @@ class ProductsPerspectiveService extends AbstractProductsPerspectiveService
             ->where('is_active', true)
             ->where('is_in_maintenance', false)
             ->where('is_invisible', false)
-            ->where('marketplace_market_id', $marketplace->id)
+            ->where('marketplace_market_id', $market->id)
             ->get();
 
         return $products;
@@ -49,6 +53,16 @@ class ProductsPerspectiveService extends AbstractProductsPerspectiveService
     public static function getBySlug($slug) : ?ProductsPerspective
     {
         $product = ProductsPerspective::where('slug', $slug)->first();
+
+        return $product;
+    }
+
+    public static function getPublicBySlug($slug) : ?ProductsPerspective
+    {
+        $product = ProductsPerspective::withoutGlobalScope(AuthorizationScope::class)
+            ->where('slug', $slug)
+            ->where('is_public', true)
+            ->first();
 
         return $product;
     }

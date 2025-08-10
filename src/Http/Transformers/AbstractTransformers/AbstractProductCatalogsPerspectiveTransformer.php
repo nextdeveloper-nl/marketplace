@@ -54,29 +54,29 @@ class AbstractProductCatalogsPerspectiveTransformer extends AbstractTransformer
      */
     public function transform(ProductCatalogsPerspective $model)
     {
-                                                $marketplaceProductId = \NextDeveloper\Marketplace\Database\Models\Products::where('id', $model->marketplace_product_id)->first();
-                                                            $iamAccountId = \NextDeveloper\IAM\Database\Models\Accounts::where('id', $model->iam_account_id)->first();
-                                                            $iamUserId = \NextDeveloper\IAM\Database\Models\Users::where('id', $model->iam_user_id)->first();
-                        
+        $marketplaceProductId = \NextDeveloper\Marketplace\Database\Models\Products::where('id', $model->marketplace_product_id)->first();
+        $iamAccountId = \NextDeveloper\IAM\Database\Models\Accounts::where('id', $model->iam_account_id)->first();
+        $iamUserId = \NextDeveloper\IAM\Database\Models\Users::where('id', $model->iam_user_id)->first();
+
         return $this->buildPayload(
             [
-            'id'  =>  $model->uuid,
-            'name'  =>  $model->name,
-            'price'  =>  $model->price,
-            'args'  =>  $model->args,
-            'tags'  =>  $model->tags,
-            'quantity_in_inventory'  =>  $model->quantity_in_inventory,
-            'trial_date'  =>  $model->trial_date,
-            'sku'  =>  $model->sku,
-            'is_public'  =>  $model->is_public,
-            'features'  =>  $model->features,
-            'marketplace_product_id'  =>  $marketplaceProductId ? $marketplaceProductId->uuid : null,
-            'product'  =>  $model->product,
-            'iam_account_id'  =>  $iamAccountId ? $iamAccountId->uuid : null,
-            'iam_user_id'  =>  $iamUserId ? $iamUserId->uuid : null,
-            'created_at'  =>  $model->created_at,
-            'updated_at'  =>  $model->updated_at,
-            'deleted_at'  =>  $model->deleted_at,
+                'id' => $model->uuid,
+                'name' => $model->name,
+                'price' => $model->price,
+                'args' => $model->args,
+                'tags' => $model->tags,
+                'quantity_in_inventory' => $model->quantity_in_inventory,
+                'trial_date' => $model->trial_date,
+                'sku' => $model->sku,
+                'is_public' => $model->is_public,
+                'features' => $model->features,
+                'marketplace_product_id' => $marketplaceProductId ? $marketplaceProductId->uuid : null,
+                'product' => $model->product,
+                'iam_account_id' => $iamAccountId ? $iamAccountId->uuid : null,
+                'iam_user_id' => $iamUserId ? $iamUserId->uuid : null,
+                'created_at' => $model->created_at,
+                'updated_at' => $model->updated_at,
+                'deleted_at' => $model->deleted_at,
             ]
         );
     }
@@ -165,16 +165,6 @@ class AbstractProductCatalogsPerspectiveTransformer extends AbstractTransformer
         return $this->collection($addresses, new AddressesTransformer());
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
-
-
-
-
-
-
-
-
-
-
 
 
 }
