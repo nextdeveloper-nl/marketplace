@@ -128,24 +128,24 @@ Route::prefix('marketplace')->group(
             }
         );
 
-        Route::prefix('orders')->group(
+        Route::prefix('product-mappings')->group(
             function () {
-                Route::get('/', 'Orders\OrdersController@index');
-                Route::get('/actions', 'Orders\OrdersController@getActions');
+                Route::get('/', 'ProductMappings\ProductMappingsController@index');
+                Route::get('/actions', 'ProductMappings\ProductMappingsController@getActions');
 
-                Route::get('{marketplace_orders}/tags ', 'Orders\OrdersController@tags');
-                Route::post('{marketplace_orders}/tags ', 'Orders\OrdersController@saveTags');
-                Route::get('{marketplace_orders}/addresses ', 'Orders\OrdersController@addresses');
-                Route::post('{marketplace_orders}/addresses ', 'Orders\OrdersController@saveAddresses');
+                Route::get('{marketplace_product_mappings}/tags ', 'ProductMappings\ProductMappingsController@tags');
+                Route::post('{marketplace_product_mappings}/tags ', 'ProductMappings\ProductMappingsController@saveTags');
+                Route::get('{marketplace_product_mappings}/addresses ', 'ProductMappings\ProductMappingsController@addresses');
+                Route::post('{marketplace_product_mappings}/addresses ', 'ProductMappings\ProductMappingsController@saveAddresses');
 
-                Route::get('/{marketplace_orders}/{subObjects}', 'Orders\OrdersController@relatedObjects');
-                Route::get('/{marketplace_orders}', 'Orders\OrdersController@show');
+                Route::get('/{marketplace_product_mappings}/{subObjects}', 'ProductMappings\ProductMappingsController@relatedObjects');
+                Route::get('/{marketplace_product_mappings}', 'ProductMappings\ProductMappingsController@show');
 
-                Route::post('/', 'Orders\OrdersController@store');
-                Route::post('/{marketplace_orders}/do/{action}', 'Orders\OrdersController@doAction');
+                Route::post('/', 'ProductMappings\ProductMappingsController@store');
+                Route::post('/{marketplace_product_mappings}/do/{action}', 'ProductMappings\ProductMappingsController@doAction');
 
-                Route::patch('/{marketplace_orders}', 'Orders\OrdersController@update');
-                Route::delete('/{marketplace_orders}', 'Orders\OrdersController@destroy');
+                Route::patch('/{marketplace_product_mappings}', 'ProductMappings\ProductMappingsController@update');
+                Route::delete('/{marketplace_product_mappings}', 'ProductMappings\ProductMappingsController@destroy');
             }
         );
 
@@ -170,24 +170,24 @@ Route::prefix('marketplace')->group(
             }
         );
 
-        Route::prefix('product-mappings')->group(
+        Route::prefix('orders')->group(
             function () {
-                Route::get('/', 'ProductMappings\ProductMappingsController@index');
-                Route::get('/actions', 'ProductMappings\ProductMappingsController@getActions');
+                Route::get('/', 'Orders\OrdersController@index');
+                Route::get('/actions', 'Orders\OrdersController@getActions');
 
-                Route::get('{marketplace_product_mappings}/tags ', 'ProductMappings\ProductMappingsController@tags');
-                Route::post('{marketplace_product_mappings}/tags ', 'ProductMappings\ProductMappingsController@saveTags');
-                Route::get('{marketplace_product_mappings}/addresses ', 'ProductMappings\ProductMappingsController@addresses');
-                Route::post('{marketplace_product_mappings}/addresses ', 'ProductMappings\ProductMappingsController@saveAddresses');
+                Route::get('{marketplace_orders}/tags ', 'Orders\OrdersController@tags');
+                Route::post('{marketplace_orders}/tags ', 'Orders\OrdersController@saveTags');
+                Route::get('{marketplace_orders}/addresses ', 'Orders\OrdersController@addresses');
+                Route::post('{marketplace_orders}/addresses ', 'Orders\OrdersController@saveAddresses');
 
-                Route::get('/{marketplace_product_mappings}/{subObjects}', 'ProductMappings\ProductMappingsController@relatedObjects');
-                Route::get('/{marketplace_product_mappings}', 'ProductMappings\ProductMappingsController@show');
+                Route::get('/{marketplace_orders}/{subObjects}', 'Orders\OrdersController@relatedObjects');
+                Route::get('/{marketplace_orders}', 'Orders\OrdersController@show');
 
-                Route::post('/', 'ProductMappings\ProductMappingsController@store');
-                Route::post('/{marketplace_product_mappings}/do/{action}', 'ProductMappings\ProductMappingsController@doAction');
+                Route::post('/', 'Orders\OrdersController@store');
+                Route::post('/{marketplace_orders}/do/{action}', 'Orders\OrdersController@doAction');
 
-                Route::patch('/{marketplace_product_mappings}', 'ProductMappings\ProductMappingsController@update');
-                Route::delete('/{marketplace_product_mappings}', 'ProductMappings\ProductMappingsController@destroy');
+                Route::patch('/{marketplace_orders}', 'Orders\OrdersController@update');
+                Route::delete('/{marketplace_orders}', 'Orders\OrdersController@destroy');
             }
         );
 
@@ -634,8 +634,25 @@ Route::prefix('marketplace')->group(
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 );
+
 
 
 

@@ -56,6 +56,8 @@ class AbstractOrderItemsPerspectiveTransformer extends AbstractTransformer
     {
                                                 $marketplaceOrderId = \NextDeveloper\Marketplace\Database\Models\Orders::where('id', $model->marketplace_order_id)->first();
                                                             $marketplaceProductCatalogId = \NextDeveloper\Marketplace\Database\Models\ProductCatalogs::where('id', $model->marketplace_product_catalog_id)->first();
+                                                            $iamAccountId = \NextDeveloper\IAM\Database\Models\Accounts::where('id', $model->iam_account_id)->first();
+                                                            $iamUserId = \NextDeveloper\IAM\Database\Models\Users::where('id', $model->iam_user_id)->first();
                         
         return $this->buildPayload(
             [
@@ -74,6 +76,16 @@ class AbstractOrderItemsPerspectiveTransformer extends AbstractTransformer
             'created_at'  =>  $model->created_at,
             'updated_at'  =>  $model->updated_at,
             'deleted_at'  =>  $model->deleted_at,
+            'iam_account_id'  =>  $iamAccountId ? $iamAccountId->uuid : null,
+            'iam_user_id'  =>  $iamUserId ? $iamUserId->uuid : null,
+            'delivery_method'  =>  $model->delivery_method,
+            'product_name'  =>  $model->product_name,
+            'provider_name'  =>  $model->provider_name,
+            'order_number'  =>  $model->order_number,
+            'status'  =>  $model->status,
+            'ordered_at'  =>  $model->ordered_at,
+            'accepted_at'  =>  $model->accepted_at,
+            'customer_note'  =>  $model->customer_note,
             ]
         );
     }
@@ -162,4 +174,7 @@ class AbstractOrderItemsPerspectiveTransformer extends AbstractTransformer
         return $this->collection($addresses, new AddressesTransformer());
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
+
+
 }

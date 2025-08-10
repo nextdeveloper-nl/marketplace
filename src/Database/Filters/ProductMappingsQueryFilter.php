@@ -4,7 +4,7 @@ namespace NextDeveloper\Marketplace\Database\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
 use NextDeveloper\Commons\Database\Filters\AbstractQueryFilter;
-
+        
 
 /**
  * This class automatically puts where clause on database so that use can filter
@@ -17,7 +17,7 @@ class ProductMappingsQueryFilter extends AbstractQueryFilter
      * @var Builder
      */
     protected $builder;
-
+    
     public function externalProductId($value)
     {
         return $this->builder->where('external_product_id', 'ilike', '%' . $value . '%');
@@ -28,7 +28,7 @@ class ProductMappingsQueryFilter extends AbstractQueryFilter
     {
         return $this->externalProductId($value);
     }
-
+    
     public function createdAtStart($date)
     {
         return $this->builder->where('created_at', '>=', $date);
@@ -109,7 +109,7 @@ class ProductMappingsQueryFilter extends AbstractQueryFilter
     {
         return $this->marketplaceProduct($value);
     }
-
+    
     public function marketplaceProviderId($value)
     {
             $marketplaceProvider = \NextDeveloper\Marketplace\Database\Models\Providers::where('uuid', $value)->first();
@@ -124,7 +124,8 @@ class ProductMappingsQueryFilter extends AbstractQueryFilter
     {
         return $this->marketplaceProvider($value);
     }
-
+    
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 }

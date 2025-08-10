@@ -152,4 +152,5 @@ class ProductCatalogMappings extends Model
 
 
 
+
 }

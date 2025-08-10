@@ -35,8 +35,6 @@ class TrendyolGoYemekService
      */
     private function initializeService(): void
     {
-        // Set admin privileges for provider access
-        UserHelper::setAdminAsCurrentUser();
 
         // Load provider's marketplace market
         if (!$this->provider->marketplace_market_id) {
@@ -49,7 +47,7 @@ class TrendyolGoYemekService
 
         // Initialize adapter with configuration
         $config = $this->buildAdapterConfig();
-        $this->adapter = new TrendyolGoYemekAdapter($config);
+        $this->adapter = new TrendyolGoYemekAdapter($config, $this->provider);
     }
 
     /**
@@ -123,6 +121,7 @@ class TrendyolGoYemekService
         try {
             $orders = $this->adapter->fetchOrders($date);
 
+
             Log::info(__METHOD__ . " - Fetched orders for date: " . $date->format('Y-m-d H:i:s'), [
                 'orders' => $orders,
             ]);
@@ -150,16 +149,16 @@ class TrendyolGoYemekService
         $processedCount = 0;
         $failedCount = 0;
 
-        foreach ($orders as $rawOrder) {
+        foreach ($orders as $index => $rawOrder) {
             try {
-                if ($this->processSingleOrder($rawOrder)) {
+                if ($this->processSingleOrder($rawOrder, $index)) {
                     $processedCount++;
                 } else {
                     $failedCount++;
                 }
             } catch (Exception $e) {
                 $failedCount++;
-                Log::error(__METHOD__ . " - Error processing individual order", [
+                Log::error(__METHOD__ . " - Error processing order", [
                     'order' => $rawOrder,
                     'error' => $e->getMessage(),
                 ]);
@@ -179,36 +178,40 @@ class TrendyolGoYemekService
      * @param array $rawOrder Raw order data from API
      * @return bool Success status
      */
-    private function processSingleOrder(array $rawOrder): bool
+    private function processSingleOrder(array $rawOrder, int $index): bool
     {
         // Normalize order data
         $normalizedOrder = $this->adapter->normalizeOrderData($rawOrder);
         $orderItems = $normalizedOrder['items'] ?? collect();
 
+
+
         foreach ($orderItems as $orderItem) {
             // Map product to catalog
-            $mappedProduct = MappingExternalProduct::mapMainProduct($orderItem['id'], $this->provider->id);
-            if (!$mappedProduct) {
-                Log::warning(__METHOD__ . " - No product mapping found", ['product' => $orderItem]);
-                return false;
-            }
+            $mappedProduct = MappingExternalProduct::mapMainProduct($orderItem['id'], $this->provider, $orderItem['name']);
+            if (!$mappedProduct) return false;
 
             // Prepare order for a database
-            $orderData = $this->prepareOrderForDatabase($normalizedOrder, $mappedProduct, $orderItem['external_line_id']);
+            $orderData = $this->prepareOrderForDatabase(
+                $normalizedOrder,
+                $mappedProduct,
+                $orderItem['external_line_id'],
+                $index + 1
+            );
 
             // Create or update order
             $order = $this->adapter->updateOrCreateOrder($orderData);
-            if (!$order) {
+            if ($order == null) {
                 Log::error(__METHOD__ . " - Failed to create/update order", ['order_data' => $orderData]);
                 return false;
             }
 
             // Process order items
-            $this->adapter->processOrderItems($orderItems, $order->id, $this->provider->id);
+            $this->adapter->processOrderItems($orderItem, $order->id);
 
             Log::info(__METHOD__ . " - Order processed successfully", [
                 'external_order_id' => $orderData['external_order_id'],
-                'internal_order_id' => $order->id,
+                'marketplace_order_id' => $order->id,
             ]);
         }
 
@@ -218,19 +221,22 @@ class TrendyolGoYemekService
     /**
      * Prepare order data for database insertion
      */
-    private function prepareOrderForDatabase(array $normalizedOrder, $mappedProduct, ?string $externalLineId): array
+    private function prepareOrderForDatabase(array $normalizedOrder, $mappedProduct, ?string $externalLineId, int $index): array
     {
 
         $orderData = $normalizedOrder;
         $orderData['marketplace_product_id'] = $mappedProduct->id;
         $orderData['marketplace_provider_id'] = $this->provider->id;
         $orderData['marketplace_market_id'] = $this->provider->marketplace_market_id;
-        $orderData['iam_account_id'] = $this->market->iam_account_id;
-        $orderData['iam_user_id'] = $this->market->iam_user_id;
         $orderData['external_line_id'] = $externalLineId;
+        $orderData['tags'] = [
+            $this->provider->name,
+            $orderData['order_code'],
+        ];
 
         // Remove items array as it's processed separately
         unset($orderData['items']);
+        unset($orderData['order_code']);
 
         return $orderData;
     }

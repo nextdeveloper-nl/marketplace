@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
+use NextDeveloper\IAM\Helpers\UserHelper;
 use NextDeveloper\Marketplace\Database\Models\Providers;
 use NextDeveloper\Marketplace\Services\Marketplaces\TrendyolGoYemekService;
 
@@ -83,6 +84,12 @@ class FetchProviderOrdersCommand extends Command
         $failCount = 0;
 
         foreach ($providers as $provider) {
+
+            // Set user and account context
+            UserHelper::setUserById($provider->iam_user_id);
+            UserHelper::setCurrentAccountById($provider->iam_account_id);
+
+            // Process each provider
             $result = $this->processProvider($provider, $date);
             $result ? $successCount++ : $failCount++;
             $bar->advance();
