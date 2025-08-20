@@ -92,6 +92,11 @@ class MarketplaceSuccessManagerRole extends AbstractRole implements IAuthorizati
     public function allowedOperations() :array
     {
         return [
+            'marketplace_markets_perspective:read',
+            'marketplace_order_items_perspective:read',
+            'marketplace_product_catalogs_perspective:read',
+            'marketplace_products_perspective:read',
+
             'marketplace_markets:read',
             'marketplace_markets:create',
             'marketplace_markets:update',
