@@ -121,15 +121,21 @@ class OrdersQueryFilter extends AbstractQueryFilter
         return $this->externalLineId($value);
     }
         
-    public function orderCode($value)
+    public function provider($value)
     {
-        return $this->builder->where('order_code', 'ilike', '%' . $value . '%');
+        return $this->builder->where('provider', 'ilike', '%' . $value . '%');
     }
 
-        //  This is an alias function of orderCode
-    public function order_code($value)
+        
+    public function orderNo($value)
     {
-        return $this->orderCode($value);
+        return $this->builder->where('order_no', 'ilike', '%' . $value . '%');
+    }
+
+        //  This is an alias function of orderNo
+    public function order_no($value)
+    {
+        return $this->orderNo($value);
     }
     
     public function orderedAtStart($date)
@@ -440,6 +446,7 @@ class OrdersQueryFilter extends AbstractQueryFilter
 
     
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 
