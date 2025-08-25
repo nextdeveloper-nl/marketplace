@@ -43,7 +43,8 @@ class OrdersCreateRequest extends AbstractFormRequest
         'customer_note' => 'nullable|string',
         'external_line_id' => 'nullable|string|exists:external_lines,uuid|uuid',
         'tags' => '',
-        'order_code' => 'nullable|string',
+        'provider' => 'nullable|string',
+        'order_no' => 'nullable|string',
         ];
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE

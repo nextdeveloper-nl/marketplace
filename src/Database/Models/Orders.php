@@ -54,6 +54,8 @@ use NextDeveloper\Commons\Database\Traits\RunAsAdministrator;
  * @property string $customer_note
  * @property string $external_line_id
  * @property array $tags
+ * @property string $provider
+ * @property string $order_no
  */
 class Orders extends Model
 {
@@ -103,6 +105,8 @@ class Orders extends Model
             'customer_note',
             'external_line_id',
             'tags',
+            'provider',
+            'order_no',
     ];
 
     /**
@@ -153,6 +157,8 @@ class Orders extends Model
     'customer_note' => 'string',
     'external_line_id' => 'string',
     'tags' => \NextDeveloper\Commons\Database\Casts\TextArray::class,
+    'provider' => 'string',
+    'order_no' => 'string',
     ];
 
     /**
@@ -221,11 +227,6 @@ class Orders extends Model
         }
     }
 
-    public function orderItems() : \Illuminate\Database\Eloquent\Relations\HasMany
-    {
-        return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\OrderItems::class);
-    }
-
     public function markets() : \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\Markets::class);
@@ -251,12 +252,18 @@ class Orders extends Model
         return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Users::class);
     }
     
+    public function orderItems() : \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\OrderItems::class);
+    }
+
     public function orderStatusHistories() : \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\OrderStatusHistories::class);
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 

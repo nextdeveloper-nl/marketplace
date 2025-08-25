@@ -235,17 +235,18 @@ class Products extends Model
         return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\Providers::class);
     }
     
-    public function productMappings() : \Illuminate\Database\Eloquent\Relations\HasMany
-    {
-        return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\ProductMappings::class);
-    }
-
     public function orders() : \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\Orders::class);
     }
 
+    public function productMappings() : \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\ProductMappings::class);
+    }
+
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 
