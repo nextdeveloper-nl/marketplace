@@ -16,7 +16,7 @@ use NextDeveloper\Marketplace\Database\Models\ProductCatalogs;
  */
 class CalculatingOrderTotalAmount extends AbstractAction
 {
-    private const TAX_RATE = 0.2;
+    private const TAX_RATE = 0;
 
     /**
      * Events associated with calculating the order total.
@@ -75,7 +75,7 @@ class CalculatingOrderTotalAmount extends AbstractAction
      */
     private function isOrderAlreadyCalculated(Orders $order): bool
     {
-        return !is_null($order->subtotal_amount) && !is_null($order->total_amount);
+        return $order->order_type != 'internal';
     }
 
     /**
@@ -85,8 +85,13 @@ class CalculatingOrderTotalAmount extends AbstractAction
     {
         return OrderItems::withoutGlobalScope(AuthorizationScope::class)
             ->where('marketplace_order_id', $orderId)
-            ->join('product_catalogs', 'order_items.product_catalog_id', '=', 'product_catalogs.id')
-            ->sum('product_catalogs.price');
+            ->join(
+                'marketplace_product_catalogs',
+                'marketplace_order_items.marketplace_product_catalog_id',
+                '=',
+                'marketplace_product_catalogs.id'
+            )
+            ->sum('marketplace_product_catalogs.price');
     }
 
     /**
