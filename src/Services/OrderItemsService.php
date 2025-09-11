@@ -2,6 +2,7 @@
 
 namespace NextDeveloper\Marketplace\Services;
 
+use NextDeveloper\Marketplace\Actions\OrderItems\CalculatingOrderTotalAmount;
 use NextDeveloper\Marketplace\Services\AbstractServices\AbstractOrderItemsService;
 
 /**
@@ -15,4 +16,13 @@ class OrderItemsService extends AbstractOrderItemsService
 {
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
+    public static function create($data)
+    {
+        $orderItem = parent::create($data);
+
+        $action = new CalculatingOrderTotalAmount($orderItem);
+        $action->handle();
+        return $orderItem;
+    }
 }
