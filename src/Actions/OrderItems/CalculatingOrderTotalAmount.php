@@ -42,23 +42,26 @@ class CalculatingOrderTotalAmount extends AbstractAction
      */
     public function handle(): void
     {
+
         $this->setProgress(0, __METHOD__ . ' Starting to calculate order total');
 
-        $order = $this->getOrder();
-        if (!$order) {
-            $this->setProgress(100, __METHOD__ . ' Order not found');
+        try {
+            $order = $this->getOrder();
+            if (!$order) {
+                $this->setProgress(100, __METHOD__ . ' Order not found');
+                return;
+            }
+            if ($this->isOrderAlreadyCalculated($order)) {
+                $this->setProgress(100, __METHOD__ . ' Order total already calculated');
+                return;
+            }
+            $subtotal = $this->calculateSubtotal($order->id);
+            $this->updateOrderTotals($order, $subtotal);
+            $this->setProgress(100, __METHOD__ . ' Order total calculated for order ID: ' . $order->id);
+        } catch (\Exception $e) {
+            $this->setProgress(50, __METHOD__ . ' | Error calculating order total: ' . $e->getMessage());
             return;
         }
-
-        if ($this->isOrderAlreadyCalculated($order)) {
-            $this->setProgress(100, __METHOD__ . ' Order total already calculated');
-            return;
-        }
-
-        $subtotal = $this->calculateSubtotal($order->id);
-        $this->updateOrderTotals($order, $subtotal);
-
-        $this->setProgress(100, __METHOD__ . ' Order total calculated for order ID: ' . $order->id);
     }
 
     /**
