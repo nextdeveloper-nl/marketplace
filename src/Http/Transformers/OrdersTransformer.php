@@ -23,21 +23,25 @@ class OrdersTransformer extends AbstractOrdersTransformer
      */
     public function transform(Orders $model)
     {
-        $transformed = Cache::get(
-            CacheHelper::getKey('Orders', $model->uuid, 'Transformed')
-        );
+        /**
+         * Note: This transformation cache is disabled now.
+         */
 
-        if($transformed) {
-            return $transformed;
-        }
+//        $transformed = Cache::get(
+//            CacheHelper::getKey('Orders', $model->uuid, 'Transformed')
+//        );
+//
+//        if($transformed) {
+//            return $transformed;
+//        }
+//
+//        $transformed = parent::transform($model);
+//
+//        Cache::set(
+//            CacheHelper::getKey('Orders', $model->uuid, 'Transformed'),
+//            $transformed
+//        );
 
-        $transformed = parent::transform($model);
-
-        Cache::set(
-            CacheHelper::getKey('Orders', $model->uuid, 'Transformed'),
-            $transformed
-        );
-
-        return $transformed;
+        return parent::transform($model);
     }
 }
