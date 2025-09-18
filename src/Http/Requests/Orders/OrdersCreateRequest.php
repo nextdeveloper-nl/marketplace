@@ -16,7 +16,7 @@ class OrdersCreateRequest extends AbstractFormRequest
             'marketplace_market_id' => 'nullable|exists:marketplace_markets,uuid|uuid',
         'marketplace_provider_id' => 'nullable|exists:marketplace_providers,uuid|uuid',
         'marketplace_product_id' => 'required|exists:marketplace_products,uuid|uuid',
-        'external_order_id' => 'nullable|string|exists:external_orders,uuid|uuid',
+        'external_order_id' => 'nullable|string',
         'external_order_number' => 'nullable|string',
         'status' => 'nullable|string',
         'ordered_at' => 'date',
