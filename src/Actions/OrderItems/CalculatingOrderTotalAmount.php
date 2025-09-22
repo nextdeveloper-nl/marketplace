@@ -86,7 +86,8 @@ class CalculatingOrderTotalAmount extends AbstractAction
      */
     private function calculateSubtotal(int $orderId): float
     {
-        return OrderItems::withoutGlobalScope(AuthorizationScope::class)
+        // Sum of (catalog price * item quantity). Default quantity to 1 when null.
+        return (float) OrderItems::withoutGlobalScope(AuthorizationScope::class)
             ->where('marketplace_order_id', $orderId)
             ->join(
                 'marketplace_product_catalogs',
@@ -94,7 +95,8 @@ class CalculatingOrderTotalAmount extends AbstractAction
                 '=',
                 'marketplace_product_catalogs.id'
             )
-            ->sum('marketplace_product_catalogs.price');
+            ->selectRaw('COALESCE(SUM(marketplace_product_catalogs.price * COALESCE(marketplace_order_items.quantity, 1)), 0) as subtotal')
+            ->value('subtotal');
     }
 
     /**
