@@ -55,6 +55,10 @@ class CalculatingOrderTotalAmount extends AbstractAction
                 $this->setProgress(100, __METHOD__ . ' Order total already calculated');
                 return;
             }
+
+            // Sync order item price fields quietly from product catalog before calculating totals
+            $this->syncOrderItemsPrices($order->id);
+
             $subtotal = $this->calculateSubtotal($order->id);
             $this->updateOrderTotals($order, $subtotal);
             $this->setProgress(100, __METHOD__ . ' Order total calculated for order ID: ' . $order->id);
@@ -97,6 +101,44 @@ class CalculatingOrderTotalAmount extends AbstractAction
             )
             ->selectRaw('COALESCE(SUM(marketplace_product_catalogs.price * COALESCE(marketplace_order_items.quantity, 1)), 0) as subtotal')
             ->value('subtotal');
+    }
+
+    /**
+     * Quietly sync price fields on order items from product catalog prices.
+     */
+    private function syncOrderItemsPrices(int $orderId): void
+    {
+        $rows = OrderItems::withoutGlobalScope(AuthorizationScope::class)
+            ->where('marketplace_order_id', $orderId)
+            ->join(
+                'marketplace_product_catalogs as pc',
+                'marketplace_order_items.marketplace_product_catalog_id',
+                '=',
+                'pc.id'
+            )
+            ->get([
+                'marketplace_order_items.id as id',
+                'marketplace_order_items.quantity as quantity',
+                'pc.price as price',
+            ]);
+
+        foreach ($rows as $row) {
+            $qty = $row->quantity ?? 1;
+            $price = (float) $row->price;
+            $total = $price * (int) $qty;
+
+            // Mass update via builder does not fire model events; keeps it quiet
+            $item = OrderItems::withoutGlobalScope(AuthorizationScope::class)
+                ->where('id', $row->id)
+                ->first();
+
+            if ($item) {
+                $item->updateQuietly([
+                    'price_per_item' => $price,
+                    'total_price' => $total,
+                ]);
+            }
+        }
     }
 
     /**
