@@ -92,7 +92,7 @@ class MarketplaceVendorRole extends AbstractRole implements IAuthorizationRole
             'marketplace_order_items_perspective:read',
             'marketplace_product_catalogs_perspective:read',
             'marketplace_products_perspective:read',
-            
+
             'marketplace_markets:read',
             'marketplace_markets:create',
             'marketplace_markets:update',
@@ -156,10 +156,5 @@ class MarketplaceVendorRole extends AbstractRole implements IAuthorizationRole
     public function getDbPrefix()
     {
         return self::DB_PREFIX;
-    }
-
-    public function checkRules(Users $users): bool
-    {
-        // TODO: Implement checkRules() method.
     }
 }

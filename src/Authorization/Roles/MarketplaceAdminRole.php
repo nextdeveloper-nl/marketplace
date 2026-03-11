@@ -33,11 +33,6 @@ class MarketplaceAdminRole extends AbstractRole implements IAuthorizationRole
 
     }
 
-    public function checkPolicy($method, Model $model, Users $user) : bool
-    {
-        return true;
-    }
-
     public function checkPrivileges(Users $users = null)
     {
         //return UserHelper::hasRole(self::NAME, $users);

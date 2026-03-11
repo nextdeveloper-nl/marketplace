@@ -157,9 +157,4 @@ class MarketplaceSuccessManagerRole extends AbstractRole implements IAuthorizati
     {
         return self::DB_PREFIX;
     }
-
-    public function checkRules(Users $users): bool
-    {
-        // TODO: Implement checkRules() method.
-    }
 }

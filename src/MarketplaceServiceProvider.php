@@ -131,11 +131,11 @@ class MarketplaceServiceProvider extends AbstractServiceProvider {
     protected function bootSchedule(): void
     {
         $this->app->booted(function () {
-            $schedule = $this->app->make(Schedule::class);
+//            $schedule = $this->app->make(Schedule::class);
 
-            $schedule->command('nextdeveloper:fetch-provider-orders')
-                ->everyTenSeconds()
-                ->when(config('marketplace.schedule.enabled'));
+//            $schedule->command('nextdeveloper:fetch-provider-orders')
+//                ->everyTenSeconds()
+//                ->when(config('marketplace.schedule.enabled'));
         });
     }
 }
