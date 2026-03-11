@@ -16,7 +16,7 @@ use NextDeveloper\Marketplace\Database\Models\ProductCatalogs;
  */
 class CalculatingOrderTotalAmount extends AbstractAction
 {
-    private const TAX_RATE = 0.2;
+    private const TAX_RATE = 0;
 
     /**
      * Events associated with calculating the order total.
@@ -42,23 +42,30 @@ class CalculatingOrderTotalAmount extends AbstractAction
      */
     public function handle(): void
     {
+
         $this->setProgress(0, __METHOD__ . ' Starting to calculate order total');
 
-        $order = $this->getOrder();
-        if (!$order) {
-            $this->setProgress(100, __METHOD__ . ' Order not found');
+        try {
+            $order = $this->getOrder();
+            if (!$order) {
+                $this->setProgress(100, __METHOD__ . ' Order not found');
+                return;
+            }
+            if ($this->isOrderAlreadyCalculated($order)) {
+                $this->setProgress(100, __METHOD__ . ' Order total already calculated');
+                return;
+            }
+
+            // Sync order item price fields quietly from product catalog before calculating totals
+            $this->syncOrderItemsPrices($order->id);
+
+            $subtotal = $this->calculateSubtotal($order->id);
+            $this->updateOrderTotals($order, $subtotal);
+            $this->setProgress(100, __METHOD__ . ' Order total calculated for order ID: ' . $order->id);
+        } catch (\Exception $e) {
+            $this->setProgress(50, __METHOD__ . ' | Error calculating order total: ' . $e->getMessage());
             return;
         }
-
-        if ($this->isOrderAlreadyCalculated($order)) {
-            $this->setProgress(100, __METHOD__ . ' Order total already calculated');
-            return;
-        }
-
-        $subtotal = $this->calculateSubtotal($order->id);
-        $this->updateOrderTotals($order, $subtotal);
-
-        $this->setProgress(100, __METHOD__ . ' Order total calculated for order ID: ' . $order->id);
     }
 
     /**
@@ -75,7 +82,7 @@ class CalculatingOrderTotalAmount extends AbstractAction
      */
     private function isOrderAlreadyCalculated(Orders $order): bool
     {
-        return !is_null($order->subtotal_amount) && !is_null($order->total_amount);
+        return $order->order_type != 'internal';
     }
 
     /**
@@ -83,10 +90,55 @@ class CalculatingOrderTotalAmount extends AbstractAction
      */
     private function calculateSubtotal(int $orderId): float
     {
-        return OrderItems::withoutGlobalScope(AuthorizationScope::class)
+        // Sum of (catalog price * item quantity). Default quantity to 1 when null.
+        return (float) OrderItems::withoutGlobalScope(AuthorizationScope::class)
             ->where('marketplace_order_id', $orderId)
-            ->join('product_catalogs', 'order_items.product_catalog_id', '=', 'product_catalogs.id')
-            ->sum('product_catalogs.price');
+            ->join(
+                'marketplace_product_catalogs',
+                'marketplace_order_items.marketplace_product_catalog_id',
+                '=',
+                'marketplace_product_catalogs.id'
+            )
+            ->selectRaw('COALESCE(SUM(marketplace_product_catalogs.price * COALESCE(marketplace_order_items.quantity, 1)), 0) as subtotal')
+            ->value('subtotal');
+    }
+
+    /**
+     * Quietly sync price fields on order items from product catalog prices.
+     */
+    private function syncOrderItemsPrices(int $orderId): void
+    {
+        $rows = OrderItems::withoutGlobalScope(AuthorizationScope::class)
+            ->where('marketplace_order_id', $orderId)
+            ->join(
+                'marketplace_product_catalogs as pc',
+                'marketplace_order_items.marketplace_product_catalog_id',
+                '=',
+                'pc.id'
+            )
+            ->get([
+                'marketplace_order_items.id as id',
+                'marketplace_order_items.quantity as quantity',
+                'pc.price as price',
+            ]);
+
+        foreach ($rows as $row) {
+            $qty = $row->quantity ?? 1;
+            $price = (float) $row->price;
+            $total = $price * (int) $qty;
+
+            // Mass update via builder does not fire model events; keeps it quiet
+            $item = OrderItems::withoutGlobalScope(AuthorizationScope::class)
+                ->where('id', $row->id)
+                ->first();
+
+            if ($item) {
+                $item->updateQuietly([
+                    'price_per_item' => $price,
+                    'total_price' => $total,
+                ]);
+            }
+        }
     }
 
     /**

@@ -189,4 +189,5 @@ class MarketsPerspective extends Model
 
 
 
+
 }

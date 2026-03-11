@@ -2,6 +2,8 @@
 
 namespace NextDeveloper\Marketplace\Services;
 
+use NextDeveloper\Commons\Exceptions\NotAllowedException;
+
 use NextDeveloper\Marketplace\Services\AbstractServices\AbstractOrdersService;
 
 /**

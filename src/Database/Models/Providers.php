@@ -173,14 +173,14 @@ class Providers extends Model
         return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Users::class);
     }
     
-    public function productMappings() : \Illuminate\Database\Eloquent\Relations\HasMany
-    {
-        return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\ProductMappings::class);
-    }
-
     public function orders() : \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\Orders::class);
+    }
+
+    public function productMappings() : \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\ProductMappings::class);
     }
 
     public function productCatalogMappings() : \Illuminate\Database\Eloquent\Relations\HasMany
@@ -194,6 +194,7 @@ class Providers extends Model
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
 
 
 
