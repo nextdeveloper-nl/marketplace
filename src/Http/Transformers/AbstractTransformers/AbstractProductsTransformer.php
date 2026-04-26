@@ -95,6 +95,7 @@ class AbstractProductsTransformer extends AbstractTransformer
             'payment_gateway_mappings'  =>  $model->payment_gateway_mappings,
             'is_additional_product'  =>  $model->is_additional_product,
             'parent_marketplace_product_id'  =>  $parentMarketplaceProductId ? $parentMarketplaceProductId->uuid : null,
+            'metadata'  =>  $model->metadata ?? [],
             ]
         );
     }

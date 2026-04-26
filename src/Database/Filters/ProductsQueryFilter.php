@@ -341,6 +341,11 @@ class ProductsQueryFilter extends AbstractQueryFilter
         return $this->parentMarketplaceProduct($value);
     }
     
+    public function metadata($value)
+    {
+        return $this->builder->whereRaw("metadata @> ?::jsonb", [json_encode($value)]);
+    }
+
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
 
 

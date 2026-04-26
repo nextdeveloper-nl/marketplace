@@ -50,6 +50,7 @@ use NextDeveloper\Commons\Database\Traits\RunAsAdministrator;
  * @property $payment_gateway_mappings
  * @property boolean $is_additional_product
  * @property integer $parent_marketplace_product_id
+ * @property array $metadata
  */
 class Products extends Model
 {
@@ -95,6 +96,7 @@ class Products extends Model
             'payment_gateway_mappings',
             'is_additional_product',
             'parent_marketplace_product_id',
+            'metadata',
     ];
 
     /**
@@ -145,6 +147,7 @@ class Products extends Model
     'payment_gateway_mappings' => 'array',
     'is_additional_product' => 'boolean',
     'parent_marketplace_product_id' => 'integer',
+    'metadata' => 'array',
     ];
 
     /**
