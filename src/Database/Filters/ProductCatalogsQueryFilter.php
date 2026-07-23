@@ -37,25 +37,25 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
      * @var Builder
      */
     protected $builder;
-    
+
     public function name($value)
     {
         return $this->builder->where('name', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function agreement($value)
     {
         return $this->builder->where('agreement', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function sku($value)
     {
         return $this->builder->where('sku', 'ilike', '%' . $value . '%');
     }
 
-    
+
     public function quantityInInventory($value)
     {
         $operator = substr($value, 0, 1);
@@ -74,7 +74,7 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
     {
         return $this->quantityInInventory($value);
     }
-    
+
     public function trialDate($value)
     {
         $operator = substr($value, 0, 1);
@@ -93,7 +93,7 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
     {
         return $this->trialDate($value);
     }
-    
+
     public function isPublic($value)
     {
         return $this->builder->where('is_public', $value);
@@ -104,7 +104,7 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
     {
         return $this->isPublic($value);
     }
-     
+
     public function createdAtStart($date)
     {
         return $this->builder->where('created_at', '>=', $date);
@@ -185,7 +185,7 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
     {
         return $this->marketplaceProduct($value);
     }
-    
+
     public function iamAccountId($value)
     {
             $iamAccount = \NextDeveloper\IAM\Database\Models\Accounts::where('uuid', $value)->first();
@@ -195,7 +195,7 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
         }
     }
 
-    
+
     public function iamUserId($value)
     {
             $iamUser = \NextDeveloper\IAM\Database\Models\Users::where('uuid', $value)->first();
@@ -205,7 +205,7 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
         }
     }
 
-    
+
     public function commonCurrencyId($value)
     {
             $commonCurrency = \NextDeveloper\Commons\Database\Models\Currencies::where('uuid', $value)->first();
@@ -220,7 +220,7 @@ class ProductCatalogsQueryFilter extends AbstractQueryFilter
     {
         return $this->commonCurrency($value);
     }
-    
+
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
 
 

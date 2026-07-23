@@ -17,13 +17,13 @@ class OrderItemsPerspectiveQueryFilter extends AbstractQueryFilter
      * @var Builder
      */
     protected $builder;
-    
+
     public function name($value)
     {
         return $this->builder->where('name', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function specialInstructions($value)
     {
         return $this->builder->where('special_instructions', 'ilike', '%' . $value . '%');
@@ -34,13 +34,13 @@ class OrderItemsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->specialInstructions($value);
     }
-        
+
     public function sku($value)
     {
         return $this->builder->where('sku', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function deliveryMethod($value)
     {
         return $this->builder->where('delivery_method', 'ilike', '%' . $value . '%');
@@ -51,7 +51,7 @@ class OrderItemsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->deliveryMethod($value);
     }
-        
+
     public function productName($value)
     {
         return $this->builder->where('product_name', 'ilike', '%' . $value . '%');
@@ -62,7 +62,7 @@ class OrderItemsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->productName($value);
     }
-        
+
     public function providerName($value)
     {
         return $this->builder->where('provider_name', 'ilike', '%' . $value . '%');
@@ -73,7 +73,7 @@ class OrderItemsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->providerName($value);
     }
-        
+
     public function orderNumber($value)
     {
         return $this->builder->where('order_number', 'ilike', '%' . $value . '%');
@@ -84,13 +84,13 @@ class OrderItemsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->orderNumber($value);
     }
-        
+
     public function status($value)
     {
         return $this->builder->where('status', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function customerNote($value)
     {
         return $this->builder->where('customer_note', 'ilike', '%' . $value . '%');
@@ -101,7 +101,7 @@ class OrderItemsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->customerNote($value);
     }
-    
+
     public function quantity($value)
     {
         $operator = substr($value, 0, 1);
@@ -115,7 +115,7 @@ class OrderItemsPerspectiveQueryFilter extends AbstractQueryFilter
         return $this->builder->where('quantity', $operator, $value);
     }
 
-    
+
     public function quantityInInventory($value)
     {
         $operator = substr($value, 0, 1);
@@ -134,7 +134,7 @@ class OrderItemsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->quantityInInventory($value);
     }
-    
+
     public function createdAtStart($date)
     {
         return $this->builder->where('created_at', '>=', $date);
@@ -259,7 +259,7 @@ class OrderItemsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->marketplaceOrder($value);
     }
-    
+
     public function marketplaceProductCatalogId($value)
     {
             $marketplaceProductCatalog = \NextDeveloper\Marketplace\Database\Models\ProductCatalogs::where('uuid', $value)->first();
@@ -274,7 +274,7 @@ class OrderItemsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->marketplaceProductCatalog($value);
     }
-    
+
     public function iamAccountId($value)
     {
             $iamAccount = \NextDeveloper\IAM\Database\Models\Accounts::where('uuid', $value)->first();
@@ -284,7 +284,7 @@ class OrderItemsPerspectiveQueryFilter extends AbstractQueryFilter
         }
     }
 
-    
+
     public function iamUserId($value)
     {
             $iamUser = \NextDeveloper\IAM\Database\Models\Users::where('uuid', $value)->first();
@@ -294,7 +294,7 @@ class OrderItemsPerspectiveQueryFilter extends AbstractQueryFilter
         }
     }
 
-    
+
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
 
 

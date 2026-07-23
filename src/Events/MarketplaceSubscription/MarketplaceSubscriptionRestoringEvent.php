@@ -23,7 +23,7 @@ class MarketplaceSubscriptionRestoringEvent
      */
     protected $timestamp = null;
 
-    public function __construct(MarketplaceSubscription $model = null) {
+    public function __construct(?MarketplaceSubscription $model = null) {
         $this->_model = $model;
     }
 

@@ -25,7 +25,7 @@ use NextDeveloper\Commons\Exceptions\NotAllowedException;
  */
 class AbstractOrdersService
 {
-    public static function get(OrdersQueryFilter $filter = null, array $params = []) : Collection|LengthAwarePaginator
+    public static function get(?OrdersQueryFilter $filter = null, array $params = []) : Collection|LengthAwarePaginator
     {
         $enablePaginate = array_key_exists('paginate', $params);
 
@@ -134,7 +134,7 @@ class AbstractOrdersService
         return Orders::where('id', $id)->first();
     }
 
-    
+
     /**
      * This method returns the sub objects of the related models
      *
@@ -195,7 +195,7 @@ class AbstractOrdersService
                 $data['iam_account_id']
             );
         }
-            
+
         if(!array_key_exists('iam_account_id', $data)) {
             $data['iam_account_id'] = UserHelper::currentAccount()->id;
         }
@@ -205,11 +205,11 @@ class AbstractOrdersService
                 $data['iam_user_id']
             );
         }
-                    
+
         if(!array_key_exists('iam_user_id', $data)) {
             $data['iam_user_id']    = UserHelper::me()->id;
         }
-            
+
         try {
             $model = Orders::create($data);
         } catch(\Exception $e) {
@@ -287,7 +287,7 @@ class AbstractOrdersService
                 $data['iam_user_id']
             );
         }
-    
+
         Events::fire('updating:NextDeveloper\Marketplace\Orders', $model);
 
         try {

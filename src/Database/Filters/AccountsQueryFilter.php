@@ -28,7 +28,7 @@ class AccountsQueryFilter extends AbstractQueryFilter
     {
         return $this->isServiceEnabled($value);
     }
-     
+
     public function createdAtStart($date)
     {
         return $this->builder->where('created_at', '>=', $date);
@@ -104,7 +104,7 @@ class AccountsQueryFilter extends AbstractQueryFilter
         }
     }
 
-    
+
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
 
 

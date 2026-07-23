@@ -23,7 +23,7 @@ class SubscriptionCreatedEvent
      */
     protected $timestamp = null;
 
-    public function __construct(Subscriptions $model = null) {
+    public function __construct(?Subscriptions $model = null) {
         $this->_model = $model;
     }
 

@@ -37,37 +37,37 @@ class ProductsPerspectiveQueryFilter extends AbstractQueryFilter
      * @var Builder
      */
     protected $builder;
-    
+
     public function name($value)
     {
         return $this->builder->where('name', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function description($value)
     {
         return $this->builder->where('description', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function content($value)
     {
         return $this->builder->where('content', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function slug($value)
     {
         return $this->builder->where('slug', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function version($value)
     {
         return $this->builder->where('version', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function salesPitch($value)
     {
         return $this->builder->where('sales_pitch', 'ilike', '%' . $value . '%');
@@ -78,25 +78,25 @@ class ProductsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->salesPitch($value);
     }
-        
+
     public function category($value)
     {
         return $this->builder->where('category', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function marketplace($value)
     {
         return $this->builder->where('marketplace', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function maintainer($value)
     {
         return $this->builder->where('maintainer', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function aboutMaintainer($value)
     {
         return $this->builder->where('about_maintainer', 'ilike', '%' . $value . '%');
@@ -107,13 +107,13 @@ class ProductsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->aboutMaintainer($value);
     }
-        
+
     public function responsible($value)
     {
         return $this->builder->where('responsible', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function currencyCode($value)
     {
         return $this->builder->where('currency_code', 'ilike', '%' . $value . '%');
@@ -124,7 +124,7 @@ class ProductsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->currencyCode($value);
     }
-        
+
     public function partnerMeetingLink($value)
     {
         return $this->builder->where('partner_meeting_link', 'ilike', '%' . $value . '%');
@@ -135,7 +135,7 @@ class ProductsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->partnerMeetingLink($value);
     }
-        
+
     public function refundPolicy($value)
     {
         return $this->builder->where('refund_policy', 'ilike', '%' . $value . '%');
@@ -146,7 +146,7 @@ class ProductsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->refundPolicy($value);
     }
-        
+
     public function afterSalesIntroduction($value)
     {
         return $this->builder->where('after_sales_introduction', 'ilike', '%' . $value . '%');
@@ -157,7 +157,7 @@ class ProductsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->afterSalesIntroduction($value);
     }
-        
+
     public function supportContent($value)
     {
         return $this->builder->where('support_content', 'ilike', '%' . $value . '%');
@@ -168,13 +168,13 @@ class ProductsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->supportContent($value);
     }
-        
+
     public function eula($value)
     {
         return $this->builder->where('eula', 'ilike', '%' . $value . '%');
     }
 
-    
+
     public function productCatalogCount($value)
     {
         $operator = substr($value, 0, 1);
@@ -193,7 +193,7 @@ class ProductsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->productCatalogCount($value);
     }
-    
+
     public function isService($value)
     {
         return $this->builder->where('is_service', $value);
@@ -204,7 +204,7 @@ class ProductsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->isService($value);
     }
-     
+
     public function isInMaintenance($value)
     {
         return $this->builder->where('is_in_maintenance', $value);
@@ -215,7 +215,7 @@ class ProductsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->isInMaintenance($value);
     }
-     
+
     public function isPublic($value)
     {
         return $this->builder->where('is_public', $value);
@@ -226,7 +226,7 @@ class ProductsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->isPublic($value);
     }
-     
+
     public function isInvisible($value)
     {
         return $this->builder->where('is_invisible', $value);
@@ -237,7 +237,7 @@ class ProductsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->isInvisible($value);
     }
-     
+
     public function isActive($value)
     {
         return $this->builder->where('is_active', $value);
@@ -248,7 +248,7 @@ class ProductsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->isActive($value);
     }
-     
+
     public function isApproved($value)
     {
         return $this->builder->where('is_approved', $value);
@@ -259,7 +259,7 @@ class ProductsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->isApproved($value);
     }
-     
+
     public function createdAtStart($date)
     {
         return $this->builder->where('created_at', '>=', $date);
@@ -340,7 +340,7 @@ class ProductsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->commonCategory($value);
     }
-    
+
     public function marketplaceMarketId($value)
     {
             $marketplaceMarket = \NextDeveloper\Marketplace\Database\Models\Markets::where('uuid', $value)->first();
@@ -355,7 +355,7 @@ class ProductsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->marketplaceMarket($value);
     }
-    
+
     public function iamAccountId($value)
     {
             $iamAccount = \NextDeveloper\IAM\Database\Models\Accounts::where('uuid', $value)->first();
@@ -365,7 +365,7 @@ class ProductsPerspectiveQueryFilter extends AbstractQueryFilter
         }
     }
 
-    
+
     public function iamUserId($value)
     {
             $iamUser = \NextDeveloper\IAM\Database\Models\Users::where('uuid', $value)->first();
@@ -375,7 +375,7 @@ class ProductsPerspectiveQueryFilter extends AbstractQueryFilter
         }
     }
 
-    
+
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
 
 

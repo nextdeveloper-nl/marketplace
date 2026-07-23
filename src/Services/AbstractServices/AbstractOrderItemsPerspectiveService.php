@@ -25,7 +25,7 @@ use NextDeveloper\Commons\Exceptions\NotAllowedException;
  */
 class AbstractOrderItemsPerspectiveService
 {
-    public static function get(OrderItemsPerspectiveQueryFilter $filter = null, array $params = []) : Collection|LengthAwarePaginator
+    public static function get(?OrderItemsPerspectiveQueryFilter $filter = null, array $params = []) : Collection|LengthAwarePaginator
     {
         $enablePaginate = array_key_exists('paginate', $params);
 
@@ -196,7 +196,7 @@ class AbstractOrderItemsPerspectiveService
                 $data['marketplace_product_catalog_id']
             );
         }
-                        
+
         try {
             $model = OrderItemsPerspective::create($data);
         } catch(\Exception $e) {
@@ -254,7 +254,7 @@ class AbstractOrderItemsPerspectiveService
                 $data['marketplace_product_catalog_id']
             );
         }
-    
+
         try {
             $isUpdated = $model->update($data);
             $model = $model->fresh();

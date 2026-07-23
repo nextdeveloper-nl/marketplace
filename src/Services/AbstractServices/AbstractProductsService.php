@@ -25,7 +25,7 @@ use NextDeveloper\Commons\Exceptions\NotAllowedException;
  */
 class AbstractProductsService
 {
-    public static function get(ProductsQueryFilter $filter = null, array $params = []) : Collection|LengthAwarePaginator
+    public static function get(?ProductsQueryFilter $filter = null, array $params = []) : Collection|LengthAwarePaginator
     {
         $enablePaginate = array_key_exists('paginate', $params);
 

@@ -55,7 +55,7 @@ class AbstractStatusMappingsTransformer extends AbstractTransformer
     public function transform(StatusMappings $model)
     {
                                                 $marketplaceProviderId = \NextDeveloper\Marketplace\Database\Models\Providers::where('id', $model->marketplace_provider_id)->first();
-                        
+
         return $this->buildPayload(
             [
             'id'  =>  $model->id,

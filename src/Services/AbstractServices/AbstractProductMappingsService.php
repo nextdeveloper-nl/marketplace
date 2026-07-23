@@ -25,7 +25,7 @@ use NextDeveloper\Commons\Exceptions\NotAllowedException;
  */
 class AbstractProductMappingsService
 {
-    public static function get(ProductMappingsQueryFilter $filter = null, array $params = []) : Collection|LengthAwarePaginator
+    public static function get(?ProductMappingsQueryFilter $filter = null, array $params = []) : Collection|LengthAwarePaginator
     {
         $enablePaginate = array_key_exists('paginate', $params);
 
@@ -134,7 +134,7 @@ class AbstractProductMappingsService
         return ProductMappings::where('id', $id)->first();
     }
 
-    
+
     /**
      * This method returns the sub objects of the related models
      *
@@ -183,7 +183,7 @@ class AbstractProductMappingsService
                 $data['marketplace_provider_id']
             );
         }
-                        
+
         try {
             $model = ProductMappings::create($data);
         } catch(\Exception $e) {
@@ -243,7 +243,7 @@ class AbstractProductMappingsService
                 $data['marketplace_provider_id']
             );
         }
-    
+
         Events::fire('updating:NextDeveloper\Marketplace\ProductMappings', $model);
 
         try {

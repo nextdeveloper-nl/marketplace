@@ -25,7 +25,7 @@ use NextDeveloper\Commons\Exceptions\NotAllowedException;
  */
 class AbstractSubscriptionsService
 {
-    public static function get(SubscriptionsQueryFilter $filter = null, array $params = []) : Collection|LengthAwarePaginator
+    public static function get(?SubscriptionsQueryFilter $filter = null, array $params = []) : Collection|LengthAwarePaginator
     {
         $enablePaginate = array_key_exists('paginate', $params);
 

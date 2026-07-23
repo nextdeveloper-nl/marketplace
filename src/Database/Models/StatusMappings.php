@@ -132,7 +132,7 @@ class StatusMappings extends Model
     {
         return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\Providers::class);
     }
-    
+
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
 
 

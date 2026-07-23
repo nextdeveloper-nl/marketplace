@@ -17,55 +17,55 @@ class MarketsPerspectiveQueryFilter extends AbstractQueryFilter
      * @var Builder
      */
     protected $builder;
-    
+
     public function name($value)
     {
         return $this->builder->where('name', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function description($value)
     {
         return $this->builder->where('description', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function domain($value)
     {
         return $this->builder->where('domain', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function currency($value)
     {
         return $this->builder->where('currency', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function language($value)
     {
         return $this->builder->where('language', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function country($value)
     {
         return $this->builder->where('country', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function maintainer($value)
     {
         return $this->builder->where('maintainer', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function responsible($value)
     {
         return $this->builder->where('responsible', 'ilike', '%' . $value . '%');
     }
 
-    
+
     public function productCount($value)
     {
         $operator = substr($value, 0, 1);
@@ -84,7 +84,7 @@ class MarketsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->productCount($value);
     }
-    
+
     public function isPublic($value)
     {
         return $this->builder->where('is_public', $value);
@@ -95,7 +95,7 @@ class MarketsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->isPublic($value);
     }
-     
+
     public function isActive($value)
     {
         return $this->builder->where('is_active', $value);
@@ -106,7 +106,7 @@ class MarketsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->isActive($value);
     }
-     
+
     public function createdAtStart($date)
     {
         return $this->builder->where('created_at', '>=', $date);
@@ -187,7 +187,7 @@ class MarketsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->commonDomain($value);
     }
-    
+
     public function commonCurrencyId($value)
     {
             $commonCurrency = \NextDeveloper\Commons\Database\Models\Currencies::where('uuid', $value)->first();
@@ -202,7 +202,7 @@ class MarketsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->commonCurrency($value);
     }
-    
+
     public function commonLanguageId($value)
     {
             $commonLanguage = \NextDeveloper\Commons\Database\Models\Languages::where('uuid', $value)->first();
@@ -217,7 +217,7 @@ class MarketsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->commonLanguage($value);
     }
-    
+
     public function commonCountryId($value)
     {
             $commonCountry = \NextDeveloper\Commons\Database\Models\Countries::where('uuid', $value)->first();
@@ -232,7 +232,7 @@ class MarketsPerspectiveQueryFilter extends AbstractQueryFilter
     {
         return $this->commonCountry($value);
     }
-    
+
     public function iamAccountId($value)
     {
             $iamAccount = \NextDeveloper\IAM\Database\Models\Accounts::where('uuid', $value)->first();
@@ -242,7 +242,7 @@ class MarketsPerspectiveQueryFilter extends AbstractQueryFilter
         }
     }
 
-    
+
     public function iamUserId($value)
     {
             $iamUser = \NextDeveloper\IAM\Database\Models\Users::where('uuid', $value)->first();
@@ -252,7 +252,7 @@ class MarketsPerspectiveQueryFilter extends AbstractQueryFilter
         }
     }
 
-    
+
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
 
 

@@ -17,7 +17,7 @@ class ProductCatalogMappingsQueryFilter extends AbstractQueryFilter
      * @var Builder
      */
     protected $builder;
-    
+
     public function externalCatalogId($value)
     {
         return $this->builder->where('external_catalog_id', 'ilike', '%' . $value . '%');
@@ -28,7 +28,7 @@ class ProductCatalogMappingsQueryFilter extends AbstractQueryFilter
     {
         return $this->externalCatalogId($value);
     }
-    
+
     public function createdAtStart($date)
     {
         return $this->builder->where('created_at', '>=', $date);
@@ -109,7 +109,7 @@ class ProductCatalogMappingsQueryFilter extends AbstractQueryFilter
     {
         return $this->marketplaceProductCatalog($value);
     }
-    
+
     public function marketplaceProviderId($value)
     {
             $marketplaceProvider = \NextDeveloper\Marketplace\Database\Models\Providers::where('uuid', $value)->first();
@@ -124,7 +124,7 @@ class ProductCatalogMappingsQueryFilter extends AbstractQueryFilter
     {
         return $this->marketplaceProvider($value);
     }
-    
+
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
 
 
