@@ -206,6 +206,12 @@ class AbstractProductsService
                 $data['marketplace_market_id']
             );
         }
+        if (array_key_exists('marketplace_provider_id', $data)) {
+            $data['marketplace_provider_id'] = DatabaseHelper::uuidToId(
+                '\NextDeveloper\Marketplace\Database\Models\Providers',
+                $data['marketplace_provider_id']
+            );
+        }
 
         try {
             $model = Products::create($data);
@@ -276,6 +282,12 @@ class AbstractProductsService
             $data['marketplace_market_id'] = DatabaseHelper::uuidToId(
                 '\NextDeveloper\Marketplace\Database\Models\Markets',
                 $data['marketplace_market_id']
+            );
+        }
+        if (array_key_exists('marketplace_provider_id', $data)) {
+            $data['marketplace_provider_id'] = DatabaseHelper::uuidToId(
+                '\NextDeveloper\Marketplace\Database\Models\Providers',
+                $data['marketplace_provider_id']
             );
         }
 
