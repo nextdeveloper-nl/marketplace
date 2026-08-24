@@ -2,35 +2,39 @@
 
 namespace NextDeveloper\Marketplace;
 
-use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Log;
 use NextDeveloper\Commons\AbstractServiceProvider;
+use NextDeveloper\Marketplace\Console\Commands\FetchProviderOrdersCommand;
+use NextDeveloper\Marketplace\Console\Commands\PushShopifyCommand;
+use NextDeveloper\Marketplace\Console\Commands\ShopifyStatusCommand;
+use NextDeveloper\Marketplace\Console\Commands\ShopifyWebhooksCommand;
+use NextDeveloper\Marketplace\Console\Commands\SyncShopifyCommand;
 
 /**
  * Class MarketplaceServiceProvider
- *
- * @package NextDeveloper\Marketplace
  */
-class MarketplaceServiceProvider extends AbstractServiceProvider {
+class MarketplaceServiceProvider extends AbstractServiceProvider
+{
     /**
      * @var bool
      */
     protected $defer = false;
 
     /**
-     * @throws \Exception
-     *
      * @return void
+     *
+     * @throws \Exception
      */
-    public function boot() {
+    public function boot()
+    {
         $this->publishes([
             __DIR__.'/../config/marketplace.php' => config_path('marketplace.php'),
         ], 'config');
 
         $this->loadViewsFrom($this->dir.'/../resources/views', 'Marketplace');
 
-//        $this->bootErrorHandler();
+        //        $this->bootErrorHandler();
         $this->bootChannelRoutes();
         $this->bootModelBindings();
         $this->bootLogger();
@@ -40,7 +44,8 @@ class MarketplaceServiceProvider extends AbstractServiceProvider {
     /**
      * @return void
      */
-    public function register() {
+    public function register()
+    {
         $this->registerHelpers();
         $this->registerMiddlewares('generator');
         $this->registerRoutes();
@@ -53,31 +58,34 @@ class MarketplaceServiceProvider extends AbstractServiceProvider {
     /**
      * @return void
      */
-    public function bootLogger() {
-//        $monolog = Log::getMonolog();
-//        $monolog->pushProcessor(new \Monolog\Processor\WebProcessor());
-//        $monolog->pushProcessor(new \Monolog\Processor\MemoryUsageProcessor());
-//        $monolog->pushProcessor(new \Monolog\Processor\MemoryPeakUsageProcessor());
+    public function bootLogger()
+    {
+        //        $monolog = Log::getMonolog();
+        //        $monolog->pushProcessor(new \Monolog\Processor\WebProcessor());
+        //        $monolog->pushProcessor(new \Monolog\Processor\MemoryUsageProcessor());
+        //        $monolog->pushProcessor(new \Monolog\Processor\MemoryPeakUsageProcessor());
     }
 
     /**
      * @return array
      */
-    public function provides() {
+    public function provides()
+    {
         return ['generator'];
     }
 
-//    public function bootErrorHandler() {
-//        $this->app->singleton(
-//            ExceptionHandler::class,
-//            Handler::class
-//        );
-//    }
+    //    public function bootErrorHandler() {
+    //        $this->app->singleton(
+    //            ExceptionHandler::class,
+    //            Handler::class
+    //        );
+    //    }
 
     /**
      * @return void
      */
-    private function bootChannelRoutes() {
+    private function bootChannelRoutes()
+    {
         if (file_exists(($file = $this->dir.'/../config/channel.routes.php'))) {
             require_once $file;
         }
@@ -88,8 +96,9 @@ class MarketplaceServiceProvider extends AbstractServiceProvider {
      *
      * @return void
      */
-    protected function registerRoutes() {
-        if ( ! $this->app->routesAreCached() && config('leo.allowed_routes.marketplace', true) ) {
+    protected function registerRoutes()
+    {
+        if (! $this->app->routesAreCached() && config('leo.allowed_routes.marketplace', true)) {
             $this->app['router']
                 ->namespace('NextDeveloper\Marketplace\Http\Controllers')
                 ->group(__DIR__.DIRECTORY_SEPARATOR.'Http'.DIRECTORY_SEPARATOR.'api.routes.php');
@@ -98,21 +107,29 @@ class MarketplaceServiceProvider extends AbstractServiceProvider {
 
     /**
      * Registers module based commands
+     *
      * @return void
      */
-    protected function registerCommands() {
+    protected function registerCommands()
+    {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                \NextDeveloper\Marketplace\Console\Commands\FetchProviderOrdersCommand::class,
+                FetchProviderOrdersCommand::class,
+                SyncShopifyCommand::class,
+                ShopifyWebhooksCommand::class,
+                PushShopifyCommand::class,
+                ShopifyStatusCommand::class,
             ]);
         }
     }
 
     /**
      * This is here, in case of shit happens!
+     *
      * @return void
      */
-    private function checkDatabaseConnection() {
+    private function checkDatabaseConnection()
+    {
         $isSuccessfull = false;
 
         try {
@@ -120,22 +137,21 @@ class MarketplaceServiceProvider extends AbstractServiceProvider {
 
             $isSuccessfull = true;
         } catch (\Exception $e) {
-            die('Could not connect to the database. Please check your configuration. error:'.$e);
+            exit('Could not connect to the database. Please check your configuration. error:'.$e);
         }
 
         return $isSuccessfull;
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
 
-
     protected function bootSchedule(): void
     {
         $this->app->booted(function () {
-//            $schedule = $this->app->make(Schedule::class);
+            //            $schedule = $this->app->make(Schedule::class);
 
-//            $schedule->command('nextdeveloper:fetch-provider-orders')
-//                ->everyTenSeconds()
-//                ->when(config('marketplace.schedule.enabled'));
+            //            $schedule->command('nextdeveloper:fetch-provider-orders')
+            //                ->everyTenSeconds()
+            //                ->when(config('marketplace.schedule.enabled'));
         });
     }
 }

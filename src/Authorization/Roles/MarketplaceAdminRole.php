@@ -5,7 +5,6 @@ namespace NextDeveloper\Marketplace\Authorization\Roles;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
-use NextDeveloper\CRM\Database\Models\AccountManagers;
 use NextDeveloper\IAM\Authorization\Roles\AbstractRole;
 use NextDeveloper\IAM\Authorization\Roles\IAuthorizationRole;
 use NextDeveloper\IAM\Database\Models\Users;
@@ -24,18 +23,13 @@ class MarketplaceAdminRole extends AbstractRole implements IAuthorizationRole
     /**
      * Applies basic member role sql for Eloquent
      *
-     * @param Builder $builder
-     * @param Model $model
      * @return void
      */
-    public function apply(Builder $builder, Model $model)
-    {
+    public function apply(Builder $builder, Model $model) {}
 
-    }
-
-    public function checkPrivileges(Users $users = null)
+    public function checkPrivileges(?Users $users = null)
     {
-        //return UserHelper::hasRole(self::NAME, $users);
+        // return UserHelper::hasRole(self::NAME, $users);
     }
 
     public function getModule()
@@ -43,7 +37,7 @@ class MarketplaceAdminRole extends AbstractRole implements IAuthorizationRole
         return 'marketplace';
     }
 
-    public function allowedOperations() :array
+    public function allowedOperations(): array
     {
         return [
             'marketplace_markets_perspective:read',
@@ -87,6 +81,18 @@ class MarketplaceAdminRole extends AbstractRole implements IAuthorizationRole
             'marketplace_product_catalog_mappings:update',
             'marketplace_product_catalog_mappings:create',
             'marketplace_product_catalog_mappings:delete',
+            'marketplace_customer_mappings:read',
+            'marketplace_customer_mappings:update',
+            'marketplace_customer_mappings:create',
+            'marketplace_customer_mappings:delete',
+            'marketplace_provider_sync_states:read',
+            'marketplace_provider_sync_states:update',
+            'marketplace_provider_sync_states:create',
+            'marketplace_provider_sync_states:delete',
+            'marketplace_webhook_events:read',
+            'marketplace_webhook_events:update',
+            'marketplace_webhook_events:create',
+            'marketplace_webhook_events:delete',
         ];
     }
 
@@ -107,11 +113,11 @@ class MarketplaceAdminRole extends AbstractRole implements IAuthorizationRole
 
     public function canBeApplied($column)
     {
-        if(self::DB_PREFIX === '*') {
+        if (self::DB_PREFIX === '*') {
             return true;
         }
 
-        if(Str::startsWith($column, self::DB_PREFIX)) {
+        if (Str::startsWith($column, self::DB_PREFIX)) {
             return true;
         }
 

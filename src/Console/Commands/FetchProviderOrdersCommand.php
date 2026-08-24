@@ -8,11 +8,11 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use NextDeveloper\IAM\Helpers\UserHelper;
 use NextDeveloper\Marketplace\Database\Models\Providers;
-use NextDeveloper\Marketplace\Services\Marketplaces\TrendyolGoYemekService;
+use NextDeveloper\Marketplace\Services\Marketplaces\MarketplaceAdapterFactory;
 
 /**
  * Command to fetch orders from marketplace providers
- * 
+ *
  * This command fetches orders from all active marketplace providers
  * using their respective service classes.
  */
@@ -36,8 +36,6 @@ class FetchProviderOrdersCommand extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return void
      */
     public function handle(): void
     {
@@ -50,6 +48,7 @@ class FetchProviderOrdersCommand extends Command
                 $date = Carbon::parse($date);
             } catch (Exception $e) {
                 $this->error('Invalid date format. Please use a valid date.');
+
                 return;
             }
         } else {
@@ -71,10 +70,11 @@ class FetchProviderOrdersCommand extends Command
 
         if ($providers->isEmpty()) {
             $this->info('No active providers found.');
+
             return;
         }
 
-        $this->info("Fetching orders for " . $providers->count() . " provider(s) from " . $date->format('Y-m-d'));
+        $this->info('Fetching orders for '.$providers->count().' provider(s) from '.$date->format('Y-m-d'));
 
         // Create a progress bar
         $bar = $this->output->createProgressBar($providers->count());
@@ -98,7 +98,7 @@ class FetchProviderOrdersCommand extends Command
         $bar->finish();
         $this->newLine(2);
 
-        $this->info("Order fetching completed:");
+        $this->info('Order fetching completed:');
         $this->info("- Successful providers: $successCount");
         $this->info("- Failed providers: $failCount");
     }
@@ -106,8 +106,8 @@ class FetchProviderOrdersCommand extends Command
     /**
      * Process a single provider
      *
-     * @param Providers $provider Provider model
-     * @param Carbon $date Date to fetch orders from
+     * @param  Providers  $provider  Provider model
+     * @param  Carbon  $date  Date to fetch orders from
      * @return bool Success status
      */
     private function processProvider(Providers $provider, Carbon $date): bool
@@ -119,13 +119,15 @@ class FetchProviderOrdersCommand extends Command
             // Get service class from configuration if available
             $serviceClass = $this->getServiceClassForProvider($provider);
 
-            if (!$serviceClass) {
+            if (! $serviceClass) {
                 $this->warn("No service class configured for provider adapter: {$provider->adapter}");
+
                 return false;
             }
 
-            if (!class_exists($serviceClass)) {
+            if (! class_exists($serviceClass)) {
                 $this->warn("Service class not found: {$serviceClass}");
+
                 return false;
             }
 
@@ -136,14 +138,16 @@ class FetchProviderOrdersCommand extends Command
             $service->fetchOrders($date);
 
             $this->info("Orders fetched successfully for provider: {$provider->name}");
+
             return true;
         } catch (Exception $e) {
-            $this->error("Error fetching orders for provider {$provider->name}: " . $e->getMessage());
-            Log::error(__METHOD__ . " - Error fetching orders for provider {$provider->name}: " . $e->getMessage(), [
+            $this->error("Error fetching orders for provider {$provider->name}: ".$e->getMessage());
+            Log::error(__METHOD__." - Error fetching orders for provider {$provider->name}: ".$e->getMessage(), [
                 'provider_id' => $provider->id,
                 'date' => $date->format('Y-m-d H:i:s'),
-                'exception' => $e
+                'exception' => $e,
             ]);
+
             return false;
         }
     }
@@ -151,21 +155,16 @@ class FetchProviderOrdersCommand extends Command
     /**
      * Get the service class for a provider
      *
-     * @param Providers $provider Provider model
+     * @param  Providers  $provider  Provider model
      * @return string|null Service class name or null if not found
      */
     private function getServiceClassForProvider(Providers $provider): ?string
     {
-        // Map of adapter names to service classes
-        $adapterServiceMap = [
-            'TrendyolGoYemek' => TrendyolGoYemekService::class,
-        ];
-
-        // Check if the adapter is in the map
-        if (isset($adapterServiceMap[$provider->adapter])) {
-            return $adapterServiceMap[$provider->adapter];
-        }
-
-        return null;
+        // Adapters are resolved through the registry rather than a map inlined
+        // here, so adding a marketplace no longer means editing this command
+        // and other modules can register their own drivers at boot.
+        // resolve() rather than make(): one unregistered provider row must not
+        // abort the run for every other provider.
+        return MarketplaceAdapterFactory::resolve($provider);
     }
 }
