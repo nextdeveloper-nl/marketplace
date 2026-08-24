@@ -1,0 +1,119 @@
+<?php
+
+namespace NextDeveloper\Marketplace\Database\Observers;
+
+use Illuminate\Database\Eloquent\Model;
+use NextDeveloper\Commons\Exceptions\NotAllowedException;
+use NextDeveloper\Events\Services\Events;
+use NextDeveloper\IAM\Helpers\UserHelper;
+
+/**
+ * Class WebhookEventsObserver
+ */
+class WebhookEventsObserver
+{
+    /**
+     * Triggered when a new record is retrieved.
+     */
+    public function retrieved(Model $model) {}
+
+    /**
+     * @return mixed
+     */
+    public function creating(Model $model)
+    {
+        throw_if(
+            ! UserHelper::can('create', $model),
+            new NotAllowedException('You are not allowed to create this record')
+        );
+
+        Events::fire('creating:NextDeveloper\Marketplace\WebhookEvents', $model);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function created(Model $model)
+    {
+        Events::fire('created:NextDeveloper\Marketplace\WebhookEvents', $model);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function saving(Model $model)
+    {
+        throw_if(
+            ! UserHelper::can('save', $model),
+            new NotAllowedException('You are not allowed to save this record')
+        );
+
+        Events::fire('saving:NextDeveloper\Marketplace\WebhookEvents', $model);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function saved(Model $model)
+    {
+        Events::fire('saved:NextDeveloper\Marketplace\WebhookEvents', $model);
+    }
+
+    public function updating(Model $model)
+    {
+        throw_if(
+            ! UserHelper::can('update', $model),
+            new NotAllowedException('You are not allowed to update this record')
+        );
+
+        Events::fire('updating:NextDeveloper\Marketplace\WebhookEvents', $model);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function updated(Model $model)
+    {
+        Events::fire('updated:NextDeveloper\Marketplace\WebhookEvents', $model);
+    }
+
+    public function deleting(Model $model)
+    {
+        throw_if(
+            ! UserHelper::can('delete', $model),
+            new NotAllowedException('You are not allowed to delete this record')
+        );
+
+        Events::fire('deleting:NextDeveloper\Marketplace\WebhookEvents', $model);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function deleted(Model $model)
+    {
+        Events::fire('deleted:NextDeveloper\Marketplace\WebhookEvents', $model);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function restoring(Model $model)
+    {
+        throw_if(
+            ! UserHelper::can('restore', $model),
+            new NotAllowedException('You are not allowed to restore this record')
+        );
+
+        Events::fire('restoring:NextDeveloper\Marketplace\WebhookEvents', $model);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function restored(Model $model)
+    {
+        Events::fire('restored:NextDeveloper\Marketplace\WebhookEvents', $model);
+    }
+    // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+}
