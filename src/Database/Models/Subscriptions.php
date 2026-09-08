@@ -151,17 +151,24 @@ class Subscriptions extends Model
 
     public function productCatalogs() : \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\ProductCatalogs::class);
+        // Explicit FK: Laravel's default inference from the relation method name
+        // ("productCatalogs" -> "product_catalogs_id") doesn't match the real column,
+        // marketplace_product_catalog_id.
+        return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\ProductCatalogs::class, 'marketplace_product_catalog_id');
     }
 
     public function accounts() : \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Accounts::class);
+        // Explicit FK: Laravel's default inference from the relation method name
+        // ("accounts" -> "accounts_id") doesn't match the real column, iam_account_id.
+        return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Accounts::class, 'iam_account_id');
     }
 
     public function users() : \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Users::class);
+        // Explicit FK: Laravel's default inference from the relation method name
+        // ("users" -> "users_id") doesn't match the real column, iam_user_id.
+        return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Users::class, 'iam_user_id');
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
