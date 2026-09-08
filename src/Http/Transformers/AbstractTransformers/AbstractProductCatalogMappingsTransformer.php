@@ -56,7 +56,7 @@ class AbstractProductCatalogMappingsTransformer extends AbstractTransformer
     {
                                                 $marketplaceProductCatalogId = \NextDeveloper\Marketplace\Database\Models\ProductCatalogs::where('id', $model->marketplace_product_catalog_id)->first();
                                                             $marketplaceProviderId = \NextDeveloper\Marketplace\Database\Models\Providers::where('id', $model->marketplace_provider_id)->first();
-                        
+
         return $this->buildPayload(
             [
             'id'  =>  $model->uuid,

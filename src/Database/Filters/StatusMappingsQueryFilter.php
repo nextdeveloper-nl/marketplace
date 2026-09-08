@@ -17,7 +17,7 @@ class StatusMappingsQueryFilter extends AbstractQueryFilter
      * @var Builder
      */
     protected $builder;
-    
+
     public function externalStatus($value)
     {
         return $this->builder->where('external_status', 'ilike', '%' . $value . '%');
@@ -28,7 +28,7 @@ class StatusMappingsQueryFilter extends AbstractQueryFilter
     {
         return $this->externalStatus($value);
     }
-        
+
     public function normalizedStatus($value)
     {
         return $this->builder->where('normalized_status', 'ilike', '%' . $value . '%');
@@ -39,13 +39,13 @@ class StatusMappingsQueryFilter extends AbstractQueryFilter
     {
         return $this->normalizedStatus($value);
     }
-        
+
     public function description($value)
     {
         return $this->builder->where('description', 'ilike', '%' . $value . '%');
     }
 
-    
+
     public function createdAtStart($date)
     {
         return $this->builder->where('created_at', '>=', $date);
@@ -82,7 +82,7 @@ class StatusMappingsQueryFilter extends AbstractQueryFilter
     {
         return $this->marketplaceProvider($value);
     }
-    
+
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
 
 

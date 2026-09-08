@@ -48,7 +48,7 @@ class SubscriptionsQueryFilter extends AbstractQueryFilter
     {
         return $this->isValid($value);
     }
-     
+
     public function subscriptionStartsAtStart($date)
     {
         return $this->builder->where('subscription_starts_at', '>=', $date);
@@ -173,7 +173,7 @@ class SubscriptionsQueryFilter extends AbstractQueryFilter
     {
         return $this->marketplaceProductCatalog($value);
     }
-    
+
     public function iamAccountId($value)
     {
             $iamAccount = \NextDeveloper\IAM\Database\Models\Accounts::where('uuid', $value)->first();
@@ -183,7 +183,7 @@ class SubscriptionsQueryFilter extends AbstractQueryFilter
         }
     }
 
-    
+
     public function iamUserId($value)
     {
             $iamUser = \NextDeveloper\IAM\Database\Models\Users::where('uuid', $value)->first();
@@ -193,7 +193,7 @@ class SubscriptionsQueryFilter extends AbstractQueryFilter
         }
     }
 
-    
+
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
 
 

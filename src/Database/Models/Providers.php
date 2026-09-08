@@ -171,17 +171,19 @@ class Providers extends Model
         return $this->belongsTo(Markets::class);
     }
 
-    public function accounts(): BelongsTo
+    public function accounts() : \Illuminate\Database\Eloquent\Relations\BelongsTo
+
     {
         return $this->belongsTo(Accounts::class);
     }
 
-    public function users(): BelongsTo
+
+    public function users() : \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Users::class);
     }
 
-    public function orders(): HasMany
+    public function orders() : \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Orders::class);
     }

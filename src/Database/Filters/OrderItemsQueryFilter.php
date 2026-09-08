@@ -17,7 +17,7 @@ class OrderItemsQueryFilter extends AbstractQueryFilter
      * @var Builder
      */
     protected $builder;
-    
+
     public function specialInstructions($value)
     {
         return $this->builder->where('special_instructions', 'ilike', '%' . $value . '%');
@@ -28,7 +28,7 @@ class OrderItemsQueryFilter extends AbstractQueryFilter
     {
         return $this->specialInstructions($value);
     }
-    
+
     public function quantity($value)
     {
         $operator = substr($value, 0, 1);
@@ -42,7 +42,7 @@ class OrderItemsQueryFilter extends AbstractQueryFilter
         return $this->builder->where('quantity', $operator, $value);
     }
 
-    
+
     public function createdAtStart($date)
     {
         return $this->builder->where('created_at', '>=', $date);
@@ -123,7 +123,7 @@ class OrderItemsQueryFilter extends AbstractQueryFilter
     {
         return $this->marketplaceOrder($value);
     }
-    
+
     public function marketplaceProductCatalogId($value)
     {
             $marketplaceProductCatalog = \NextDeveloper\Marketplace\Database\Models\ProductCatalogs::where('uuid', $value)->first();
@@ -138,7 +138,7 @@ class OrderItemsQueryFilter extends AbstractQueryFilter
     {
         return $this->marketplaceProductCatalog($value);
     }
-    
+
     public function iamAccountId($value)
     {
             $iamAccount = \NextDeveloper\IAM\Database\Models\Accounts::where('uuid', $value)->first();
@@ -148,7 +148,7 @@ class OrderItemsQueryFilter extends AbstractQueryFilter
         }
     }
 
-    
+
     public function iamUserId($value)
     {
             $iamUser = \NextDeveloper\IAM\Database\Models\Users::where('uuid', $value)->first();
@@ -158,7 +158,7 @@ class OrderItemsQueryFilter extends AbstractQueryFilter
         }
     }
 
-    
+
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
 
 

@@ -17,37 +17,37 @@ class ProvidersQueryFilter extends AbstractQueryFilter
      * @var Builder
      */
     protected $builder;
-    
+
     public function name($value)
     {
         return $this->builder->where('name', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function description($value)
     {
         return $this->builder->where('description', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function action($value)
     {
         return $this->builder->where('action', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function url($value)
     {
         return $this->builder->where('url', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function adapter($value)
     {
         return $this->builder->where('adapter', 'ilike', '%' . $value . '%');
     }
 
-    
+
     public function isActive($value)
     {
         return $this->builder->where('is_active', $value);
@@ -58,7 +58,7 @@ class ProvidersQueryFilter extends AbstractQueryFilter
     {
         return $this->isActive($value);
     }
-     
+
     public function createdAtStart($date)
     {
         return $this->builder->where('created_at', '>=', $date);
@@ -139,7 +139,7 @@ class ProvidersQueryFilter extends AbstractQueryFilter
     {
         return $this->marketplaceMarket($value);
     }
-    
+
     public function iamAccountId($value)
     {
             $iamAccount = \NextDeveloper\IAM\Database\Models\Accounts::where('uuid', $value)->first();
@@ -149,7 +149,7 @@ class ProvidersQueryFilter extends AbstractQueryFilter
         }
     }
 
-    
+
     public function iamUserId($value)
     {
             $iamUser = \NextDeveloper\IAM\Database\Models\Users::where('uuid', $value)->first();
@@ -159,7 +159,7 @@ class ProvidersQueryFilter extends AbstractQueryFilter
         }
     }
 
-    
+
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
 
 

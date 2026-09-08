@@ -170,7 +170,7 @@ class Subscriptions extends Model
         // ("users" -> "users_id") doesn't match the real column, iam_user_id.
         return $this->belongsTo(\NextDeveloper\IAM\Database\Models\Users::class, 'iam_user_id');
     }
-    
+
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
 
 

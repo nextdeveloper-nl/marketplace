@@ -168,7 +168,7 @@ class ProductCatalogs extends Model
     {
         return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\Products::class);
     }
-    
+
     public function subscriptions() : \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\Subscriptions::class);

@@ -24,7 +24,7 @@ class ProductCatalogsSavingEvent
      */
     protected $timestamp = null;
 
-    public function __construct(ProductCatalogs $model = null)
+    public function __construct(?ProductCatalogs $model = null)
     {
         $this->_model = $model;
     }

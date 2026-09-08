@@ -17,7 +17,7 @@ class OrderStatusHistoriesQueryFilter extends AbstractQueryFilter
      * @var Builder
      */
     protected $builder;
-    
+
     public function oldStatus($value)
     {
         return $this->builder->where('old_status', 'ilike', '%' . $value . '%');
@@ -28,7 +28,7 @@ class OrderStatusHistoriesQueryFilter extends AbstractQueryFilter
     {
         return $this->oldStatus($value);
     }
-        
+
     public function newStatus($value)
     {
         return $this->builder->where('new_status', 'ilike', '%' . $value . '%');
@@ -39,13 +39,13 @@ class OrderStatusHistoriesQueryFilter extends AbstractQueryFilter
     {
         return $this->newStatus($value);
     }
-        
+
     public function notes($value)
     {
         return $this->builder->where('notes', 'ilike', '%' . $value . '%');
     }
 
-    
+
     public function changedAtStart($date)
     {
         return $this->builder->where('changed_at', '>=', $date);
@@ -148,7 +148,7 @@ class OrderStatusHistoriesQueryFilter extends AbstractQueryFilter
     {
         return $this->marketplaceOrder($value);
     }
-    
+
     public function iamAccountId($value)
     {
             $iamAccount = \NextDeveloper\IAM\Database\Models\Accounts::where('uuid', $value)->first();
@@ -158,7 +158,7 @@ class OrderStatusHistoriesQueryFilter extends AbstractQueryFilter
         }
     }
 
-    
+
     public function iamUserId($value)
     {
             $iamUser = \NextDeveloper\IAM\Database\Models\Users::where('uuid', $value)->first();
@@ -168,7 +168,7 @@ class OrderStatusHistoriesQueryFilter extends AbstractQueryFilter
         }
     }
 
-    
+
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
 
 

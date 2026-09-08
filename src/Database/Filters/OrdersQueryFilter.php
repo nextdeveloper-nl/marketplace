@@ -37,7 +37,7 @@ class OrdersQueryFilter extends AbstractQueryFilter
      * @var Builder
      */
     protected $builder;
-    
+
     public function externalOrderId($value)
     {
         return $this->builder->where('external_order_id', 'ilike', '%' . $value . '%');
@@ -48,7 +48,7 @@ class OrdersQueryFilter extends AbstractQueryFilter
     {
         return $this->externalOrderId($value);
     }
-        
+
     public function externalOrderNumber($value)
     {
         return $this->builder->where('external_order_number', 'ilike', '%' . $value . '%');
@@ -59,13 +59,13 @@ class OrdersQueryFilter extends AbstractQueryFilter
     {
         return $this->externalOrderNumber($value);
     }
-        
+
     public function status($value)
     {
         return $this->builder->where('status', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function orderType($value)
     {
         return $this->builder->where('order_type', 'ilike', '%' . $value . '%');
@@ -76,7 +76,7 @@ class OrdersQueryFilter extends AbstractQueryFilter
     {
         return $this->orderType($value);
     }
-        
+
     public function deliveryMethod($value)
     {
         return $this->builder->where('delivery_method', 'ilike', '%' . $value . '%');
@@ -87,7 +87,7 @@ class OrdersQueryFilter extends AbstractQueryFilter
     {
         return $this->deliveryMethod($value);
     }
-        
+
     public function syncErrorMessage($value)
     {
         return $this->builder->where('sync_error_message', 'ilike', '%' . $value . '%');
@@ -98,7 +98,7 @@ class OrdersQueryFilter extends AbstractQueryFilter
     {
         return $this->syncErrorMessage($value);
     }
-        
+
     public function customerNote($value)
     {
         return $this->builder->where('customer_note', 'ilike', '%' . $value . '%');
@@ -109,7 +109,7 @@ class OrdersQueryFilter extends AbstractQueryFilter
     {
         return $this->customerNote($value);
     }
-        
+
     public function externalLineId($value)
     {
         return $this->builder->where('external_line_id', 'ilike', '%' . $value . '%');
@@ -120,13 +120,13 @@ class OrdersQueryFilter extends AbstractQueryFilter
     {
         return $this->externalLineId($value);
     }
-        
+
     public function provider($value)
     {
         return $this->builder->where('provider', 'ilike', '%' . $value . '%');
     }
 
-        
+
     public function orderNo($value)
     {
         return $this->builder->where('order_no', 'ilike', '%' . $value . '%');
@@ -137,7 +137,7 @@ class OrdersQueryFilter extends AbstractQueryFilter
     {
         return $this->orderNo($value);
     }
-    
+
     public function orderedAtStart($date)
     {
         return $this->builder->where('ordered_at', '>=', $date);
@@ -394,7 +394,7 @@ class OrdersQueryFilter extends AbstractQueryFilter
     {
         return $this->marketplaceMarket($value);
     }
-    
+
     public function marketplaceProviderId($value)
     {
             $marketplaceProvider = \NextDeveloper\Marketplace\Database\Models\Providers::where('uuid', $value)->first();
@@ -409,7 +409,7 @@ class OrdersQueryFilter extends AbstractQueryFilter
     {
         return $this->marketplaceProvider($value);
     }
-    
+
     public function marketplaceProductId($value)
     {
             $marketplaceProduct = \NextDeveloper\Marketplace\Database\Models\Products::where('uuid', $value)->first();
@@ -424,7 +424,7 @@ class OrdersQueryFilter extends AbstractQueryFilter
     {
         return $this->marketplaceProduct($value);
     }
-    
+
     public function iamAccountId($value)
     {
             $iamAccount = \NextDeveloper\IAM\Database\Models\Accounts::where('uuid', $value)->first();
@@ -434,7 +434,7 @@ class OrdersQueryFilter extends AbstractQueryFilter
         }
     }
 
-    
+
     public function iamUserId($value)
     {
             $iamUser = \NextDeveloper\IAM\Database\Models\Users::where('uuid', $value)->first();
@@ -444,7 +444,7 @@ class OrdersQueryFilter extends AbstractQueryFilter
         }
     }
 
-    
+
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
 
 

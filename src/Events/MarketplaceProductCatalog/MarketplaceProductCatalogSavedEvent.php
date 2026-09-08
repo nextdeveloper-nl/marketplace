@@ -23,7 +23,7 @@ class MarketplaceProductCatalogSavedEvent
      */
     protected $timestamp = null;
 
-    public function __construct(MarketplaceProductCatalog $model = null) {
+    public function __construct(?MarketplaceProductCatalog $model = null) {
         $this->_model = $model;
     }
 

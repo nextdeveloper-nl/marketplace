@@ -60,7 +60,7 @@ class AbstractProductsTransformer extends AbstractTransformer
                                                             $marketplaceMarketId = \NextDeveloper\Marketplace\Database\Models\Markets::where('id', $model->marketplace_market_id)->first();
                                                             $marketplaceProviderId = \NextDeveloper\Marketplace\Database\Models\Providers::where('id', $model->marketplace_provider_id)->first();
                                                             $parentMarketplaceProductId = \NextDeveloper\Marketplace\Database\Models\Products::where('id', $model->parent_marketplace_product_id)->first();
-                        
+
         return $this->buildPayload(
             [
             'id'  =>  $model->uuid,

@@ -155,12 +155,12 @@ class OrderItems extends Model
     {
         return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\Orders::class);
     }
-    
+
     public function productCatalogs() : \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(\NextDeveloper\Marketplace\Database\Models\ProductCatalogs::class);
     }
-    
+
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
 
 

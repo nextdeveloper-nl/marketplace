@@ -23,7 +23,7 @@ class ProductsUpdatedEvent
      */
     protected $timestamp = null;
 
-    public function __construct(Products $model = null) {
+    public function __construct(?Products $model = null) {
         $this->_model = $model;
     }
 
