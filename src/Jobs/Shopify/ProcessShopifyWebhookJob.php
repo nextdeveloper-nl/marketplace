@@ -236,11 +236,15 @@ class ProcessShopifyWebhookJob implements ShouldQueue
             return 'ignored';
         }
 
-        $itemGid = $this->gidFrom(
-            $payload['admin_graphql_api_id'] ?? null,
-            $payload['inventory_item_id'] ?? null,
-            'InventoryItem'
-        );
+        /*
+         * Built from the numeric id only. An inventory_levels payload puts the
+         * *InventoryLevel* GID in admin_graphql_api_id — and with a query
+         * string attached, e.g.
+         *   gid://shopify/InventoryLevel/152826249259?inventory_item_id=47216940875819
+         * Feeding that to inventoryItem(id:) makes Shopify reject the call with
+         * "Invalid id", which is how these events dead-lettered in production.
+         */
+        $itemGid = $this->gidFrom(null, $payload['inventory_item_id'] ?? null, 'InventoryItem');
 
         if ($itemGid === '') {
             return 'ignored';
