@@ -4,10 +4,12 @@ namespace NextDeveloper\Marketplace\Services\Marketplaces\Adapters\Shopify;
 
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use NextDeveloper\Commons\Database\GlobalScopes\LimitScope;
 use NextDeveloper\IAM\Database\Scopes\AuthorizationScope;
 use NextDeveloper\Marketplace\Database\Models\Orders;
 use NextDeveloper\Marketplace\Database\Models\ProductCatalogMappings;
 use NextDeveloper\Marketplace\Database\Models\ProductCatalogs;
+use NextDeveloper\Marketplace\Database\Models\ProductMappings;
 use NextDeveloper\Marketplace\Database\Models\Products;
 use NextDeveloper\Marketplace\Database\Models\Providers;
 use NextDeveloper\Marketplace\Exceptions\StaleInventoryException;
@@ -304,11 +306,119 @@ class ShopifyAdapter implements CustomerSyncAdapter, FulfillmentAdapter, Invento
     public function pushProduct(Products $product): array
     {
         $this->assertPushAllowed('products');
+        $this->assertProductPushApproved();
 
-        throw new \LogicException(
-            'Shopify product push is not enabled yet. It is gated behind an approved dry-run; '
-            .'see docs/marketplace/shopify-two-way-sync.md.'
+        $externalId = $this->externalProductIdFor($product);
+
+        if ($externalId === null) {
+            Log::warning(__METHOD__.' - product has no Shopify mapping; refusing to create one', [
+                'provider_id' => $this->provider->id,
+                'product_id' => $product->id,
+            ]);
+
+            return ['pushed' => false, 'reason' => 'unmapped'];
+        }
+
+        $input = [
+            'id' => $externalId,
+            'title' => (string) $product->name,
+            'descriptionHtml' => (string) ($product->description ?? ''),
+        ];
+
+        $tags = $product->tags;
+
+        if (is_array($tags) && $tags !== []) {
+            $input['tags'] = array_values($tags);
+        }
+
+        $data = $this->client->mutate(
+            ShopifyGraphQL::PRODUCT_PUSH,
+            ['product' => $input],
+            $this->idempotencyKey('product', (string) $product->id, md5(json_encode($input) ?: ''))
         );
+
+        return [
+            'pushed' => true,
+            'external_id' => $externalId,
+            'title' => data_get($data, 'productUpdate.product.title'),
+            'updated_at' => data_get($data, 'productUpdate.product.updatedAt'),
+        ];
+    }
+
+    /**
+     * What a push would change, without writing anything.
+     *
+     * This is what the dry-run gate renders: enabling catalogue push on a shop
+     * for the first time requires somebody to look at this and approve it,
+     * because the failure mode is overwriting a merchant's live catalogue.
+     *
+     * @return array<string, mixed>|null Null when nothing would change.
+     */
+    public function diffProduct(Products $product): ?array
+    {
+        $externalId = $this->externalProductIdFor($product);
+
+        if ($externalId === null) {
+            return null;
+        }
+
+        $remote = data_get($this->client->query(ShopifyGraphQL::PRODUCT_BY_ID, ['id' => $externalId]), 'product');
+
+        if (! is_array($remote)) {
+            return null;
+        }
+
+        $changes = [];
+
+        if ((string) $product->name !== (string) data_get($remote, 'title')) {
+            $changes['title'] = ['shopify' => data_get($remote, 'title'), 'ours' => (string) $product->name];
+        }
+
+        if ((string) ($product->description ?? '') !== (string) data_get($remote, 'descriptionHtml')) {
+            $changes['description'] = [
+                'shopify' => mb_substr((string) data_get($remote, 'descriptionHtml'), 0, 60),
+                'ours' => mb_substr((string) ($product->description ?? ''), 0, 60),
+            ];
+        }
+
+        return $changes === [] ? null : ['external_id' => $externalId, 'changes' => $changes];
+    }
+
+    /**
+     * The Shopify GID for a local product, or null when it was never synced
+     * from this shop.
+     *
+     * Push only ever *updates* something that already came from Shopify. It
+     * never creates, because a mapping bug that invents products in a
+     * merchant's catalogue is unrecoverable.
+     */
+    private function externalProductIdFor(Products $product): ?string
+    {
+        $id = ProductMappings::withoutGlobalScope(AuthorizationScope::class)
+            ->withoutGlobalScope(LimitScope::class)
+            ->where('marketplace_provider_id', $this->provider->id)
+            ->where('marketplace_product_id', $product->id)
+            ->value('external_product_id');
+
+        return $id ? (string) $id : null;
+    }
+
+    /**
+     * Catalogue push stays inert until an operator has seen a dry-run and
+     * approved it for this connection.
+     *
+     * @throws \LogicException
+     */
+    private function assertProductPushApproved(): void
+    {
+        if (data_get($this->provider->getApiConfigArray(), 'product_push.approved_at') === null) {
+            throw new \LogicException(sprintf(
+                'Catalogue push is not approved for provider %s. Review the diff and approve it first: '
+                .'marketplace:push-shopify --entity=products --provider=%d --dry-run, then --approve.',
+                $this->provider->uuid,
+                $this->provider->id
+            ));
+        }
     }
 
     /**
@@ -317,11 +427,46 @@ class ShopifyAdapter implements CustomerSyncAdapter, FulfillmentAdapter, Invento
     public function pushCatalog(ProductCatalogs $catalog): array
     {
         $this->assertPushAllowed('products');
+        $this->assertProductPushApproved();
 
-        throw new \LogicException(
-            'Shopify catalog push is not enabled yet. It is gated behind an approved dry-run; '
-            .'see docs/marketplace/shopify-two-way-sync.md.'
+        $mapping = ProductCatalogMappings::withoutGlobalScope(AuthorizationScope::class)
+            ->withoutGlobalScope(LimitScope::class)
+            ->where('marketplace_provider_id', $this->provider->id)
+            ->where('marketplace_product_catalog_id', $catalog->id)
+            ->first();
+
+        if (! $mapping || ! $mapping->external_catalog_id) {
+            return ['pushed' => false, 'reason' => 'unmapped'];
+        }
+
+        $productGid = ProductMappings::withoutGlobalScope(AuthorizationScope::class)
+            ->withoutGlobalScope(LimitScope::class)
+            ->where('marketplace_provider_id', $this->provider->id)
+            ->where('marketplace_product_id', $catalog->marketplace_product_id)
+            ->value('external_product_id');
+
+        if (! $productGid) {
+            return ['pushed' => false, 'reason' => 'parent product unmapped'];
+        }
+
+        // Price only. Stock has its own compare-and-swap path, and SKU belongs
+        // to the merchant.
+        $variant = [
+            'id' => (string) $mapping->external_catalog_id,
+            'price' => number_format((float) $catalog->price, 2, '.', ''),
+        ];
+
+        $data = $this->client->mutate(
+            ShopifyGraphQL::PRODUCT_VARIANTS_PUSH,
+            ['productId' => (string) $productGid, 'variants' => [$variant]],
+            $this->idempotencyKey('variant', (string) $catalog->id, $variant['price'])
         );
+
+        return [
+            'pushed' => true,
+            'external_id' => $variant['id'],
+            'price' => data_get($data, 'productVariantsBulkUpdate.productVariants.0.price'),
+        ];
     }
 
     // -------------------------------------------------------------------------

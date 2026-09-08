@@ -337,6 +337,37 @@ class ShopifyGraphQL
      * remote value has moved the mutation fails with CHANGE_FROM_QUANTITY_STALE
      * instead of silently overwriting a concurrent sale.
      */
+    /**
+     * Push catalogue fields back to Shopify.
+     *
+     * Deliberately narrow. Handle, status and images are not pushed: the handle
+     * is the storefront URL, status controls whether the product is publicly
+     * visible, and images are the merchant's own media. Getting any of those
+     * wrong is destructive in a way a title is not, and Shopify has no undo.
+     */
+    public const PRODUCT_PUSH = <<<'GQL'
+    mutation ProductPush($product: ProductUpdateInput!) {
+      productUpdate(product: $product) {
+        product { id title updatedAt }
+        userErrors { field message }
+      }
+    }
+    GQL;
+
+    /**
+     * Push variant pricing. SKU is not pushed — it is the merchant's own key
+     * into their warehouse and other channels, and rewriting it from our side
+     * would break joins we do not own.
+     */
+    public const PRODUCT_VARIANTS_PUSH = <<<'GQL'
+    mutation VariantsPush($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
+      productVariantsBulkUpdate(productId: $productId, variants: $variants) {
+        productVariants { id price updatedAt }
+        userErrors { field message }
+      }
+    }
+    GQL;
+
     public const INVENTORY_SET = <<<'GQL'
     mutation InventorySet($input: InventorySetQuantitiesInput!) {
       inventorySetQuantities(input: $input) {
