@@ -15,7 +15,7 @@ class ProductCatalogMappingsUpdateRequest extends AbstractFormRequest
         return [
             'marketplace_product_catalog_id' => 'nullable|exists:marketplace_product_catalogs,uuid|uuid',
         'marketplace_provider_id' => 'nullable|exists:marketplace_providers,uuid|uuid',
-        'external_catalog_id' => 'nullable|string|exists:external_catalogs,uuid|uuid',
+        'external_catalog_id' => 'nullable|string|max:255',
         ];
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE

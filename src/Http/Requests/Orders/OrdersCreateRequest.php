@@ -41,7 +41,7 @@ class OrdersCreateRequest extends AbstractFormRequest
         'last_synced_at' => 'date',
         'sync_error_message' => 'nullable|string',
         'customer_note' => 'nullable|string',
-        'external_line_id' => 'nullable|string|exists:external_lines,uuid|uuid',
+        'external_line_id' => 'nullable|string|max:255',
         'tags' => '',
         'provider' => 'nullable|string',
         'order_no' => 'nullable|string',
