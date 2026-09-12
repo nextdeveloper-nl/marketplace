@@ -29,6 +29,11 @@ use NextDeveloper\Marketplace\Services\Marketplaces\ShopifyService;
  * and push cannot disagree about what counts as a local edit, and a missed run
  * simply retries next time instead of losing the change.
  *
+ * PushShopifyProductJob dispatches this for a single product when somebody
+ * saves one, so a stock edit does not wait for the sweep. That is still a
+ * reconcile — same local-edit guard, same compare-and-swap, just narrowed to
+ * one product and started sooner.
+ *
  * The compare-and-swap is the point. Blind-writing an absolute quantity is how
  * integrations oversell: between reading 10 and writing 10 a customer buys one,
  * and the write silently restores the sold unit. changeFromQuantity makes
@@ -48,7 +53,10 @@ class PushShopifyInventoryJob implements ShouldQueue
     /** @var array<string, mixed> */
     public array $report = [];
 
-    public function __construct(public int $providerId, public bool $dryRun = false) {}
+    /**
+     * @param  int|null  $onlyProductId  Restrict the run to one product's variants.
+     */
+    public function __construct(public int $providerId, public bool $dryRun = false, public ?int $onlyProductId = null) {}
 
     public function handle(): void
     {
@@ -76,10 +84,20 @@ class PushShopifyInventoryJob implements ShouldQueue
         $pushed = $inSync = $stale = $failed = $skipped = 0;
         $samples = [];
 
-        $mappings = ProductCatalogMappings::withoutGlobalScope(AuthorizationScope::class)->withoutGlobalScope(LimitScope::class)
+        $mappingQuery = ProductCatalogMappings::withoutGlobalScope(AuthorizationScope::class)->withoutGlobalScope(LimitScope::class)
             ->where('marketplace_provider_id', $provider->id)
-            ->whereNotNull('external_inventory_item_id')
-            ->get();
+            ->whereNotNull('external_inventory_item_id');
+
+        if ($this->onlyProductId !== null) {
+            $mappingQuery->whereIn(
+                'marketplace_product_catalog_id',
+                ProductCatalogs::withoutGlobalScope(AuthorizationScope::class)->withoutGlobalScope(LimitScope::class)
+                    ->where('marketplace_product_id', $this->onlyProductId)
+                    ->select('id')
+            );
+        }
+
+        $mappings = $mappingQuery->get();
 
         foreach ($mappings as $mapping) {
             $catalog = ProductCatalogs::withoutGlobalScope(AuthorizationScope::class)->withoutGlobalScope(LimitScope::class)
@@ -91,15 +109,28 @@ class PushShopifyInventoryJob implements ShouldQueue
                 continue;
             }
 
-            // Same definition of "somebody edited this locally" the pull guard
-            // uses, so the two halves can never disagree.
-            $localEditedAt = $catalog->updated_at ? Carbon::parse($catalog->updated_at) : null;
-            $lastSyncedAt = $mapping->last_synced_at ? Carbon::parse($mapping->last_synced_at) : null;
+            /*
+             * Same definition of "somebody edited this locally" the pull guard
+             * uses, so the two halves can never disagree.
+             *
+             * A run narrowed to one product was started BY that product being
+             * saved, so the question is already answered and asking it again
+             * only loses edits: these timestamps are second-granular, and an
+             * edit landing in the same second as the previous reconciliation
+             * would never be greater than it, so it would be skipped forever.
+             * Nothing unsafe follows from pushing here — the remote is read
+             * first and an equal quantity is still a no-op, and the write is
+             * compare-and-swap guarded either way.
+             */
+            if ($this->onlyProductId === null) {
+                $localEditedAt = $catalog->updated_at ? Carbon::parse($catalog->updated_at) : null;
+                $lastSyncedAt = $mapping->last_synced_at ? Carbon::parse($mapping->last_synced_at) : null;
 
-            if ($localEditedAt === null || ($lastSyncedAt !== null && ! $localEditedAt->greaterThan($lastSyncedAt))) {
-                $skipped++;
+                if ($localEditedAt === null || ($lastSyncedAt !== null && ! $localEditedAt->greaterThan($lastSyncedAt))) {
+                    $skipped++;
 
-                continue;
+                    continue;
+                }
             }
 
             $desired = (int) $catalog->quantity_in_inventory;
@@ -140,9 +171,21 @@ class PushShopifyInventoryJob implements ShouldQueue
                     $catalog,
                     $desired,
                     $remote['available'],
-                    // The remote state this decision was based on: a retry of
-                    // this same push reuses the key, a later one does not.
-                    $remote['updated_at']?->toIso8601String()
+                    /*
+                     * What this decision was based on, so a retry of this same
+                     * push reuses the idempotency key while a later one does
+                     * not. The local edit timestamp has to be in here:
+                     * Shopify does NOT advance inventoryLevel.updatedAt on a
+                     * correction write, so the remote timestamp alone leaves
+                     * two identical transitions (set 11 from 8, later set 11
+                     * from 8 again) sharing a key — and Shopify answers the
+                     * second by replaying the first response, reporting
+                     * success without writing. Measured: a repeat of the same
+                     * transition left the store unchanged while the job
+                     * reported pushed=1.
+                     */
+                    ($remote['updated_at']?->toIso8601String() ?? '')
+                        .'|'.Carbon::parse($catalog->updated_at)->toIso8601String()
                 );
 
                 $after = $this->readRemote($service, (string) $mapping->external_inventory_item_id);

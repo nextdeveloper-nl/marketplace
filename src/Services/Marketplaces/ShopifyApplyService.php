@@ -201,6 +201,14 @@ class ShopifyApplyService
                     'options' => $variant['options'],
                     'compare_at_price' => $variant['compare_at_price'],
                     'is_inventory_tracked' => $variant['is_inventory_tracked'],
+                    /*
+                     * The price Shopify holds right now. The push side compares
+                     * the local price against this to decide whether a variant
+                     * needs writing, so it has to be refreshed here too — this
+                     * write would otherwise erase it and make every push
+                     * rewrite every price.
+                     */
+                    'pushed_price' => (float) $variant['price'],
                 ],
             ],
         ];

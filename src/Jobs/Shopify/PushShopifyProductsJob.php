@@ -12,12 +12,11 @@ use Illuminate\Support\Facades\Log;
 use NextDeveloper\Commons\Database\GlobalScopes\LimitScope;
 use NextDeveloper\IAM\Database\Scopes\AuthorizationScope;
 use NextDeveloper\IAM\Helpers\UserHelper;
-use NextDeveloper\Marketplace\Database\Models\ProductCatalogMappings;
 use NextDeveloper\Marketplace\Database\Models\ProductCatalogs;
 use NextDeveloper\Marketplace\Database\Models\ProductMappings;
 use NextDeveloper\Marketplace\Database\Models\Products;
 use NextDeveloper\Marketplace\Database\Models\Providers;
-use NextDeveloper\Marketplace\Services\Marketplaces\Adapters\Shopify\ShopifyGraphQL;
+use NextDeveloper\Marketplace\Services\Marketplaces\ShopifyProductPushService;
 use NextDeveloper\Marketplace\Services\Marketplaces\ShopifyService;
 
 /**
@@ -93,7 +92,6 @@ class PushShopifyProductsJob implements ShouldQueue
         UserHelper::bypassRolesCheck(true);
 
         $service = new ShopifyService($provider);
-        $adapter = $service->getAdapter();
 
         $mappings = ProductMappings::withoutGlobalScope(AuthorizationScope::class)
             ->withoutGlobalScope(LimitScope::class)
@@ -110,9 +108,14 @@ class PushShopifyProductsJob implements ShouldQueue
                 continue;
             }
 
-            // "Somebody edited this here" — the same rule the pull guard uses,
-            // so the two halves cannot disagree about what a local edit is.
-            $localEditedAt = $product->updated_at ? Carbon::parse($product->updated_at) : null;
+            /*
+             * "Somebody edited this here" — the same rule the pull guard uses,
+             * so the two halves cannot disagree about what a local edit is.
+             * A price edit only moves the catalogue row, so the newest of the
+             * two is what counts; reading the product alone would make
+             * price-only edits invisible to this sweep.
+             */
+            $localEditedAt = $this->lastLocalEditAt($product);
             $lastSyncedAt = $mapping->last_synced_at ? Carbon::parse($mapping->last_synced_at) : null;
 
             if ($localEditedAt === null || ($lastSyncedAt !== null && ! $localEditedAt->greaterThan($lastSyncedAt))) {
@@ -143,27 +146,21 @@ class PushShopifyProductsJob implements ShouldQueue
             return;
         }
 
-        $pushed = $unchanged = $failed = 0;
+        $pushed = $unchanged = $failed = $variantsPushed = 0;
         $diffs = [];
+        $pusher = new ShopifyProductPushService($service);
 
         foreach ($candidates as [$product, $mapping]) {
             try {
-                $diff = $adapter->diffProduct($product);
-
-                if ($diff === null) {
-                    // Nothing actually differs; record that we reconciled it so
-                    // the row stops looking locally-edited on every run.
-                    if (! $this->dryRun) {
-                        $mapping->last_synced_at = Carbon::now();
-                        $mapping->saveQuietly();
-                    }
-
-                    $unchanged++;
-
-                    continue;
-                }
+                $diff = $pusher->diff($product);
 
                 if ($this->dryRun) {
+                    if ($diff === null) {
+                        $unchanged++;
+
+                        continue;
+                    }
+
                     if (count($diffs) < 50) {
                         $diffs[] = ['product' => $product->name, 'changes' => $diff['changes']];
                     }
@@ -172,9 +169,27 @@ class PushShopifyProductsJob implements ShouldQueue
                     continue;
                 }
 
-                $adapter->pushProduct($product);
-                $this->reapply($service, (string) $mapping->external_product_id);
-                $this->pushVariants($service, $product);
+                if ($diff !== null) {
+                    $pusher->push($product, $mapping);
+                }
+
+                // Prices are pushed whether or not the product-level fields
+                // differ, so a price-only edit is not invisible to the sweep.
+                $variantsPushed += $pusher->pushVariants($product);
+
+                /*
+                 * Settle the row last. Pushing re-reads the product, which
+                 * rewrites the local rows and so moves their updated_at; this
+                 * has to land after that or the product still looks
+                 * locally-edited on the next run.
+                 */
+                $pusher->markReconciled($mapping);
+
+                if ($diff === null) {
+                    $unchanged++;
+
+                    continue;
+                }
 
                 $pushed++;
             } catch (\Throwable $e) {
@@ -191,6 +206,7 @@ class PushShopifyProductsJob implements ShouldQueue
         $this->report = array_filter([
             'provider_id' => $provider->id,
             'pushed' => $pushed,
+            'variants_pushed' => $this->dryRun ? null : $variantsPushed,
             'already_matching' => $unchanged,
             'failed' => $failed,
             'mapped' => $mapped,
@@ -211,56 +227,23 @@ class PushShopifyProductsJob implements ShouldQueue
     }
 
     /**
-     * Re-read what Shopify now holds and apply it, so our fingerprint matches
-     * the remote state and the webhook our push just triggered is a no-op.
+     * The most recent local edit to a product or any of its catalogue rows.
      */
-    private function reapply(ShopifyService $service, string $externalId): void
+    private function lastLocalEditAt(Products $product): ?Carbon
     {
-        $node = data_get(
-            $service->getAdapter()->getClient()->query(ShopifyGraphQL::PRODUCT_BY_ID, ['id' => $externalId]),
-            'product'
-        );
+        $editedAt = $product->updated_at ? Carbon::parse($product->updated_at) : null;
 
-        if (is_array($node)) {
-            $service->applier()->applyProduct($service->getAdapter()->normalizeProductData($node));
-        }
-    }
-
-    /**
-     * Push variant prices for a product whose catalogue rows were edited here.
-     */
-    private function pushVariants(ShopifyService $service, Products $product): void
-    {
-        $catalogs = ProductCatalogs::withoutGlobalScope(AuthorizationScope::class)
+        $catalogEditedAt = ProductCatalogs::withoutGlobalScope(AuthorizationScope::class)
             ->withoutGlobalScope(LimitScope::class)
             ->where('marketplace_product_id', $product->id)
-            ->get();
+            ->max('updated_at');
 
-        foreach ($catalogs as $catalog) {
-            $mapping = ProductCatalogMappings::withoutGlobalScope(AuthorizationScope::class)
-                ->withoutGlobalScope(LimitScope::class)
-                ->where('marketplace_provider_id', $service->provider->id)
-                ->where('marketplace_product_catalog_id', $catalog->id)
-                ->first();
-
-            if (! $mapping) {
-                continue;
-            }
-
-            $remotePrice = (float) data_get($catalog->args, 'shopify.pushed_price', -1);
-
-            if (abs((float) $catalog->price - $remotePrice) < 0.005) {
-                continue;
-            }
-
-            try {
-                $service->getAdapter()->pushCatalog($catalog);
-            } catch (\Throwable $e) {
-                Log::warning(__METHOD__.' - variant price push failed', [
-                    'catalog_id' => $catalog->id,
-                    'error' => $e->getMessage(),
-                ]);
-            }
+        if ($catalogEditedAt === null) {
+            return $editedAt;
         }
+
+        $catalogEditedAt = Carbon::parse($catalogEditedAt);
+
+        return $editedAt === null || $catalogEditedAt->greaterThan($editedAt) ? $catalogEditedAt : $editedAt;
     }
 }

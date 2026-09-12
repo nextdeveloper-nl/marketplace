@@ -6,6 +6,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use NextDeveloper\Commons\Database\GlobalScopes\LimitScope;
 use NextDeveloper\Commons\Exceptions\NotFoundException;
+use NextDeveloper\Events\Services\Events;
 use NextDeveloper\IAM\Database\Scopes\AuthorizationScope;
 use NextDeveloper\Marketplace\Database\Models\Markets;
 use NextDeveloper\Marketplace\Database\Models\Providers;
@@ -30,6 +31,29 @@ class ShopifyService
      * told. Matches the S3 webhook deliverer's threshold.
      */
     public const AUTO_PAUSE_THRESHOLD = 5;
+
+    /**
+     * Failures before somebody is warned that this connection is in trouble.
+     *
+     * Deliberately below the pause threshold: Shopify deletes a webhook
+     * subscription after 8 consecutive delivery failures, so the useful moment
+     * to tell a human is while the connection is still running.
+     */
+    public const WARN_THRESHOLD = 3;
+
+    /**
+     * Fired at WARN_THRESHOLD, on the pause itself, and on the first success
+     * after either. Bound to an alarm handler in the app — see leo:bind-events.
+     *
+     * A silently dead connection is the worst failure mode this integration
+     * has: provider 11 sat paused for four days twice before anyone noticed,
+     * both times found by reading the sync-state table by hand.
+     */
+    public const EVENT_DEGRADED = 'connection-degraded:NextDeveloper\Marketplace\Providers';
+
+    public const EVENT_PAUSED = 'connection-paused:NextDeveloper\Marketplace\Providers';
+
+    public const EVENT_RESTORED = 'connection-restored:NextDeveloper\Marketplace\Providers';
 
     /**
      * Re-scan this far behind the cursor on every delta query.
@@ -160,6 +184,10 @@ class ShopifyService
             $cursor = $highWatermark;
         }
 
+        //  Edge-triggered: only the run that ends a failing streak announces it,
+        //  so a healthy connection never notifies anybody.
+        $wasFailing = (int) $state->consecutive_failures >= self::WARN_THRESHOLD;
+
         $state->updateQuietly([
             'cursor_updated_at' => $cursor,
             'last_run_at' => Carbon::now(),
@@ -168,6 +196,10 @@ class ShopifyService
             'last_error' => null,
             'records_processed' => (int) $state->records_processed + $recordsProcessed,
         ]);
+
+        if ($wasFailing) {
+            Events::fire(self::EVENT_RESTORED, $this->provider);
+        }
     }
 
     /**
@@ -205,6 +237,20 @@ class ShopifyService
                 'entity' => $entityType,
                 'failures' => $failures,
             ]);
+
+            Events::fire(self::EVENT_PAUSED, $this->provider);
+
+            return;
+        }
+
+        /*
+         * Exactly at the threshold, so one warning per failing streak rather
+         * than one per run. Both events are edge-triggered for the same reason:
+         * an alert that repeats every five minutes stops being read, which is
+         * how the pause went unnoticed in the first place.
+         */
+        if ($failures === self::WARN_THRESHOLD && $this->provider->is_active) {
+            Events::fire(self::EVENT_DEGRADED, $this->provider);
         }
     }
 
