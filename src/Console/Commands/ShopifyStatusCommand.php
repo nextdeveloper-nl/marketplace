@@ -3,6 +3,7 @@
 namespace NextDeveloper\Marketplace\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use NextDeveloper\Commons\Database\GlobalScopes\LimitScope;
 use NextDeveloper\IAM\Database\Scopes\AuthorizationScope;
@@ -25,7 +26,9 @@ class ShopifyStatusCommand extends Command
 {
     protected $signature = 'marketplace:shopify-status
                             {--provider= : Restrict to one provider (id or uuid)}
-                            {--json : Emit machine-readable output}';
+                            {--json : Emit machine-readable output}
+                            {--mute= : Silence failure alerts for --provider, with this reason}
+                            {--unmute : Alert on failures for --provider again}';
 
     protected $description = 'Show sync health for connected Shopify shops';
 
@@ -47,6 +50,10 @@ class ShopifyStatusCommand extends Command
             return self::SUCCESS;
         }
 
+        if ($this->option('mute') !== null || $this->option('unmute')) {
+            return $this->setMute($providers);
+        }
+
         $report = [];
 
         foreach ($providers as $provider) {
@@ -62,6 +69,55 @@ class ShopifyStatusCommand extends Command
         foreach ($report as $entry) {
             $this->render($entry);
         }
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * Turn failure alerting off (or back on) for one connection.
+     *
+     * Scoped to a single provider on purpose: muting is for a shop that is
+     * known to be down for a reason nobody here can fix, such as an expired
+     * trial, and a flag that could silence every connection at once is a flag
+     * somebody will eventually use that way.
+     *
+     * @param  Collection<int, Providers>  $providers
+     */
+    private function setMute($providers): int
+    {
+        if (! $this->option('provider')) {
+            $this->error('Muting needs --provider: it is deliberately per-connection.');
+
+            return self::FAILURE;
+        }
+
+        $provider = $providers->first();
+        $config = $provider->getApiConfigArray();
+
+        if ($this->option('unmute')) {
+            unset($config['alerting']['muted'], $config['alerting']['muted_reason']);
+
+            $provider->updateQuietly(['api_config' => $config]);
+            $this->info($provider->name.': failure alerts are on again.');
+
+            return self::SUCCESS;
+        }
+
+        $reason = trim((string) $this->option('mute'));
+
+        if ($reason === '') {
+            $this->error('Muting needs a reason, so the next person knows why it is quiet.');
+
+            return self::FAILURE;
+        }
+
+        $config['alerting']['muted'] = true;
+        $config['alerting']['muted_reason'] = $reason;
+
+        $provider->updateQuietly(['api_config' => $config]);
+
+        $this->info($provider->name.': failure alerts muted — '.$reason);
+        $this->line('  Recovery still announces itself, and an open ticket still closes when it comes back.');
 
         return self::SUCCESS;
     }
@@ -132,6 +188,8 @@ class ShopifyStatusCommand extends Command
             'name' => $provider->name,
             'shop' => $config['shop_domain'] ?? null,
             'is_active' => (bool) $provider->is_active,
+            'alerting_muted' => $provider->isAlertingMuted(),
+            'alerting_mute_reason' => $provider->alertingMuteReason(),
             'has_token' => $provider->getDecryptedAccessToken() !== null,
             'api_version' => $config['api_version'] ?? null,
             'location_id' => $config['location_id'] ?? null,
@@ -152,6 +210,13 @@ class ShopifyStatusCommand extends Command
         $this->line('');
         $this->line("<info>{$e['name']}</info> (id {$e['provider_id']}, {$e['shop']}) — {$badge}"
             .($e['has_token'] ? '' : ' <comment>NO TOKEN</comment>'));
+
+        //  A connection that is quiet for a reason should say so here, or the
+        //  next person will read the silence as health.
+        if ($e['alerting_muted']) {
+            $this->line('  <comment>alerts muted</comment>: '.($e['alerting_mute_reason'] ?? 'no reason given')
+                .' — re-enable with --provider='.$e['provider_id'].' --unmute');
+        }
 
         $this->line(sprintf(
             '  mapped: %d products / %d variants / %d customers / %d orders',

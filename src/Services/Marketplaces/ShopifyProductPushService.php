@@ -122,7 +122,8 @@ class ShopifyProductPushService
         $args = is_array($catalog->args) ? $catalog->args : [];
         $args['shopify']['pushed_price'] = (float) $catalog->price;
 
-        $catalog->updateQuietly(['args' => $args]);
+        //  Bookkeeping, not a human edit — see ShopifyApplyService::stampArgs.
+        ShopifyApplyService::stampArgs($catalog, $args);
     }
 
     /**

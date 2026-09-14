@@ -17,6 +17,7 @@ use NextDeveloper\Marketplace\Database\Models\ProductCatalogs;
 use NextDeveloper\Marketplace\Database\Models\Providers;
 use NextDeveloper\Marketplace\Exceptions\StaleInventoryException;
 use NextDeveloper\Marketplace\Services\Marketplaces\Adapters\Shopify\ShopifyGraphQL;
+use NextDeveloper\Marketplace\Services\Marketplaces\ShopifyApplyService;
 use NextDeveloper\Marketplace\Services\Marketplaces\ShopifyService;
 
 /**
@@ -24,10 +25,11 @@ use NextDeveloper\Marketplace\Services\Marketplaces\ShopifyService;
  *
  * Reconciling rather than event-driven on purpose. An observer firing on every
  * quantity write would have to distinguish our own inbound sync writes from a
- * human's edit — the exact distinction that already exists here as
- * "catalogs.updated_at is beyond mapping.last_synced_at". Reusing it means pull
- * and push cannot disagree about what counts as a local edit, and a missed run
- * simply retries next time instead of losing the change.
+ * human's edit — the exact distinction that already exists as "the quantity on
+ * the row differs from the one both sides last agreed on"
+ * (args.shopify.synced_quantity). Sharing that test with the pull means the two
+ * halves cannot disagree about what a local edit is, and a missed run simply
+ * retries next time instead of losing the change.
  *
  * PushShopifyProductJob dispatches this for a single product when somebody
  * saves one, so a stock edit does not wait for the sweep. That is still a
@@ -114,23 +116,15 @@ class PushShopifyInventoryJob implements ShouldQueue
              * uses, so the two halves can never disagree.
              *
              * A run narrowed to one product was started BY that product being
-             * saved, so the question is already answered and asking it again
-             * only loses edits: these timestamps are second-granular, and an
-             * edit landing in the same second as the previous reconciliation
-             * would never be greater than it, so it would be skipped forever.
-             * Nothing unsafe follows from pushing here — the remote is read
-             * first and an equal quantity is still a no-op, and the write is
-             * compare-and-swap guarded either way.
+             * saved, so the question is already answered and there is no point
+             * asking it again. Nothing unsafe follows from pushing anyway: the
+             * remote is read first, an equal quantity is a no-op, and the write
+             * is compare-and-swap guarded either way.
              */
-            if ($this->onlyProductId === null) {
-                $localEditedAt = $catalog->updated_at ? Carbon::parse($catalog->updated_at) : null;
-                $lastSyncedAt = $mapping->last_synced_at ? Carbon::parse($mapping->last_synced_at) : null;
+            if ($this->onlyProductId === null && ! $this->isLocallyEdited($catalog, $mapping)) {
+                $skipped++;
 
-                if ($localEditedAt === null || ($lastSyncedAt !== null && ! $localEditedAt->greaterThan($lastSyncedAt))) {
-                    $skipped++;
-
-                    continue;
-                }
+                continue;
             }
 
             $desired = (int) $catalog->quantity_in_inventory;
@@ -151,6 +145,11 @@ class PushShopifyInventoryJob implements ShouldQueue
                         $mapping->external_updated_at = $remote['updated_at'];
                         $mapping->last_synced_at = Carbon::now();
                         $mapping->saveQuietly();
+
+                        ShopifyApplyService::stampArgs(
+                            $catalog,
+                            ShopifyApplyService::withSyncedQuantity($catalog->args, $desired)
+                        );
                     }
 
                     $inSync++;
@@ -193,6 +192,13 @@ class PushShopifyInventoryJob implements ShouldQueue
                 $mapping->external_updated_at = $after['updated_at'] ?? Carbon::now();
                 $mapping->last_synced_at = Carbon::now();
                 $mapping->saveQuietly();
+
+                //  Both sides now hold this number, so the row stops counting
+                //  as locally edited until somebody changes it again.
+                ShopifyApplyService::stampArgs(
+                    $catalog,
+                    ShopifyApplyService::withSyncedQuantity($catalog->args, $desired)
+                );
 
                 $pushed++;
             } catch (StaleInventoryException $e) {
@@ -253,6 +259,28 @@ class PushShopifyInventoryJob implements ShouldQueue
      *
      * @return array{available: int, updated_at: Carbon|null}|null
      */
+    /**
+     * Has a person changed this stock here since we last agreed with Shopify?
+     *
+     * Same question, same answer, as the pull side — deliberately the same
+     * helper's logic, because the two halves disagreeing about what a local
+     * edit is was how stock changes went missing in both directions.
+     */
+    private function isLocallyEdited(ProductCatalogs $catalog, ProductCatalogMappings $mapping): bool
+    {
+        $synced = data_get($catalog->args, 'shopify.synced_quantity');
+
+        if ($synced !== null) {
+            return (int) $catalog->quantity_in_inventory !== (int) $synced;
+        }
+
+        $localEditedAt = $catalog->updated_at ? Carbon::parse($catalog->updated_at) : null;
+        $lastSyncedAt = $mapping->last_synced_at ? Carbon::parse($mapping->last_synced_at) : null;
+
+        return $localEditedAt !== null
+            && ($lastSyncedAt === null || $localEditedAt->greaterThan($lastSyncedAt));
+    }
+
     private function readRemote(ShopifyService $service, string $inventoryItemGid): ?array
     {
         $locationId = (string) data_get($service->provider->getApiConfigArray(), 'location_id', '');

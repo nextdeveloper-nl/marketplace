@@ -491,11 +491,23 @@ class ShopifyAdapter implements CustomerSyncAdapter, FulfillmentAdapter, Invento
         foreach ($levels as $level) {
             $updatedAt = $this->parseDate(data_get($level, 'updatedAt'));
 
-            // The query cannot filter by updatedAt, so the delta is applied here.
-            if ($updatedAt !== null && $updatedAt->lessThan($since)) {
-                continue;
-            }
-
+            /*
+             * $since is deliberately NOT used to filter.
+             *
+             * Shopify cannot filter inventory levels server-side, so the query
+             * above already pages through every level at this location — the
+             * cost is paid either way and dropping rows here only throws truth
+             * away. Worse, inventoryLevel.updatedAt does not reliably advance
+             * when the quantity changes (measured: an inventorySetQuantities
+             * write with reason "correction" leaves it untouched), so a delta
+             * keyed on it silently misses real changes and they are never
+             * revisited — two variants on the dev store sat wrong for three
+             * weeks that way.
+             *
+             * Returning the full set makes the pull a reconciler instead: the
+             * applier no-ops on anything that already matches, so the extra
+             * rows cost one integer comparison each.
+             */
             $quantities = [];
 
             foreach (data_get($level, 'quantities', []) as $quantity) {

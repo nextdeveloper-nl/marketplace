@@ -307,6 +307,31 @@ class Providers extends Model
     }
 
     /**
+     * Whether alerting is silenced for this connection.
+     *
+     * A shop whose trial expired, or one deliberately left disconnected, fails
+     * forever through no fault of ours. Naming it in the daily digest every
+     * morning is how a channel stops being read, which defeats the point of
+     * having one, so it can be muted explicitly. Muting is per-connection and
+     * never silences anything else.
+     */
+    public function isAlertingMuted(): bool
+    {
+        return (bool) data_get($this->getApiConfigArray(), 'alerting.muted', false);
+    }
+
+    /**
+     * Why alerting was silenced, for the status command to show — a muted
+     * connection that nobody can explain is worse than a noisy one.
+     */
+    public function alertingMuteReason(): ?string
+    {
+        $reason = data_get($this->getApiConfigArray(), 'alerting.muted_reason');
+
+        return is_string($reason) && $reason !== '' ? $reason : null;
+    }
+
+    /**
      * Decrypt a stored credential column, tolerating plaintext and bad payloads.
      */
     private function decryptColumn(string $column): ?string
