@@ -58,7 +58,10 @@ class PushShopifyInventoryJob implements ShouldQueue
     /**
      * @param  int|null  $onlyProductId  Restrict the run to one product's variants.
      */
-    public function __construct(public int $providerId, public bool $dryRun = false, public ?int $onlyProductId = null) {}
+    public function __construct(public int $providerId, public bool $dryRun = false, public ?int $onlyProductId = null)
+    {
+        $this->onQueue(self::QUEUE_NAME);
+    }
 
     public function handle(): void
     {
