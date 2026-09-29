@@ -5,6 +5,7 @@ namespace NextDeveloper\Marketplace;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Log;
 use NextDeveloper\Commons\AbstractServiceProvider;
+use NextDeveloper\Marketplace\Console\Commands\EbaySearchCommand;
 use NextDeveloper\Marketplace\Console\Commands\FetchProviderOrdersCommand;
 use NextDeveloper\Marketplace\Console\Commands\PushShopifyCommand;
 use NextDeveloper\Marketplace\Console\Commands\ShopifyStatusCommand;
@@ -119,6 +120,7 @@ class MarketplaceServiceProvider extends AbstractServiceProvider
                 ShopifyWebhooksCommand::class,
                 PushShopifyCommand::class,
                 ShopifyStatusCommand::class,
+                EbaySearchCommand::class,
             ]);
         }
     }
