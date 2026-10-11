@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use NextDeveloper\Commons\AbstractServiceProvider;
 use NextDeveloper\Marketplace\Console\Commands\EbaySearchCommand;
 use NextDeveloper\Marketplace\Console\Commands\FetchProviderOrdersCommand;
+use NextDeveloper\Marketplace\Console\Commands\IdeasoftProbeCommand;
 use NextDeveloper\Marketplace\Console\Commands\PushShopifyCommand;
 use NextDeveloper\Marketplace\Console\Commands\ShopifyStatusCommand;
 use NextDeveloper\Marketplace\Console\Commands\ShopifyWebhooksCommand;
@@ -121,6 +122,7 @@ class MarketplaceServiceProvider extends AbstractServiceProvider
                 PushShopifyCommand::class,
                 ShopifyStatusCommand::class,
                 EbaySearchCommand::class,
+                IdeasoftProbeCommand::class,
             ]);
         }
     }

@@ -142,10 +142,7 @@ class IdeasoftAdapter implements InventorySyncAdapter, MarketplaceAdapter, Produ
      */
     public function fetchProducts(Carbon $since): array
     {
-        throw new \LogicException(
-            'Ideasoft product fetch is not implemented yet: the exact endpoint path is unconfirmed. '
-            .'See IdeasoftClient class docblock.'
-        );
+        return $this->client->getProducts($since);
     }
 
     /**
@@ -154,13 +151,19 @@ class IdeasoftAdapter implements InventorySyncAdapter, MarketplaceAdapter, Produ
      */
     public function normalizeProductData(array $rawProduct): array
     {
+        // Field names follow Ideasoft's Admin API conventions (camelCase; stockAmount, price1,
+        // currency.abbr) with fallbacks to the generic names, because no real payload has been
+        // captured yet. Confirm with `marketplace:ideasoft-probe` and adjust the data_get() paths.
         return [
-            'external_id' => data_get($rawProduct, 'id'),
-            'external_updated_at' => $this->parseDate(data_get($rawProduct, 'updatedAt')),
-            'name' => data_get($rawProduct, 'name'),
-            'sku' => data_get($rawProduct, 'sku'),
-            'price' => (float) data_get($rawProduct, 'price', 0),
-            'quantity_in_inventory' => (int) data_get($rawProduct, 'stock', 0),
+            'external_id' => (string) data_get($rawProduct, 'id'),
+            'external_updated_at' => $this->parseDate(data_get($rawProduct, 'updatedAt') ?? data_get($rawProduct, 'updated_at')),
+            'name' => data_get($rawProduct, 'fullName') ?? data_get($rawProduct, 'name'),
+            'sku' => data_get($rawProduct, 'sku') ?? data_get($rawProduct, 'barcode'),
+            'barcode' => data_get($rawProduct, 'barcode'),
+            'price' => (float) (data_get($rawProduct, 'price1') ?? data_get($rawProduct, 'price', 0)),
+            'currency' => data_get($rawProduct, 'currency.abbr') ?? data_get($rawProduct, 'currency'),
+            'quantity_in_inventory' => (int) (data_get($rawProduct, 'stockAmount') ?? data_get($rawProduct, 'stock', 0)),
+            'is_active' => (bool) (data_get($rawProduct, 'status', 1)),
             'raw' => $rawProduct,
         ];
     }
@@ -200,10 +203,27 @@ class IdeasoftAdapter implements InventorySyncAdapter, MarketplaceAdapter, Produ
      */
     public function fetchInventoryLevels(Carbon $since): array
     {
-        throw new \LogicException(
-            'Ideasoft inventory fetch is not implemented yet: the exact endpoint path is unconfirmed. '
-            .'See IdeasoftClient class docblock.'
-        );
+        // Ideasoft keeps stock on the product record, so inventory is derived from a full product
+        // walk. $since is deliberately not used to filter: like the Shopify reconciler, returning
+        // the full set lets the applier no-op on anything that already matches, and a stock change
+        // is not guaranteed to move updatedAt.
+        $levels = [];
+
+        foreach ($this->client->getProducts() as $rawProduct) {
+            $product = $this->normalizeProductData($rawProduct);
+
+            $levels[] = [
+                'external_inventory_item_id' => $product['external_id'],
+                'external_variant_id' => $product['external_id'],
+                'sku' => $product['sku'],
+                'available' => $product['quantity_in_inventory'],
+                'on_hand' => $product['quantity_in_inventory'],
+                'committed' => null,
+                'external_updated_at' => $product['external_updated_at'],
+            ];
+        }
+
+        return $levels;
     }
 
     public function pushInventoryLevel(ProductCatalogs $catalog, int $quantity, ?int $changeFrom = null, ?string $operationRef = null): bool
