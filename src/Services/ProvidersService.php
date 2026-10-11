@@ -3,6 +3,7 @@
 namespace NextDeveloper\Marketplace\Services;
 
 use NextDeveloper\Commons\Helpers\DatabaseHelper;
+use NextDeveloper\Marketplace\Database\Models\Providers;
 use NextDeveloper\Marketplace\Services\AbstractServices\AbstractProvidersService;
 
 /**
@@ -52,5 +53,20 @@ class ProvidersService extends AbstractProvidersService
         }
 
         return $data;
+    }
+
+    /**
+     * Added: stores the OAuth access token (encrypted by the model mutator) and the updated
+     * api_config (refresh token + expiry) on a provider. Used by the Ideasoft OAuth flow, which
+     * runs from an unauthenticated callback, so it writes by the already-resolved model instead
+     * of going through the AuthorizationScope-filtered update() lookup.
+     */
+    public static function storeOAuthTokens(Providers $provider, string $accessToken, array $apiConfig): Providers
+    {
+        $provider->access_token_enc = $accessToken;
+        $provider->api_config = $apiConfig;
+        $provider->save();
+
+        return $provider->fresh();
     }
 }

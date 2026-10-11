@@ -9,8 +9,8 @@ use NextDeveloper\Marketplace\Services\Marketplaces\ShopifyService;
 /**
  * Pulls Shopify orders into marketplace_orders and marketplace_order_items.
  *
- * One local order per Shopify order, unlike Trendyol's row-per-package model;
- * the upsert key is (marketplace_provider_id, external_order_id).
+ * One local order per Shopify order; the upsert key is
+ * (marketplace_provider_id, external_order_id).
  *
  * The shopper lands in customer_iam_user_id — never in iam_user_id, which is
  * the AuthorizationScope ownership column and must keep pointing at the

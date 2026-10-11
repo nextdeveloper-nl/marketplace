@@ -65,6 +65,7 @@ class Providers extends Model
         'adapter',
         'access_token_enc',
         'webhook_secret_enc',
+        'client_secret_enc',
     ];
 
     /**
@@ -235,6 +236,19 @@ class Providers extends Model
     }
 
     /**
+     * Encrypt an OAuth client secret on write (Ideasoft). Separate from
+     * access_token_enc: the client secret is a long-lived app credential
+     * used to obtain/refresh tokens, not the token itself. See
+     * setAccessTokenEncAttribute().
+     */
+    public function setClientSecretEncAttribute($value): void
+    {
+        $this->attributes['client_secret_enc'] = $value === null || $value === ''
+            ? null
+            : encrypt($value);
+    }
+
+    /**
      * Decrypted Shopify access token, or null when the shop is not connected.
      *
      * Returns null rather than throwing on a decrypt failure: an APP_KEY
@@ -252,6 +266,14 @@ class Providers extends Model
     public function getDecryptedWebhookSecret(): ?string
     {
         return $this->decryptColumn('webhook_secret_enc');
+    }
+
+    /**
+     * Decrypted OAuth client secret (Ideasoft), or null when not connected.
+     */
+    public function getDecryptedClientSecret(): ?string
+    {
+        return $this->decryptColumn('client_secret_enc');
     }
 
     /**

@@ -16,12 +16,12 @@ use NextDeveloper\Marketplace\Services\Marketplaces\Adapters\Shopify\ShopifyAdap
 /**
  * Orchestrates one Shopify shop connection.
  *
- * Mirrors TrendyolGoYemekService: constructed with a Providers row, owns the
- * adapter, and is the object the console command and the queue jobs talk to.
+ * Constructed with a Providers row, owns the adapter, and is the object the
+ * console command and the queue jobs talk to. IdeasoftService follows the
+ * same shape.
  *
- * What it adds over the Trendyol service is durable sync state. The existing
- * pull loop takes its cursor from a CLI flag defaulting to now(), so a missed
- * run silently drops that window. Here each entity's cursor lives in
+ * Sync state is durable: rather than a CLI flag defaulting to now() (which
+ * silently drops a window on a missed run), each entity's cursor lives in
  * marketplace_provider_sync_states and only advances on success.
  */
 class ShopifyService

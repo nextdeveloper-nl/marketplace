@@ -19,7 +19,7 @@ class MappingExternalProduct
      * Maps an external marketplace product to an internal product or product catalog.
      *
      * This method is used to associate a product received from a marketplace provider
-     * (such as Trendyol, Getir, etc.) with your internal system records. It first attempts
+     * (such as Shopify, Ideasoft, etc.) with your internal system records. It first attempts
      * to find a mapping using the external product ID and provider ID. If a mapping exists,
      * it returns either the internal product catalog entry or the main product, depending
      * on the flag provided.
@@ -31,7 +31,7 @@ class MappingExternalProduct
      * - Logs a warning if the main product is not found when requested.
      *
      * @param int $productCatalogId
-     * @param Providers $providers The ID of the marketplace provider (e.g., Trendyol, Yemeksepeti).
+     * @param Providers $providers The ID of the marketplace provider (e.g., Shopify, Ideasoft).
      * @param string $originalProductName The original name of the product as received from the marketplace.
      * @return ProductCatalogs|null Returns the
      *         matched ProductCatalog record by default. If `$returnMainProduct` is true,
@@ -84,7 +84,7 @@ class MappingExternalProduct
      * Maps an external marketplace product to an internal product.
      *
      * This method is used to associate a product received from a marketplace provider
-     * (such as Trendyol, Getir, etc.) with your internal system records. It first attempts
+     * (such as Shopify, Ideasoft, etc.) with your internal system records. It first attempts
      * to find a mapping using the external product ID and provider ID. If a mapping exists,
      * it returns the main internal product.
      *
@@ -94,7 +94,7 @@ class MappingExternalProduct
      * - Logs a warning if the related Product is not found.
      *
      * @param int $productId
-     * @param Providers $providers The ID of the marketplace provider (e.g., Trendyol, Yemeksepeti).
+     * @param Providers $providers The ID of the marketplace provider (e.g., Shopify, Ideasoft).
      * @param string $originalProductName The original name of the product as received from the marketplace.
      *
      * @return Products|null Returns the main internal Product record or null if mapping fails.

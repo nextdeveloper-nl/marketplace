@@ -56,10 +56,16 @@ class PushShopifyInventoryJob implements ShouldQueue
     public array $report = [];
 
     /**
-     * @param  int|null  $onlyProductId  Restrict the run to one product's variants.
+     * Declared (not constructor-promoted) so unserialize() falls back to this
+     * default when a job queued before this property existed lacks it in its
+     * payload — a promoted-only default does not survive that path and left
+     * the typed property uninitialized, crashing handle() on access.
      */
-    public function __construct(public int $providerId, public bool $dryRun = false, public ?int $onlyProductId = null)
+    public ?int $onlyProductId = null;
+
+    public function __construct(public int $providerId, public bool $dryRun = false, ?int $onlyProductId = null)
     {
+        $this->onlyProductId = $onlyProductId;
         $this->onQueue(self::QUEUE_NAME);
     }
 

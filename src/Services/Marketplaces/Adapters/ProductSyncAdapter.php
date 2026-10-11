@@ -10,8 +10,8 @@ use NextDeveloper\Marketplace\Database\Models\Products;
  * Capability interface for marketplaces that can synchronise a product catalogue.
  *
  * Deliberately kept separate from MarketplaceAdapter: the original contract is
- * orders-only and TrendyolGoYemekAdapter implements just that. Adapters declare
- * the capabilities they actually have and callers gate on `instanceof`.
+ * orders-only, and not every adapter can write a catalogue back. Adapters
+ * declare the capabilities they actually have and callers gate on `instanceof`.
  */
 interface ProductSyncAdapter
 {

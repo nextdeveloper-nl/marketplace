@@ -28,8 +28,8 @@ class MarketplaceAdapterFactory
      * @var array<string, class-string>
      */
     private static array $registry = [
-        'trendyolgoyemek' => TrendyolGoYemekService::class,
         'shopify' => ShopifyService::class,
+        'ideasoft' => IdeasoftService::class,
     ];
 
     /**
