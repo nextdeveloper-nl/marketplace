@@ -64,9 +64,15 @@ class ProvidersService extends AbstractProvidersService
      */
     public static function storeOAuthTokens(Providers $provider, string $accessToken, array $apiConfig): Providers
     {
-        $provider->access_token_enc = $accessToken;
-        $provider->api_config = $apiConfig;
-        $provider->save();
+        // The OAuth callback is unauthenticated (Ideasoft redirects the browser), so the observer's
+        // role check on save() has no user and refused the write. Authorization already happened
+        // when the logged-in user started the flow through connect() (the one-time state maps back
+        // to a provider they could access), so the role check is bypassed for this write only.
+        \NextDeveloper\IAM\Helpers\UserHelper::withRolesCheckBypassed(function () use ($provider, $accessToken, $apiConfig) {
+            $provider->access_token_enc = $accessToken;
+            $provider->api_config = $apiConfig;
+            $provider->save();
+        });
 
         // Drop the cached transformed provider (keyed by UUID) so the API reflects the new state.
         CacheHelper::deleteKeys('Providers', $provider->uuid);
