@@ -231,11 +231,24 @@ class IdeasoftOAuthService
 
     /**
      * Must match, character for character, the redirect URI registered in the Ideasoft app.
+     *
+     * Resolution order: per-provider api_config.oauth_redirect_uri, then the
+     * IDEASOFT_REDIRECT_URI env (config marketplace.ideasoft_redirect_uri), then the URL of the
+     * current request. config('app.url') is deliberately not used: it is not reliably a full
+     * public URL (it can be a bare host or an internal name), which produced a wrong redirect_uri.
      */
     private function redirectUri(array $config): string
     {
-        return $config['oauth_redirect_uri']
-            ?? rtrim((string) config('app.url'), '/').'/public/marketplace/ideasoft/callback';
+        $uri = $config['oauth_redirect_uri']
+            ?? config('marketplace.ideasoft_redirect_uri')
+            ?? url('/public/marketplace/ideasoft/callback');
+
+        // Behind a TLS-terminating proxy the request can look like http; Ideasoft apps use https.
+        if (str_starts_with($uri, 'http://') && ! str_contains($uri, 'localhost')) {
+            $uri = 'https://'.substr($uri, 7);
+        }
+
+        return $uri;
     }
 
     private function storeDomain(array $config): string

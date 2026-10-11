@@ -7,6 +7,8 @@ return [
             '\NextDeveloper\Commons\Database\GlobalScopes\LimitScope',
         ]
     ],
+    // Exact redirect URI registered in the Ideasoft app; falls back to the request URL when unset.
+    'ideasoft_redirect_uri' => env('IDEASOFT_REDIRECT_URI'),
     'schedule' => [
         'enabled' => env('MARKETPLACE_SCHEDULE_ENABLED', false),
         'cron' => env('MARKETPLACE_SCHEDULE_CRON', '*/30 * * * * *'),
