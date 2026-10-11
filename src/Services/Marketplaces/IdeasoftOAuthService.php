@@ -148,6 +148,18 @@ class IdeasoftOAuthService
     {
         $config = $this->provider->getApiConfigArray();
 
+        // Added: fail early and clearly when the secret is missing (e.g. blanked by a later edit),
+        // instead of sending an empty secret and getting a generic invalid_client back.
+        if ((string) $this->provider->getDecryptedClientSecret() === '') {
+            Log::error(__METHOD__.' - Ideasoft provider has no client secret stored', [
+                'provider_id' => $this->provider->id,
+            ]);
+
+            throw new NotAllowedException(
+                'Ideasoft provider '.$this->provider->uuid.' has no client secret. Save the client secret and connect again.'
+            );
+        }
+
         $response = Http::asForm()
             ->acceptJson()
             ->timeout(30)
