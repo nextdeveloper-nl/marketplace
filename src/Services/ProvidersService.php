@@ -2,6 +2,7 @@
 
 namespace NextDeveloper\Marketplace\Services;
 
+use NextDeveloper\Commons\Common\Cache\CacheHelper;
 use NextDeveloper\Commons\Helpers\DatabaseHelper;
 use NextDeveloper\Marketplace\Database\Models\Providers;
 use NextDeveloper\Marketplace\Services\AbstractServices\AbstractProvidersService;
@@ -66,6 +67,9 @@ class ProvidersService extends AbstractProvidersService
         $provider->access_token_enc = $accessToken;
         $provider->api_config = $apiConfig;
         $provider->save();
+
+        // Drop the cached transformed provider (keyed by UUID) so the API reflects the new state.
+        CacheHelper::deleteKeys('Providers', $provider->uuid);
 
         return $provider->fresh();
     }

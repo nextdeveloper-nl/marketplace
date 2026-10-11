@@ -27,16 +27,19 @@ class ProvidersTransformer extends AbstractProvidersTransformer
             CacheHelper::getKey('Providers', $model->uuid, 'Transformed')
         );
 
-        if($transformed) {
-            return $transformed;
+        if(!$transformed) {
+            $transformed = parent::transform($model);
+
+            Cache::set(
+                CacheHelper::getKey('Providers', $model->uuid, 'Transformed'),
+                $transformed
+            );
         }
 
-        $transformed = parent::transform($model);
-
-        Cache::set(
-            CacheHelper::getKey('Providers', $model->uuid, 'Transformed'),
-            $transformed
-        );
+        // Added: is_connected tells the panel whether an access token is stored (never the token
+        // itself). Computed on every call, outside the cache, so it cannot go stale after the
+        // OAuth callback stores a token.
+        $transformed['is_connected'] = $model->getDecryptedAccessToken() !== null;
 
         return $transformed;
     }
