@@ -48,7 +48,10 @@ class PushShopifyFulfillmentJob implements ShouldQueue
     /** @var array<string, mixed> */
     public array $report = [];
 
-    public function __construct(public int $providerId, public bool $dryRun = false) {}
+    public function __construct(public int $providerId, public bool $dryRun = false)
+    {
+        $this->onQueue(self::QUEUE_NAME);
+    }
 
     public function handle(): void
     {

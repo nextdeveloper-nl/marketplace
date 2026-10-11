@@ -214,6 +214,22 @@ class ShopifyApplyService
         ];
 
         /*
+         * applyVariant rewrites args wholesale, so anything the inventory path
+         * records there has to be carried across explicitly — otherwise a
+         * product sync silently erases the marker and stock edits start losing
+         * again, which is exactly how pushed_price was lost before it.
+         */
+        $syncedQuantity = data_get($catalog->args, 'shopify.synced_quantity');
+
+        if ($syncedQuantity !== null) {
+            $attributes['args']['shopify']['synced_quantity'] = (int) $syncedQuantity;
+        }
+
+        if ($isNew) {
+            $attributes['args']['shopify']['synced_quantity'] = (int) $variant['quantity_in_inventory'];
+        }
+
+        /*
          * Stock is seeded on create only. variant.inventoryQuantity is the sum
          * across every location, while a connection is pinned to one, so on a
          * multi-location product the two disagree by design. Re-applying it on
@@ -282,16 +298,39 @@ class ShopifyApplyService
         $available = (int) $level['available'];
 
         if ((int) $catalog->quantity_in_inventory === $available) {
+            /*
+             * Both sides already hold this number, so record that agreement
+             * even though nothing changed. Without this a row that has simply
+             * never differed carries no marker, and the authority rule falls
+             * back to comparing second-granular timestamps — which is the
+             * ambiguity the marker exists to remove.
+             */
+            if (! $dryRun && data_get($catalog->args, 'shopify.synced_quantity') !== $available) {
+                self::stampArgs($catalog, self::withSyncedQuantity($catalog->args, $available));
+            }
+
             return self::UNCHANGED;
         }
 
         /*
-         * Ordering guard: a level older than the one already applied is stale
-         * by definition and must never overwrite it.
+         * There is deliberately no ordering guard here, unlike products and
+         * orders.
+         *
+         * It used to reject a level whose updatedAt was not beyond the one we
+         * had already applied. That protects against an out-of-order *payload*,
+         * and inventory never applies one: the scheduled pull reads every level
+         * as it stands now, and the webhook processor re-fetches the item by id
+         * rather than trusting the delivered body. Both therefore carry current
+         * truth, never a replay.
+         *
+         * Meanwhile inventoryLevel.updatedAt does not reliably move when the
+         * quantity does (measured against the dev store), so the guard was
+         * discarding genuine changes as "stale" and the stock stayed wrong
+         * until somebody edited it again. A guard against an impossible failure
+         * that causes a real one is worse than no guard.
+         *
+         * Conflicts are still resolved, by the authority rule below.
          */
-        if ($this->isStale($mapping->external_updated_at, $level['external_updated_at'])) {
-            return self::STALE_REMOTE;
-        }
 
         /*
          * leo is the inventory authority, so a genuine local edit newer than the
@@ -304,14 +343,9 @@ class ShopifyApplyService
          * immediately after each of our writes, so an updated_at beyond it is
          * somebody else's edit.
          */
-        $localEditedAt = $catalog->updated_at ? Carbon::parse($catalog->updated_at) : null;
-        $lastSyncedAt = $mapping->last_synced_at ? Carbon::parse($mapping->last_synced_at) : null;
+        $isLocalEdit = $this->isLocallyEdited($catalog, $mapping);
 
-        $isLocalEdit = $localEditedAt !== null
-            && ($lastSyncedAt === null || $localEditedAt->greaterThan($lastSyncedAt));
-
-        if ($isLocalEdit && $level['external_updated_at']
-            && $localEditedAt->greaterThan($level['external_updated_at'])) {
+        if ($isLocalEdit) {
             return self::LOCAL_NEWER;
         }
 
@@ -319,7 +353,10 @@ class ShopifyApplyService
             return self::APPLIED;
         }
 
-        $catalog->updateQuietly(['quantity_in_inventory' => $available]);
+        $catalog->updateQuietly([
+            'quantity_in_inventory' => $available,
+            'args' => self::withSyncedQuantity($catalog->args, $available),
+        ]);
 
         $mapping->external_inventory_item_id = $mapping->external_inventory_item_id
             ?: $level['external_inventory_item_id'];
@@ -328,6 +365,67 @@ class ShopifyApplyService
         $mapping->saveQuietly();
 
         return self::APPLIED;
+    }
+
+    /**
+     * Has a person changed this stock level here since we last agreed with
+     * Shopify about it?
+     *
+     * Timestamps cannot answer this. catalogs.updated_at and
+     * mapping.last_synced_at are second-granular, and our own inbound write
+     * moves both, so an edit landing in the same second as a sync is
+     * indistinguishable from the sync itself — the edit then loses and is
+     * quietly overwritten on the next pull. That is the shape of "my stock
+     * change did not reach Shopify".
+     *
+     * So the quantity we last agreed on is recorded on the row and compared
+     * exactly. No clock, no granularity, no ambiguity. The timestamp test
+     * remains only as a fallback for rows written before the marker existed.
+     */
+    private function isLocallyEdited(ProductCatalogs $catalog, ProductCatalogMappings $mapping): bool
+    {
+        $synced = data_get($catalog->args, 'shopify.synced_quantity');
+
+        if ($synced !== null) {
+            return (int) $catalog->quantity_in_inventory !== (int) $synced;
+        }
+
+        $localEditedAt = $catalog->updated_at ? Carbon::parse($catalog->updated_at) : null;
+        $lastSyncedAt = $mapping->last_synced_at ? Carbon::parse($mapping->last_synced_at) : null;
+
+        return $localEditedAt !== null
+            && ($lastSyncedAt === null || $localEditedAt->greaterThan($lastSyncedAt));
+    }
+
+    /**
+     * Stamp the quantity both sides now agree on, preserving the rest of args.
+     *
+     * @param  mixed  $args
+     * @return array<string, mixed>
+     */
+    public static function withSyncedQuantity($args, int $quantity): array
+    {
+        $args = is_array($args) ? $args : [];
+        $args['shopify']['synced_quantity'] = $quantity;
+
+        return $args;
+    }
+
+    /**
+     * Write sync bookkeeping into args WITHOUT moving updated_at.
+     *
+     * updated_at on a catalogue row means "a person changed this here", and the
+     * catalogue push sweep reads it that way when deciding what to send. A
+     * marker recording what we already agreed with Shopify is the opposite of a
+     * human edit, so bumping the timestamp for it makes every reconciled row
+     * look edited — enough of them at once that the sweep's change-ratio rail
+     * aborts the run, which is how this was caught.
+     */
+    public static function stampArgs(ProductCatalogs $catalog, array $args): void
+    {
+        $catalog->timestamps = false;
+        $catalog->updateQuietly(['args' => $args]);
+        $catalog->timestamps = true;
     }
 
     // -------------------------------------------------------------------------
