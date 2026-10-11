@@ -142,10 +142,54 @@ class IdeasoftAdapter implements InventorySyncAdapter, MarketplaceAdapter, Produ
      */
     public function fetchProducts(Carbon $since): array
     {
-        throw new \LogicException(
-            'Ideasoft product fetch is not implemented yet: the exact endpoint path is unconfirmed. '
-            .'See IdeasoftClient class docblock.'
-        );
+        $groups = $this->groupVariants($this->client->getProducts());
+
+        // Ideasoft cannot filter by date server-side (checked: an updatedAt filter is ignored), so
+        // the delta is applied here. A group is kept when the parent OR any variant changed, so a
+        // stock change on one variant still refreshes the whole product.
+        return array_values(array_filter($groups, function (array $group) use ($since) {
+            foreach ([$group, ...($group['_variants'] ?? [])] as $record) {
+                $updated = $this->parseDate(data_get($record, 'updatedAt'));
+
+                if ($updated === null || $updated->greaterThanOrEqualTo($since)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }));
+    }
+
+    /**
+     * Ideasoft stores a variant as its own product record with `parent` set to the main product
+     * (confirmed on a live store: variants 142 and 143 have parent 138), and the parent's
+     * stockAmount is the SUM of its variants. Group the flat list so each main product carries its
+     * variants under `_variants`, and a variant never shows up as a product of its own.
+     *
+     * @param  array<int, array<string, mixed>>  $flat
+     * @return array<int, array<string, mixed>>
+     */
+    private function groupVariants(array $flat): array
+    {
+        $children = [];
+        $parents = [];
+
+        foreach ($flat as $record) {
+            $parentId = data_get($record, 'parent.id');
+
+            if ($parentId !== null) {
+                $children[(string) $parentId][] = $record;
+            } else {
+                $parents[] = $record;
+            }
+        }
+
+        foreach ($parents as &$parent) {
+            $parent['_variants'] = $children[(string) data_get($parent, 'id')] ?? [];
+        }
+        unset($parent);
+
+        return $parents;
     }
 
     /**
@@ -154,15 +198,123 @@ class IdeasoftAdapter implements InventorySyncAdapter, MarketplaceAdapter, Produ
      */
     public function normalizeProductData(array $rawProduct): array
     {
+        // Mapping verified against a live store payload (GET /admin-api/products): id (int),
+        // name/fullName, sku, barcode (nullable), stockAmount (float), price1, currency.abbr,
+        // status (1/0), updatedAt (ISO 8601), images[].originalUrl (protocol-relative "//host/..."),
+        // parent (set on variants only).
+        $variants = [];
+
+        foreach ($rawProduct['_variants'] ?? [] as $variant) {
+            $variants[] = [
+                'external_id' => (string) data_get($variant, 'id'),
+                'name' => data_get($variant, 'name'),
+                'sku' => data_get($variant, 'sku'),
+                'barcode' => data_get($variant, 'barcode'),
+                'price' => (float) data_get($variant, 'price1', 0),
+                'quantity_in_inventory' => $this->stock(data_get($variant, 'stockAmount')),
+                'external_updated_at' => $this->parseDate(data_get($variant, 'updatedAt')),
+            ];
+        }
+
+        // A product without variants is still sold as one unit; model it as a single variant keyed
+        // by the product id so downstream code (catalogs, inventory) has one shape to handle.
+        if ($variants === []) {
+            $variants[] = [
+                'external_id' => (string) data_get($rawProduct, 'id'),
+                'name' => null,
+                'sku' => data_get($rawProduct, 'sku'),
+                'barcode' => data_get($rawProduct, 'barcode'),
+                'price' => (float) data_get($rawProduct, 'price1', 0),
+                'quantity_in_inventory' => $this->stock(data_get($rawProduct, 'stockAmount')),
+                'external_updated_at' => $this->parseDate(data_get($rawProduct, 'updatedAt')),
+            ];
+        }
+
+        // Echo-loop / change fingerprint per variant, mirroring ShopifyAdapter::fingerprint().
+        foreach ($variants as &$variant) {
+            $variant['sync_hash'] = $this->fingerprint(array_diff_key($variant, ['external_updated_at' => 1]));
+        }
+        unset($variant);
+
+        $images = [];
+
+        foreach (data_get($rawProduct, 'images', []) as $image) {
+            $url = data_get($image, 'originalUrl');
+
+            if ($url) {
+                // Ideasoft returns protocol-relative URLs.
+                $images[] = ['url' => str_starts_with($url, '//') ? 'https:'.$url : $url, 'alt' => data_get($image, 'alt') ?: null];
+            }
+        }
+
+        // With variants, the variants hold the real stock; the parent's stockAmount is their sum,
+        // so summing the variants (not adding the parent on top) avoids counting stock twice.
+        $quantity = $variants !== []
+            ? array_sum(array_column($variants, 'quantity_in_inventory'))
+            : $this->stock(data_get($rawProduct, 'stockAmount'));
+
         return [
-            'external_id' => data_get($rawProduct, 'id'),
+            'external_id' => (string) data_get($rawProduct, 'id'),
             'external_updated_at' => $this->parseDate(data_get($rawProduct, 'updatedAt')),
-            'name' => data_get($rawProduct, 'name'),
+            'name' => data_get($rawProduct, 'fullName') ?? data_get($rawProduct, 'name'),
             'sku' => data_get($rawProduct, 'sku'),
-            'price' => (float) data_get($rawProduct, 'price', 0),
-            'quantity_in_inventory' => (int) data_get($rawProduct, 'stock', 0),
+            'barcode' => data_get($rawProduct, 'barcode'),
+            'description' => data_get($rawProduct, 'detail.details'),
+            'brand' => data_get($rawProduct, 'brand.name'),
+            'categories' => array_values(array_filter(array_map(
+                fn ($c) => data_get($c, 'tree') ?? data_get($c, 'name'),
+                data_get($rawProduct, 'categories', [])
+            ))),
+            'price' => (float) data_get($rawProduct, 'price1', 0),
+            'currency' => data_get($rawProduct, 'currency.abbr'),
+            'quantity_in_inventory' => $quantity,
+            'is_active' => (int) data_get($rawProduct, 'status', 1) === 1,
+            'images' => $images,
+            'variants' => $variants,
+            'sync_hash' => $this->fingerprint([
+                'name' => data_get($rawProduct, 'fullName') ?? data_get($rawProduct, 'name'),
+                'description' => data_get($rawProduct, 'detail.details'),
+                'status' => data_get($rawProduct, 'status'),
+                'brand' => data_get($rawProduct, 'brand.name'),
+                'categories' => data_get($rawProduct, 'categories'),
+                'images' => $images,
+                'variants' => array_column($variants, 'sync_hash'),
+            ]),
             'raw' => $rawProduct,
         ];
+    }
+
+    /**
+     * Stable fingerprint of a payload: key order is ignored so reordering is not read as a change.
+     *
+     * @param  array<mixed>  $payload
+     */
+    private function fingerprint(array $payload): string
+    {
+        $sort = function (array $value) use (&$sort): array {
+            foreach ($value as $k => $v) {
+                if (is_array($v)) {
+                    $value[$k] = $sort($v);
+                }
+            }
+
+            if (! array_is_list($value)) {
+                ksort($value);
+            }
+
+            return $value;
+        };
+
+        return hash('sha256', json_encode($sort($payload), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '');
+    }
+
+    /**
+     * Ideasoft reports stock as a float (e.g. 15.0). Whole units only here; a fractional stock
+     * (weight-based items) is rounded down.
+     */
+    private function stock(mixed $value): int
+    {
+        return (int) floor((float) $value);
     }
 
     /**
@@ -200,10 +352,32 @@ class IdeasoftAdapter implements InventorySyncAdapter, MarketplaceAdapter, Produ
      */
     public function fetchInventoryLevels(Carbon $since): array
     {
-        throw new \LogicException(
-            'Ideasoft inventory fetch is not implemented yet: the exact endpoint path is unconfirmed. '
-            .'See IdeasoftClient class docblock.'
-        );
+        // Ideasoft keeps stock on the product record, so inventory is derived from a full product
+        // walk. $since is deliberately not used to filter: like the Shopify reconciler, returning
+        // the full set lets the applier no-op on anything that already matches, and a stock change
+        // is not guaranteed to move updatedAt.
+        $levels = [];
+
+        foreach ($this->groupVariants($this->client->getProducts()) as $group) {
+            // One level per sellable unit: each variant when there are variants (the parent's
+            // stockAmount is their sum, so it is skipped), otherwise the product itself.
+            $units = $group['_variants'] !== [] ? $group['_variants'] : [$group];
+
+            foreach ($units as $unit) {
+                $levels[] = [
+                    'external_inventory_item_id' => (string) data_get($unit, 'id'),
+                    'external_variant_id' => (string) data_get($unit, 'id'),
+                    'external_product_id' => (string) data_get($group, 'id'),
+                    'sku' => data_get($unit, 'sku'),
+                    'available' => $this->stock(data_get($unit, 'stockAmount')),
+                    'on_hand' => $this->stock(data_get($unit, 'stockAmount')),
+                    'committed' => null,
+                    'external_updated_at' => $this->parseDate(data_get($unit, 'updatedAt')),
+                ];
+            }
+        }
+
+        return $levels;
     }
 
     public function pushInventoryLevel(ProductCatalogs $catalog, int $quantity, ?int $changeFrom = null, ?string $operationRef = null): bool

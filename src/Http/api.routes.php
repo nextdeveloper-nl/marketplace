@@ -122,6 +122,8 @@ Route::prefix('marketplace')->group(
 
                 Route::post('/', 'Providers\ProvidersController@store');
                 Route::post('/{marketplace_providers}/do/{action}', 'Providers\ProvidersController@doAction');
+                // Queues an Ideasoft sync (products/inventory) for the provider on demand.
+                Route::post('/{marketplace_providers}/sync', 'Providers\ProvidersController@sync');
 
                 Route::patch('/{marketplace_providers}', 'Providers\ProvidersController@update');
                 Route::delete('/{marketplace_providers}', 'Providers\ProvidersController@destroy');

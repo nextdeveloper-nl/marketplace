@@ -150,6 +150,130 @@ class IdeasoftClient
     }
 
     /**
+     * GET a path from the Ideasoft Admin API as JSON.
+     *
+     * If Ideasoft answers 401 (token revoked or expired earlier than expires_in said), the stored
+     * refresh token is used once and the request is retried before giving up.
+     *
+     * @param  array<string, mixed>  $query
+     * @return array<mixed>
+     */
+    private function get(string $path, array $query = []): array
+    {
+        $response = $this->http()->get($path, $query);
+
+        if ($response->status() === 401) {
+            $oauth = new IdeasoftOAuthService($this->provider);
+
+            if ($oauth->hasRefreshToken()) {
+                $this->provider = $oauth->refreshAccessToken();
+                $response = $this->http()->get($path, $query);
+            }
+        }
+
+        if (! $response->successful()) {
+            $this->logApiError('Ideasoft GET failed', [
+                'path' => $path,
+                'status' => $response->status(),
+                'response_body' => mb_substr((string) $response->body(), 0, 500),
+            ]);
+
+            throw new \RuntimeException('Ideasoft GET '.$path.' failed with HTTP '.$response->status().'.');
+        }
+
+        return (array) $response->json();
+    }
+
+    /**
+     * Fetch every product, page by page, optionally only those changed at or after $since.
+     *
+     * Confirmed against a live store: GET /admin-api/products returns a bare JSON list, accepts
+     * `page` and `limit` (limit must be <= 100, larger values answer 400), and returns an empty
+     * list past the last page. An updatedAt filter is ignored by the server, so $since is applied
+     * here on the client side. The envelope is still read defensively in case it changes.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function getProducts(?\Illuminate\Support\Carbon $since = null): array
+    {
+        $limit = 100;
+        $maxPages = 500; // hard stop: 50,000 products, protects against a paging loop
+        $products = [];
+        $seen = [];
+
+        for ($page = 1; $page <= $maxPages; $page++) {
+            $items = $this->extractList($this->get('/admin-api/products', ['page' => $page, 'limit' => $limit]));
+
+            if ($items === []) {
+                break;
+            }
+
+            // Guard against an API that ignores `page` and returns the same page forever.
+            $firstId = (string) ($items[0]['id'] ?? '');
+            if ($firstId !== '' && isset($seen[$firstId])) {
+                break;
+            }
+            $seen[$firstId] = true;
+
+            foreach ($items as $item) {
+                if ($since !== null && ! $this->changedSince($item, $since)) {
+                    continue;
+                }
+
+                $products[] = $item;
+            }
+
+            if (count($items) < $limit) {
+                break;
+            }
+        }
+
+        return $products;
+    }
+
+    /**
+     * Pull the list of records out of whatever envelope the API used.
+     *
+     * @param  array<mixed>  $body
+     * @return array<int, array<string, mixed>>
+     */
+    private function extractList(array $body): array
+    {
+        if (array_is_list($body)) {
+            return $body;
+        }
+
+        foreach (['data', 'items', 'hydra:member', 'results'] as $key) {
+            if (isset($body[$key]) && is_array($body[$key])) {
+                return array_values($body[$key]);
+            }
+        }
+
+        return [];
+    }
+
+    /**
+     * Whether a record was updated at or after $since. Records with no usable timestamp are kept,
+     * because dropping them would hide products that cannot be filtered.
+     *
+     * @param  array<string, mixed>  $item
+     */
+    private function changedSince(array $item, \Illuminate\Support\Carbon $since): bool
+    {
+        $raw = $item['updatedAt'] ?? $item['updated_at'] ?? null;
+
+        if (! is_string($raw) || $raw === '') {
+            return true;
+        }
+
+        try {
+            return \Illuminate\Support\Carbon::parse($raw)->greaterThanOrEqualTo($since);
+        } catch (\Throwable) {
+            return true;
+        }
+    }
+
+    /**
      * Push a product to Ideasoft, creating or updating it.
      *
      * Path/payload unconfirmed — see class docblock.

@@ -79,4 +79,61 @@ class ProvidersService extends AbstractProvidersService
 
         return $provider->fresh();
     }
+
+    /**
+     * Added: queues an on-demand Ideasoft sync for one provider (the manual counterpart of the
+     * scheduled marketplace:sync-ideasoft run). Returns what was queued; the work itself runs on
+     * the marketplace-sync queue, and progress shows in provider-sync-states.
+     *
+     * @param  string  $ref     Provider uuid (public id)
+     * @param  string  $entity  products | inventory | all
+     * @param  bool    $full    Ignore the cursor and pull everything
+     * @return array<string, mixed>
+     */
+    public static function syncNow(string $ref, string $entity = 'all', bool $full = false): array
+    {
+        // Looked up through the scoped model, so users can only sync providers they can see.
+        $provider = self::getByRef($ref);
+
+        if (! $provider || strtolower(trim((string) $provider->adapter)) !== 'ideasoft') {
+            throw new \NextDeveloper\Commons\Exceptions\NotFoundException('Ideasoft provider not found.');
+        }
+
+        if (! \NextDeveloper\IAM\Helpers\UserHelper::can('update', $provider)) {
+            throw new \NextDeveloper\Commons\Exceptions\NotAllowedException('You are not allowed to sync this provider.');
+        }
+
+        if (! $provider->is_active) {
+            throw new \NextDeveloper\Commons\Exceptions\NotAllowedException('This provider is paused. Activate it before syncing.');
+        }
+
+        if ((string) $provider->getDecryptedAccessToken() === '') {
+            throw new \NextDeveloper\Commons\Exceptions\NotAllowedException('This store is not connected yet. Connect Ideasoft first.');
+        }
+
+        $jobs = \NextDeveloper\Marketplace\Console\Commands\SyncIdeasoftCommand::ENTITY_JOBS;
+        $entity = strtolower($entity);
+
+        if ($entity !== 'all' && ! array_key_exists($entity, $jobs)) {
+            throw new \NextDeveloper\Commons\Exceptions\NotAllowedException('Unknown entity. Use products, inventory or all.');
+        }
+
+        // Debounce: a double click or a script loop must not stack full catalog walks.
+        if (! \Illuminate\Support\Facades\Cache::add('marketplace:ideasoft:sync-now:'.$provider->id, 1, 60)) {
+            throw new \NextDeveloper\Commons\Exceptions\NotAllowedException('A sync was triggered for this provider less than a minute ago.');
+        }
+
+        $entities = $entity === 'all' ? array_keys($jobs) : [$entity];
+
+        // Chained, so inventory never runs before products have created the catalogs it updates.
+        \Illuminate\Support\Facades\Bus::chain(
+            array_map(fn (string $e) => new $jobs[$e]($provider->id, false, $full), $entities)
+        )->dispatch();
+
+        return [
+            'provider_id' => $provider->uuid,
+            'queued' => $entities,
+            'full' => $full,
+        ];
+    }
 }
