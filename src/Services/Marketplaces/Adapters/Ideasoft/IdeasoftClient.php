@@ -187,10 +187,10 @@ class IdeasoftClient
     /**
      * Fetch every product, page by page, optionally only those changed at or after $since.
      *
-     * Endpoint /admin-api/products is confirmed to exist (answers 401 without a token). The paging
-     * parameters (page, limit) and the response envelope are not documented publicly, so the
-     * envelope is read defensively (bare list, or wrapped in data/items/hydra:member), and
-     * paging stops on an empty or short page. Use `marketplace:ideasoft-probe` to see a real payload.
+     * Confirmed against a live store: GET /admin-api/products returns a bare JSON list, accepts
+     * `page` and `limit` (limit must be <= 100, larger values answer 400), and returns an empty
+     * list past the last page. An updatedAt filter is ignored by the server, so $since is applied
+     * here on the client side. The envelope is still read defensively in case it changes.
      *
      * @return array<int, array<string, mixed>>
      */
