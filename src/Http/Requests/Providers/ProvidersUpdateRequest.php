@@ -21,6 +21,10 @@ class ProvidersUpdateRequest extends AbstractFormRequest
         'api_config' => 'nullable',
         'is_active' => 'boolean',
         'adapter' => 'nullable|string',
+        // See ProvidersCreateRequest for why these three are added by hand.
+        'access_token_enc' => 'nullable|string',
+        'webhook_secret_enc' => 'nullable|string',
+        'client_secret_enc' => 'nullable|string',
         ];
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE

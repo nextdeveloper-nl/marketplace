@@ -338,6 +338,27 @@ Route::prefix('marketplace')->group(
             }
         );
 
+        Route::prefix('provider-sync-states')->group(
+            function () {
+                Route::get('/', 'ProviderSyncStates\ProviderSyncStatesController@index');
+                Route::get('/actions', 'ProviderSyncStates\ProviderSyncStatesController@getActions');
+
+                Route::get('{marketplace_provider_sync_states}/tags ', 'ProviderSyncStates\ProviderSyncStatesController@tags');
+                Route::post('{marketplace_provider_sync_states}/tags ', 'ProviderSyncStates\ProviderSyncStatesController@saveTags');
+                Route::get('{marketplace_provider_sync_states}/addresses ', 'ProviderSyncStates\ProviderSyncStatesController@addresses');
+                Route::post('{marketplace_provider_sync_states}/addresses ', 'ProviderSyncStates\ProviderSyncStatesController@saveAddresses');
+
+                Route::get('/{marketplace_provider_sync_states}/{subObjects}', 'ProviderSyncStates\ProviderSyncStatesController@relatedObjects');
+                Route::get('/{marketplace_provider_sync_states}', 'ProviderSyncStates\ProviderSyncStatesController@show');
+
+                Route::post('/', 'ProviderSyncStates\ProviderSyncStatesController@store');
+                Route::post('/{marketplace_provider_sync_states}/do/{action}', 'ProviderSyncStates\ProviderSyncStatesController@doAction');
+
+                Route::patch('/{marketplace_provider_sync_states}', 'ProviderSyncStates\ProviderSyncStatesController@update');
+                Route::delete('/{marketplace_provider_sync_states}', 'ProviderSyncStates\ProviderSyncStatesController@destroy');
+            }
+        );
+
         // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
 
 

@@ -15,6 +15,9 @@ CREATE TABLE marketplace_providers (
     deleted_at             timestamp with time zone,
     api_config             json,
     is_active              boolean DEFAULT true,
-    adapter                text, -- The adapter used for the provider, e.g. "trendyol_go" for Trendyol Go, "yemeksepeti" for Yemeksepeti, etc.
+    adapter                text, -- Registered in MarketplaceAdapterFactory, e.g. "shopify", "ideasoft".
+    access_token_enc       text, -- Encrypted OAuth/API access token. Never returned by the API; write-only from clients.
+    webhook_secret_enc     text, -- Encrypted webhook signing secret. Never returned by the API; write-only from clients.
+    client_secret_enc      text, -- Encrypted OAuth client secret (Ideasoft). Never returned by the API; write-only from clients.
     CONSTRAINT marketplace_providers_pkey PRIMARY KEY (id)
 );

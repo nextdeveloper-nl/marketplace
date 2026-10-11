@@ -24,8 +24,7 @@ use NextDeveloper\Marketplace\Services\Marketplaces\Adapters\ProductSyncAdapter;
  *
  * Implements the original orders-only MarketplaceAdapter contract plus the four
  * capability interfaces, so callers can ask what this connection supports
- * instead of assuming. TrendyolGoYemekAdapter still implements only the base
- * contract and is unaffected.
+ * instead of assuming — not every adapter implements all four.
  *
  * The normalize* methods are pure: they take a raw Shopify payload and return
  * our shape, touching neither the database nor the network. That is what makes
