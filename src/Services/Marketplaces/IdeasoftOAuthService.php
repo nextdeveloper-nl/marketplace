@@ -160,30 +160,57 @@ class IdeasoftOAuthService
             );
         }
 
-        $response = Http::asForm()
-            ->acceptJson()
-            ->timeout(30)
-            ->post($this->tokenUrl($config), $params + [
-                'client_id' => trim((string) ($config['client_id'] ?? '')),
-                'client_secret' => (string) $this->provider->getDecryptedClientSecret(),
+        try {
+            $response = Http::asForm()
+                ->acceptJson()
+                ->timeout(30)
+                ->post($this->tokenUrl($config), $params + [
+                    'client_id' => trim((string) ($config['client_id'] ?? '')),
+                    'client_secret' => (string) $this->provider->getDecryptedClientSecret(),
+                ]);
+        } catch (\Throwable $e) {
+            // Network / DNS / TLS problem before Ideasoft answered.
+            Log::error(__METHOD__.' - Ideasoft token request could not be sent', [
+                'provider_id' => $this->provider->id,
+                'grant_type' => $params['grant_type'] ?? null,
+                'token_url' => $this->tokenUrl($config),
+                'exception' => get_class($e),
+                'error_message' => $e->getMessage(),
             ]);
+
+            throw $e;
+        }
 
         $body = $response->json();
 
         if (! $response->successful() || empty($body['access_token'])) {
-            // Never log the request (it carries the client secret) - only the status and error fields.
+            // Never log the request (it carries the client secret). The failed response body is
+            // safe to log: it holds Ideasoft's error, not tokens. Truncated to keep the log small.
+            // Note: the key is not named "message" because that collides with the log's own field.
             Log::error(__METHOD__.' - Ideasoft token request failed', [
                 'provider_id' => $this->provider->id,
                 'grant_type' => $params['grant_type'] ?? null,
+                'token_url' => $this->tokenUrl($config),
+                'redirect_uri' => $params['redirect_uri'] ?? null,
                 'status' => $response->status(),
                 'error' => $body['error'] ?? null,
                 'error_description' => $body['error_description'] ?? null,
+                'response_body' => mb_substr((string) $response->body(), 0, 500),
             ]);
 
             throw new NotAllowedException(
                 'Ideasoft rejected the token request ('.($body['error'] ?? 'HTTP '.$response->status()).').'
             );
         }
+
+        // Success trail without any token values.
+        Log::info(__METHOD__.' - Ideasoft token request succeeded', [
+            'provider_id' => $this->provider->id,
+            'grant_type' => $params['grant_type'] ?? null,
+            'expires_in' => $body['expires_in'] ?? null,
+            'scope' => $body['scope'] ?? null,
+            'has_refresh_token' => ! empty($body['refresh_token']),
+        ]);
 
         return $body;
     }
