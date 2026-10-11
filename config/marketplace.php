@@ -7,8 +7,9 @@ return [
             '\NextDeveloper\Commons\Database\GlobalScopes\LimitScope',
         ]
     ],
-    // Exact redirect URI registered in the Ideasoft app; falls back to the request URL when unset.
-    'ideasoft_redirect_uri' => env('IDEASOFT_REDIRECT_URI'),
+    // Exact redirect URI registered in the Ideasoft app. Defaults to the production API callback;
+    // override with IDEASOFT_REDIRECT_URI (e.g. http://localhost:8000/... for local testing).
+    'ideasoft_redirect_uri' => env('IDEASOFT_REDIRECT_URI', 'https://apiv4.plusclouds.com/public/marketplace/ideasoft/callback'),
     'schedule' => [
         'enabled' => env('MARKETPLACE_SCHEDULE_ENABLED', false),
         'cron' => env('MARKETPLACE_SCHEDULE_CRON', '*/30 * * * * *'),
