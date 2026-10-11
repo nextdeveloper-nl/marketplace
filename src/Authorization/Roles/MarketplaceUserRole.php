@@ -93,6 +93,8 @@ class MarketplaceUserRole extends AbstractRole implements IAuthorizationRole
             'marketplace_subscriptions:update',
             'marketplace_subscriptions:create',
             'marketplace_providers:read',
+            // Added: the panel lists provider sync states next to providers (was 403 for normal users).
+            'marketplace_provider_sync_states:read',
             'marketplace_producers:read',
             'marketplace_product_catalogs:read',
             'marketplace_orders:read',
