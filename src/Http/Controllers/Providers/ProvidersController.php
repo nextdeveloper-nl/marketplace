@@ -154,4 +154,25 @@ class ProvidersController extends AbstractController
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
 
+    /**
+     * Queues an Ideasoft sync for this provider. Body (all optional): entity = products|inventory|all
+     * (default all), full = true to ignore the cursor. The work is done by ProvidersService.
+     *
+     * @param  string  $ref
+     */
+    public function sync($ref, Request $request)
+    {
+        $validated = $request->validate([
+            'entity' => 'nullable|string|in:products,inventory,all',
+            'full' => 'nullable|boolean',
+        ]);
+
+        $result = ProvidersService::syncNow(
+            $ref,
+            $validated['entity'] ?? 'all',
+            (bool) ($validated['full'] ?? false)
+        );
+
+        return response()->json($result, 202);
+    }
 }

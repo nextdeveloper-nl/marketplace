@@ -44,6 +44,8 @@ class IdeasoftService
 
     private ?Markets $market = null;
 
+    private ?IdeasoftApplyService $applier = null;
+
     /**
      * @throws NotFoundException
      */
@@ -63,6 +65,15 @@ class IdeasoftService
     public function getAdapter(): IdeasoftAdapter
     {
         return $this->adapter;
+    }
+
+    /**
+     * Writes one normalized Ideasoft record into the local model graph. Shared by every sync job
+     * so they apply records by exactly the same rules.
+     */
+    public function applier(): IdeasoftApplyService
+    {
+        return $this->applier ??= new IdeasoftApplyService($this->provider, $this->market?->common_currency_id);
     }
 
     public function getMarket(): ?Markets

@@ -216,6 +216,26 @@ class IdeasoftAdapter implements InventorySyncAdapter, MarketplaceAdapter, Produ
             ];
         }
 
+        // A product without variants is still sold as one unit; model it as a single variant keyed
+        // by the product id so downstream code (catalogs, inventory) has one shape to handle.
+        if ($variants === []) {
+            $variants[] = [
+                'external_id' => (string) data_get($rawProduct, 'id'),
+                'name' => null,
+                'sku' => data_get($rawProduct, 'sku'),
+                'barcode' => data_get($rawProduct, 'barcode'),
+                'price' => (float) data_get($rawProduct, 'price1', 0),
+                'quantity_in_inventory' => $this->stock(data_get($rawProduct, 'stockAmount')),
+                'external_updated_at' => $this->parseDate(data_get($rawProduct, 'updatedAt')),
+            ];
+        }
+
+        // Echo-loop / change fingerprint per variant, mirroring ShopifyAdapter::fingerprint().
+        foreach ($variants as &$variant) {
+            $variant['sync_hash'] = $this->fingerprint(array_diff_key($variant, ['external_updated_at' => 1]));
+        }
+        unset($variant);
+
         $images = [];
 
         foreach (data_get($rawProduct, 'images', []) as $image) {
@@ -251,8 +271,41 @@ class IdeasoftAdapter implements InventorySyncAdapter, MarketplaceAdapter, Produ
             'is_active' => (int) data_get($rawProduct, 'status', 1) === 1,
             'images' => $images,
             'variants' => $variants,
+            'sync_hash' => $this->fingerprint([
+                'name' => data_get($rawProduct, 'fullName') ?? data_get($rawProduct, 'name'),
+                'description' => data_get($rawProduct, 'detail.details'),
+                'status' => data_get($rawProduct, 'status'),
+                'brand' => data_get($rawProduct, 'brand.name'),
+                'categories' => data_get($rawProduct, 'categories'),
+                'images' => $images,
+                'variants' => array_column($variants, 'sync_hash'),
+            ]),
             'raw' => $rawProduct,
         ];
+    }
+
+    /**
+     * Stable fingerprint of a payload: key order is ignored so reordering is not read as a change.
+     *
+     * @param  array<mixed>  $payload
+     */
+    private function fingerprint(array $payload): string
+    {
+        $sort = function (array $value) use (&$sort): array {
+            foreach ($value as $k => $v) {
+                if (is_array($v)) {
+                    $value[$k] = $sort($v);
+                }
+            }
+
+            if (! array_is_list($value)) {
+                ksort($value);
+            }
+
+            return $value;
+        };
+
+        return hash('sha256', json_encode($sort($payload), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '');
     }
 
     /**

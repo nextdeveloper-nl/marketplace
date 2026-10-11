@@ -10,6 +10,7 @@ use NextDeveloper\Marketplace\Console\Commands\FetchProviderOrdersCommand;
 use NextDeveloper\Marketplace\Console\Commands\IdeasoftProbeCommand;
 use NextDeveloper\Marketplace\Console\Commands\PushShopifyCommand;
 use NextDeveloper\Marketplace\Console\Commands\ShopifyStatusCommand;
+use NextDeveloper\Marketplace\Console\Commands\SyncIdeasoftCommand;
 use NextDeveloper\Marketplace\Console\Commands\ShopifyWebhooksCommand;
 use NextDeveloper\Marketplace\Console\Commands\SyncShopifyCommand;
 
@@ -123,6 +124,7 @@ class MarketplaceServiceProvider extends AbstractServiceProvider
                 ShopifyStatusCommand::class,
                 EbaySearchCommand::class,
                 IdeasoftProbeCommand::class,
+                SyncIdeasoftCommand::class,
             ]);
         }
     }
