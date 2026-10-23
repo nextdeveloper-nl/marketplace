@@ -39,9 +39,11 @@ class MarketplaceUserRole extends AbstractRole implements IAuthorizationRole
                 ->where('is_public', '=', 'true')
                 ->pluck('id');
 
+            //  Products are account-owned: every user in the account must see the products created by
+            //  their colleagues or by automated processes. So we only filter by account, not by user
+            //  (same as the catalogs/markets scopes and MarketplaceSuccessManagerRole).
             $builder->where([
-                'iam_account_id'    =>  UserHelper::currentAccount()->id,
-                'iam_user_id'       =>  UserHelper::me()->id
+                'iam_account_id'    =>  UserHelper::currentAccount()->id
             ])->orWhereIn('marketplace_market_id', $publicMarkets)
             ->where('is_active', true);
 
