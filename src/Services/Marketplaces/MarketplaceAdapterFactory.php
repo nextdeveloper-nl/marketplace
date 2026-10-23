@@ -30,6 +30,8 @@ class MarketplaceAdapterFactory
     private static array $registry = [
         'shopify' => ShopifyService::class,
         'ideasoft' => IdeasoftService::class,
+        // Seller-connected eBay account (Sell APIs). Not the Browse search, which needs no provider.
+        'ebay' => EbayService::class,
     ];
 
     /**
