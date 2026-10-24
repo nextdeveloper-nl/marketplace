@@ -38,9 +38,8 @@ class ProductsService extends AbstractProductsService
             throw new \NextDeveloper\Commons\Exceptions\NotFoundException('Product not found.');
         }
 
-        if (! \NextDeveloper\IAM\Helpers\UserHelper::can('update', $product)) {
-            throw new \NextDeveloper\Commons\Exceptions\NotAllowedException('You are not allowed to sync this product.');
-        }
+        // Added: the account-owner gate, not the generic update policy (see ExternalSyncGate).
+        \NextDeveloper\Marketplace\Services\Marketplaces\ExternalSyncGate::assertCanManage($product);
 
         return \NextDeveloper\Marketplace\Services\Marketplaces\EbayProductSyncService::forProduct($product, $providerRef)
             ->sync($dryRun, $prefer);
@@ -60,9 +59,8 @@ class ProductsService extends AbstractProductsService
             throw new \NextDeveloper\Commons\Exceptions\NotFoundException('Product not found.');
         }
 
-        if (! \NextDeveloper\IAM\Helpers\UserHelper::can('update', $product)) {
-            throw new \NextDeveloper\Commons\Exceptions\NotAllowedException('You are not allowed to link this product.');
-        }
+        // Added: the account-owner gate, not the generic update policy (see ExternalSyncGate).
+        \NextDeveloper\Marketplace\Services\Marketplaces\ExternalSyncGate::assertCanManage($product);
 
         return \NextDeveloper\Marketplace\Services\Marketplaces\EbayLinkService::forProduct($product, $options['provider_id'] ?? null)
             ->link($options);
@@ -83,9 +81,8 @@ class ProductsService extends AbstractProductsService
             throw new \NextDeveloper\Commons\Exceptions\NotFoundException('Product not found.');
         }
 
-        if (! \NextDeveloper\IAM\Helpers\UserHelper::can('update', $product)) {
-            throw new \NextDeveloper\Commons\Exceptions\NotAllowedException('You are not allowed to link this product.');
-        }
+        // Added: the account-owner gate, not the generic update policy (see ExternalSyncGate).
+        \NextDeveloper\Marketplace\Services\Marketplaces\ExternalSyncGate::assertCanManage($product);
 
         return \NextDeveloper\Marketplace\Services\Marketplaces\ShopifyLinkService::forProduct($product, $options['provider_id'] ?? null)
             ->link($options);
