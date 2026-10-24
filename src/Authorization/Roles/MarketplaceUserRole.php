@@ -12,6 +12,8 @@ use NextDeveloper\IAM\Database\Models\Users;
 use NextDeveloper\IAM\Database\Scopes\AuthorizationScope;
 use NextDeveloper\IAM\Helpers\UserHelper;
 use NextDeveloper\Marketplace\Database\Models\Markets;
+use NextDeveloper\Marketplace\Database\Models\Products;
+use NextDeveloper\Marketplace\Database\Models\ProductCatalogs;
 
 class MarketplaceUserRole extends AbstractRole implements IAuthorizationRole
 {
@@ -71,6 +73,31 @@ class MarketplaceUserRole extends AbstractRole implements IAuthorizationRole
             return;
         }
 
+        // Added: the mapping tables have no iam_account_id of their own. A user sees the mappings of the
+        // products (and catalog entries) of their own account, which is what the panel needs to decide
+        // between "Link to eBay" and "Sync with eBay" for a product.
+        if($model->getTable() == 'marketplace_product_mappings') {
+            $builder->whereIn(
+                'marketplace_product_id',
+                Products::withoutGlobalScope(AuthorizationScope::class)
+                    ->where('iam_account_id', UserHelper::currentAccount()->id)
+                    ->select('id')
+            );
+
+            return;
+        }
+
+        if($model->getTable() == 'marketplace_product_catalog_mappings') {
+            $builder->whereIn(
+                'marketplace_product_catalog_id',
+                ProductCatalogs::withoutGlobalScope(AuthorizationScope::class)
+                    ->where('iam_account_id', UserHelper::currentAccount()->id)
+                    ->select('id')
+            );
+
+            return;
+        }
+
         $builder->where('iam_account_id', '=', UserHelper::currentAccount()->id);
     }
 
@@ -97,6 +124,9 @@ class MarketplaceUserRole extends AbstractRole implements IAuthorizationRole
             'marketplace_providers:read',
             // Added: the panel lists provider sync states next to providers (was 403 for normal users).
             'marketplace_provider_sync_states:read',
+            // Added: read-only. Mappings are written by the sync and link services, never by users.
+            'marketplace_product_mappings:read',
+            'marketplace_product_catalog_mappings:read',
             'marketplace_producers:read',
             'marketplace_product_catalogs:read',
             'marketplace_orders:read',
