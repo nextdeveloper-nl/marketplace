@@ -163,7 +163,8 @@ class ProvidersController extends AbstractController
     public function sync($ref, Request $request)
     {
         $validated = $request->validate([
-            'entity' => 'nullable|string|in:products,inventory,all',
+            // Added: orders and customers are Shopify entities; syncNow rejects them for other adapters.
+            'entity' => 'nullable|string|in:products,inventory,orders,customers,all',
             'full' => 'nullable|boolean',
         ]);
 

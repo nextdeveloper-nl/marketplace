@@ -293,6 +293,19 @@ class ShopifyGraphQL
     GQL;
 
     /**
+     * Added: variants whose SKU matches, with their product. Used to link an existing local product
+     * to a product already on the shop. Shopify's sku: search is fuzzy, so callers must still
+     * compare the returned sku exactly.
+     */
+    public const VARIANTS_BY_SKU = <<<'GQL'
+    query VariantsBySku($query: String!) {
+      productVariants(first: 20, query: $query) {
+        edges { node { id sku product { id title } } }
+      }
+    }
+    GQL;
+
+    /**
      * Every product id with its variant ids, paginated.
      *
      * The deletion sweep needs the full remote id set to diff against our

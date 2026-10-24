@@ -98,7 +98,8 @@ class ProvidersService extends AbstractProvidersService
         // Added: eBay joins Ideasoft as an on-demand syncable adapter; each has its own job map.
         $adapter = $provider ? strtolower(trim((string) $provider->adapter)) : '';
 
-        if (! $provider || ! in_array($adapter, ['ideasoft', 'ebay'], true)) {
+        // Added: Shopify joins the on-demand syncable adapters (orders and customers too).
+        if (! $provider || ! in_array($adapter, ['ideasoft', 'ebay', 'shopify'], true)) {
             throw new \NextDeveloper\Commons\Exceptions\NotFoundException('Syncable provider not found.');
         }
 
@@ -114,13 +115,15 @@ class ProvidersService extends AbstractProvidersService
             throw new \NextDeveloper\Commons\Exceptions\NotAllowedException('This store is not connected yet. Connect the account first.');
         }
 
-        $jobs = $adapter === 'ebay'
-            ? \NextDeveloper\Marketplace\Console\Commands\SyncEbayCommand::ENTITY_JOBS
-            : \NextDeveloper\Marketplace\Console\Commands\SyncIdeasoftCommand::ENTITY_JOBS;
+        $jobs = match ($adapter) {
+            'ebay' => \NextDeveloper\Marketplace\Console\Commands\SyncEbayCommand::ENTITY_JOBS,
+            'shopify' => \NextDeveloper\Marketplace\Console\Commands\SyncShopifyCommand::ENTITY_JOBS,
+            default => \NextDeveloper\Marketplace\Console\Commands\SyncIdeasoftCommand::ENTITY_JOBS,
+        };
         $entity = strtolower($entity);
 
         if ($entity !== 'all' && ! array_key_exists($entity, $jobs)) {
-            throw new \NextDeveloper\Commons\Exceptions\NotAllowedException('Unknown entity. Use products, inventory or all.');
+            throw new \NextDeveloper\Commons\Exceptions\NotAllowedException('Unknown entity. Use one of: '.implode(', ', array_keys($jobs)).' or all.');
         }
 
         // Debounce: a double click or a script loop must not stack full catalog walks.
@@ -212,6 +215,72 @@ class ProvidersService extends AbstractProvidersService
 
         if ((string) $provider->getDecryptedAccessToken() === '') {
             throw new \NextDeveloper\Commons\Exceptions\NotAllowedException('This eBay account is not connected yet.');
+        }
+
+        return $provider;
+    }
+
+    /**
+     * Added: queue a run that links every unlinked local product of this Shopify provider's market
+     * to the same-SKU product on the shop (see LinkShopifyProductsJob). Match only, creates nothing.
+     *
+     * @param  string  $ref  Provider uuid (public id)
+     * @return array<string, mixed>
+     */
+    public static function linkProductsToShopify(string $ref, bool $dryRun = false): array
+    {
+        $provider = self::shopifyProviderForLinking($ref);
+
+        // Debounce, and never two runs at once for the same provider.
+        $current = \NextDeveloper\Marketplace\Jobs\Shopify\LinkShopifyProductsJob::report($provider->id);
+        if (in_array($current['status'] ?? null, ['queued', 'running'], true)
+            && now()->subHours(2)->lt(\Illuminate\Support\Carbon::parse($current['started_at'] ?? $current['queued_at'] ?? now()))) {
+            throw new \NextDeveloper\Commons\Exceptions\NotAllowedException('A link run is already in progress for this provider.');
+        }
+
+        \NextDeveloper\Marketplace\Jobs\Shopify\LinkShopifyProductsJob::markQueued($provider->id, $dryRun);
+
+        // Dispatched straight from the service (no event wiring), like the other sync entry points.
+        \NextDeveloper\Marketplace\Jobs\Shopify\LinkShopifyProductsJob::dispatch($provider->id, $dryRun);
+
+        return ['provider_id' => $provider->uuid, 'queued' => true, 'dry_run' => $dryRun];
+    }
+
+    /**
+     * Added: the latest link run report for a Shopify provider (status, counts, per-product lines).
+     *
+     * @return array<string, mixed>
+     */
+    public static function shopifyLinkReport(string $ref): array
+    {
+        $provider = self::shopifyProviderForLinking($ref);
+
+        return ['provider_id' => $provider->uuid] + (\NextDeveloper\Marketplace\Jobs\Shopify\LinkShopifyProductsJob::report($provider->id)
+            ?? ['status' => 'none', 'counts' => [], 'items' => []]);
+    }
+
+    /**
+     * The Shopify provider behind a ref, visible to the user, updatable by them, active and connected.
+     */
+    private static function shopifyProviderForLinking(string $ref): Providers
+    {
+        // Looked up through the scoped model, so users can only reach providers they can see.
+        $provider = self::getByRef($ref);
+
+        if (! $provider || strtolower(trim((string) $provider->adapter)) !== 'shopify') {
+            throw new \NextDeveloper\Commons\Exceptions\NotFoundException('Shopify provider not found.');
+        }
+
+        if (! \NextDeveloper\IAM\Helpers\UserHelper::can('update', $provider)) {
+            throw new \NextDeveloper\Commons\Exceptions\NotAllowedException('You are not allowed to use this provider.');
+        }
+
+        if (! $provider->is_active) {
+            throw new \NextDeveloper\Commons\Exceptions\NotAllowedException('This provider is paused. Activate it first.');
+        }
+
+        if ((string) $provider->getDecryptedAccessToken() === '') {
+            throw new \NextDeveloper\Commons\Exceptions\NotAllowedException('This Shopify shop is not connected yet.');
         }
 
         return $provider;
