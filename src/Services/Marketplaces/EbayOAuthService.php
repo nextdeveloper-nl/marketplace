@@ -10,18 +10,24 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use NextDeveloper\Commons\Exceptions\NotAllowedException;
 use NextDeveloper\Commons\Exceptions\NotFoundException;
+use NextDeveloper\IAM\Helpers\UserHelper;
 use NextDeveloper\Marketplace\Database\Models\Providers;
-use NextDeveloper\Marketplace\Services\Marketplaces\Adapters\Ebay\EbayAdapter;
 use NextDeveloper\Marketplace\Services\ProvidersService;
 
 /**
  * eBay OAuth2 authorization-code flow (seller consent, 3-legged).
  *
  *  1. buildAuthorizationUrl()  - authenticated user asks to connect an eBay seller account; we
- *     return eBay's consent URL carrying a one-time `state` that maps back to the provider.
+ *     return eBay's consent URL carrying a one-time `state`. The cache entry behind it binds the
+ *     state to the provider AND to the user who started the flow.
  *  2. handleCallback()         - eBay redirects the seller's browser back (unauthenticated) with
- *     `code` + `state`; we resolve the provider from `state` and exchange the code for tokens.
- *  3. refreshAccessToken()     - exchanges the stored refresh token for a new access token.
+ *     `code` + `state`; we exchange the code for tokens but do NOT attach them to the provider.
+ *     The tokens are parked, encrypted, in the cache (server-side, so it works for a stateless API).
+ *  3. confirmConnection()      - the panel, logged in, confirms with the same `state`. Only if the
+ *     logged-in user is the user who started the flow, and the eBay account is not already linked
+ *     to a provider of another account, are the tokens attached to the provider. This is what
+ *     stops a forged callback (login CSRF) from linking someone else's eBay account.
+ *  4. refreshAccessToken()     - exchanges the stored refresh token for a new access token.
  *
  * Differences from Ideasoft worth knowing:
  *  - The app keyset (App ID / Cert ID) is platform-wide and comes from config('marketplace.ebay'),
@@ -43,23 +49,29 @@ class EbayOAuthService
     /** Refresh this many seconds before the access token actually expires. */
     public const REFRESH_SKEW_SECONDS = 120;
 
+    /** How long exchanged-but-unconfirmed tokens wait for the panel to confirm, in minutes. */
+    public const PENDING_TTL_MINUTES = 10;
+
     private const STATE_CACHE_PREFIX = 'marketplace:ebay:oauth:state:';
+
+    private const PENDING_CACHE_PREFIX = 'marketplace:ebay:oauth:pending:';
 
     public function __construct(private readonly Providers $provider) {}
 
     /**
-     * Resolve the provider a callback `state` belongs to, consuming the state.
-     * The lookup bypasses AuthorizationScope on purpose: the callback has no logged-in user.
+     * Resolve the provider a callback `state` belongs to, WITHOUT consuming the state
+     * (handleCallback() consumes it). The lookup bypasses AuthorizationScope on purpose: the
+     * callback has no logged-in user.
      */
     public static function resolveProviderFromState(string $state): ?Providers
     {
-        $providerId = Cache::pull(self::STATE_CACHE_PREFIX.$state);
+        $pending = Cache::get(self::STATE_CACHE_PREFIX.$state);
 
-        if (! $providerId) {
+        if (! is_array($pending) || empty($pending['provider_id'])) {
             return null;
         }
 
-        return Providers::withoutGlobalScopes()->where('id', $providerId)->first();
+        return Providers::withoutGlobalScopes()->where('id', $pending['provider_id'])->first();
     }
 
     /**
@@ -69,11 +81,11 @@ class EbayOAuthService
     {
         $config = $this->appConfig();
 
-        // One-time, unguessable state; maps back to the provider on callback (CSRF protection).
+        // One-time, unguessable state, bound to the provider and to the user who started the flow.
         $state = Str::random(40);
         Cache::put(
             self::STATE_CACHE_PREFIX.$state,
-            $this->provider->id,
+            ['provider_id' => $this->provider->id, 'iam_user_id' => UserHelper::me()->id],
             now()->addMinutes(self::STATE_TTL_MINUTES)
         );
 
@@ -87,19 +99,80 @@ class EbayOAuthService
     }
 
     /**
-     * Exchange an authorization code for tokens and store them on the provider.
+     * Callback step: consume the state, exchange the code for tokens and park them (encrypted) in
+     * the cache until the logged-in user confirms. Nothing is written to the provider here.
      */
-    public function handleCallback(string $code): Providers
+    public function handleCallback(string $code, string $state): void
     {
+        // Single use: pulled before the exchange, so a replayed callback finds nothing.
+        $bound = Cache::pull(self::STATE_CACHE_PREFIX.$state);
+
+        if (! is_array($bound) || (int) ($bound['provider_id'] ?? 0) !== (int) $this->provider->id) {
+            throw new NotAllowedException('Invalid or expired eBay authorization state.');
+        }
+
         $tokens = $this->requestToken([
             'grant_type' => 'authorization_code',
             'code' => $code,
             'redirect_uri' => $this->ruName($this->appConfig()),
         ]);
 
+        Cache::put(
+            self::PENDING_CACHE_PREFIX.$state,
+            [
+                'provider_id' => $bound['provider_id'],
+                'iam_user_id' => $bound['iam_user_id'],
+                // Tokens never sit in the cache in clear text.
+                'tokens_enc' => Crypt::encryptString(json_encode($tokens)),
+            ],
+            now()->addMinutes(self::PENDING_TTL_MINUTES)
+        );
+    }
+
+    /**
+     * Confirm step (authenticated): attach the parked tokens to the provider.
+     *
+     * @throws NotAllowedException When the state is unknown/expired, belongs to another provider
+     *                             or user, or the eBay account is already linked to another account.
+     */
+    public function confirmConnection(string $state): Providers
+    {
+        $pending = Cache::pull(self::PENDING_CACHE_PREFIX.$state);
+
+        if (! is_array($pending)
+            || (int) $pending['provider_id'] !== (int) $this->provider->id
+            || (int) $pending['iam_user_id'] !== (int) UserHelper::me()->id) {
+            // One message for every mismatch: do not reveal which part was wrong.
+            throw new NotAllowedException('This eBay connection request is invalid or has expired. Start again.');
+        }
+
+        $tokens = json_decode(Crypt::decryptString($pending['tokens_enc']), true);
+
+        // Fail closed: if eBay cannot tell us who this is, we cannot check for double linking.
+        $identity = $this->fetchIdentity($tokens['access_token']);
+        if (empty($identity['userId'])) {
+            throw new NotAllowedException('Could not verify the eBay account. Start again.');
+        }
+
+        // One eBay seller account may serve several providers of the SAME account, never another's.
+        $linkedElsewhere = Providers::withoutGlobalScopes()
+            ->where('adapter', 'ebay')
+            ->where('id', '!=', $this->provider->id)
+            ->where('iam_account_id', '!=', $this->provider->iam_account_id)
+            ->where('api_config->ebay->seller_user_id', $identity['userId'])
+            ->exists();
+
+        if ($linkedElsewhere) {
+            Log::warning(__METHOD__.' - eBay account already linked to another account', [
+                'provider_id' => $this->provider->id,
+            ]);
+
+            throw new NotAllowedException('This eBay account is already connected to another account.');
+        }
+
         $provider = $this->storeTokens($tokens);
 
-        return $this->recordSellerIdentity($provider, $tokens['access_token']);
+        return $this->recordSellerIdentity($provider, $tokens['access_token'], $identity);
     }
 
     /**
@@ -242,32 +315,44 @@ class EbayOAuthService
     }
 
     /**
-     * Best-effort: ask eBay who just connected and keep the username in api_config['ebay'] so the
-     * panel can show which seller account is linked. A failure here never fails the connection.
+     * Keep the seller's eBay username / user id in api_config['ebay'] so the panel can show which
+     * account is linked, and so confirmConnection() can refuse double linking.
+     *
+     * @param  array<string, mixed>  $identity
      */
-    private function recordSellerIdentity(Providers $provider, string $accessToken): Providers
+    private function recordSellerIdentity(Providers $provider, string $accessToken, array $identity): Providers
     {
+        $config = $provider->getApiConfigArray();
+        $config['ebay']['seller_username'] = $identity['username'] ?? null;
+        $config['ebay']['seller_user_id'] = $identity['userId'];
+
+        // Same bypassed write as the token storage.
+        return ProvidersService::storeOAuthTokens($provider, $accessToken, $config);
+    }
+
+    /**
+     * Ask eBay who a freshly issued access token belongs to. Returns [] on any failure.
+     *
+     * @return array<string, mixed>
+     */
+    private function fetchIdentity(string $accessToken): array
+    {
+        $host = $this->isSandbox() ? 'https://apiz.sandbox.ebay.com' : 'https://apiz.ebay.com';
+
         try {
-            $identity = (new EbayAdapter($provider))->identity();
+            $response = Http::withToken($accessToken)
+                ->acceptJson()
+                ->timeout((int) config('marketplace.ebay.timeout', 30))
+                ->get($host.'/commerce/identity/v1/user');
 
-            if (empty($identity['username'])) {
-                return $provider;
-            }
-
-            $config = $provider->getApiConfigArray();
-            $config['ebay']['seller_username'] = $identity['username'];
-            $config['ebay']['seller_user_id'] = $identity['userId'] ?? null;
-
-            // Same bypassed write as the token storage: the callback has no logged-in user.
-            return ProvidersService::storeOAuthTokens($provider, $accessToken, $config);
+            return $response->successful() ? (array) $response->json() : [];
         } catch (\Throwable $e) {
             Log::warning(__METHOD__.' - could not read eBay seller identity', [
-                'provider_id' => $provider->id,
+                'provider_id' => $this->provider->id,
                 'exception' => get_class($e),
-                'error_message' => $e->getMessage(),
             ]);
 
-            return $provider;
+            return [];
         }
     }
 
