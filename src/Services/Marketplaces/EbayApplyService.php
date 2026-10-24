@@ -3,6 +3,7 @@
 namespace NextDeveloper\Marketplace\Services\Marketplaces;
 
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use NextDeveloper\Commons\Database\GlobalScopes\LimitScope;
 use NextDeveloper\IAM\Database\Scopes\AuthorizationScope;
@@ -68,9 +69,12 @@ class EbayApplyService
             return $mapping ? self::UPDATED : self::CREATED;
         }
 
-        $product = $mapping
-            ? Products::withoutGlobalScope(AuthorizationScope::class)->withoutGlobalScope(LimitScope::class)->find($mapping->marketplace_product_id)
-            : null;
+        $product = $mapping ? $this->ownedProduct($mapping->marketplace_product_id) : null;
+
+        // A mapping that points at a product this account does not own is invalid: touch nothing.
+        if ($mapping && ! $product) {
+            return self::SKIPPED;
+        }
 
         $attributes = [
             'name' => (string) $n['name'],
@@ -80,8 +84,6 @@ class EbayApplyService
             'is_public' => false,
             'marketplace_market_id' => $this->provider->marketplace_market_id,
             'marketplace_provider_id' => $this->provider->id,
-            'iam_account_id' => $this->provider->iam_account_id,
-            'iam_user_id' => $this->provider->iam_user_id,
             'metadata' => array_merge(is_array($product?->metadata) ? $product->metadata : [], [
                 'ebay' => [
                     'external_id' => $n['external_id'],
@@ -101,6 +103,9 @@ class EbayApplyService
             // Marketplace slugs are platform-wide, so the name slug gets a deterministic suffix.
             $attributes['slug'] = Str::slug($n['name'] ?: 'ebay-product')
                 .'-'.substr(hash('sha256', $this->provider->id.':'.$n['external_id']), 0, 6);
+            // Ownership is set on create only and never rewritten on an existing product.
+            $attributes['iam_account_id'] = $this->provider->iam_account_id;
+            $attributes['iam_user_id'] = $this->provider->iam_user_id;
             $outcome = self::CREATED;
         }
 
@@ -149,18 +154,19 @@ class EbayApplyService
         }
 
         $productMapping = $this->productMapping($productExternalId);
-        $product = $productMapping
-            ? Products::withoutGlobalScope(AuthorizationScope::class)->withoutGlobalScope(LimitScope::class)->find($productMapping->marketplace_product_id)
-            : null;
+        $product = $productMapping ? $this->ownedProduct($productMapping->marketplace_product_id) : null;
 
         if (! $product) {
             // The product level was not applied (or was removed); nothing to attach the SKU to.
             return self::UNMAPPED;
         }
 
-        $catalog = $mapping
-            ? ProductCatalogs::withoutGlobalScope(AuthorizationScope::class)->withoutGlobalScope(LimitScope::class)->find($mapping->marketplace_product_catalog_id)
-            : null;
+        $catalog = $mapping ? $this->ownedCatalog($mapping->marketplace_product_catalog_id) : null;
+
+        // A mapping that points at a catalog entry this account does not own is invalid.
+        if ($mapping && ! $catalog) {
+            return self::UNMAPPED;
+        }
 
         $name = $variant['name'] ? $productName.' — '.$variant['name'] : $productName;
 
@@ -239,8 +245,7 @@ class EbayApplyService
             return self::UNMAPPED;
         }
 
-        $catalog = ProductCatalogs::withoutGlobalScope(AuthorizationScope::class)->withoutGlobalScope(LimitScope::class)
-            ->find($mapping->marketplace_product_catalog_id);
+        $catalog = $this->ownedCatalog($mapping->marketplace_product_catalog_id);
 
         if (! $catalog) {
             return self::UNMAPPED;
@@ -263,6 +268,45 @@ class EbayApplyService
         $mapping->saveQuietly();
 
         return self::APPLIED;
+    }
+
+    /**
+     * The product behind a mapping, only if it belongs to this provider's account. The lookups
+     * drop AuthorizationScope (the sync has no request user), so ownership is checked here instead.
+     */
+    private function ownedProduct(int $id): ?Products
+    {
+        $product = Products::withoutGlobalScope(AuthorizationScope::class)->withoutGlobalScope(LimitScope::class)->find($id);
+
+        if ($product && (int) $product->iam_account_id !== (int) $this->provider->iam_account_id) {
+            Log::warning(__METHOD__.' - mapping points at a product of another account, ignored', [
+                'provider_id' => $this->provider->id,
+                'product_id' => $id,
+            ]);
+
+            return null;
+        }
+
+        return $product;
+    }
+
+    /**
+     * The catalog entry behind a mapping, only if it belongs to this provider's account.
+     */
+    private function ownedCatalog(int $id): ?ProductCatalogs
+    {
+        $catalog = ProductCatalogs::withoutGlobalScope(AuthorizationScope::class)->withoutGlobalScope(LimitScope::class)->find($id);
+
+        if ($catalog && (int) $catalog->iam_account_id !== (int) $this->provider->iam_account_id) {
+            Log::warning(__METHOD__.' - mapping points at a catalog entry of another account, ignored', [
+                'provider_id' => $this->provider->id,
+                'catalog_id' => $id,
+            ]);
+
+            return null;
+        }
+
+        return $catalog;
     }
 
     private function productMapping(string $externalId): ?ProductMappings

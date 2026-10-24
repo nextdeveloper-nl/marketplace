@@ -86,61 +86,72 @@ abstract class AbstractEbaySyncJob implements ShouldQueue
         }
 
         // Run as the provider's own user/account with the observer can() checks bypassed for the
-        // duration (sync writes records the acting user has no role for). The previous value is
-        // restored through reflection because bypassRolesCheck(false) is a documented no-op.
+        // duration (sync writes records the acting user has no role for). The raw user/account are
+        // read through reflection (UserHelper has no getter for them) and put back afterwards, so a
+        // long-lived queue worker never carries this provider's identity into its next job. The
+        // roles bypass itself is scoped by withRolesCheckBypassed(), which restores the raw flag.
+        $rawUser = new \ReflectionProperty(UserHelper::class, 'user');
+        $rawAccount = new \ReflectionProperty(UserHelper::class, 'account');
+        $previousUser = $rawUser->getValue();
+        $previousAccount = $rawAccount->getValue();
+
         UserHelper::setUserById($provider->iam_user_id);
         UserHelper::setCurrentAccountById($provider->iam_account_id);
 
-        $previousBypass = UserHelper::bypassRolesCheck();
-        UserHelper::bypassRolesCheck(true);
+        try {
+            UserHelper::withRolesCheckBypassed(fn () => $this->run($provider));
+        } finally {
+            $rawUser->setValue(null, $previousUser);
+            $rawAccount->setValue(null, $previousAccount);
+        }
+    }
+
+    /**
+     * The sync itself, run with the provider's identity and the roles bypass already in place.
+     */
+    private function run(Providers $provider): void
+    {
+        $service = new EbayService($provider);
+        $entity = $this->entityType();
+        $startedAt = Carbon::now();
+
+        // --full restarts the scan; a dry run never reads or writes the saved position.
+        if ($this->full && ! $this->dryRun) {
+            $service->saveScanOffset($entity, null);
+        }
+        $resume = ! $this->full && ! $this->dryRun;
 
         try {
-            $service = new EbayService($provider);
-            $entity = $this->entityType();
-            $startedAt = Carbon::now();
+            $result = $this->sync($service, $resume);
 
-            // --full restarts the scan; a dry run never reads or writes the saved position.
-            if ($this->full && ! $this->dryRun) {
-                $service->saveScanOffset($entity, null);
+            if (! $this->dryRun) {
+                $service->markSynced($entity, $startedAt, $result['processed']);
             }
-            $resume = ! $this->full && ! $this->dryRun;
 
-            try {
-                $result = $this->sync($service, $resume);
+            $this->report = [
+                'provider_id' => $provider->id,
+                'entity' => $entity,
+                'since' => $startedAt->toIso8601String(),
+                'processed' => $result['processed'],
+                'dry_run' => $this->dryRun,
+                'details' => $result['details'],
+            ];
 
-                if (! $this->dryRun) {
-                    $service->markSynced($entity, $startedAt, $result['processed']);
-                }
-
-                $this->report = [
-                    'provider_id' => $provider->id,
-                    'entity' => $entity,
-                    'since' => $startedAt->toIso8601String(),
-                    'processed' => $result['processed'],
-                    'dry_run' => $this->dryRun,
-                    'details' => $result['details'],
-                ];
-
-                Log::info(static::class.' - sync completed', $this->report);
-            } catch (\Throwable $e) {
-                if (! $this->dryRun) {
-                    $service->markFailed($entity, $e->getMessage());
-                }
-
-                $this->report = [
-                    'provider_id' => $provider->id,
-                    'entity' => $entity,
-                    'since' => $startedAt->toIso8601String(),
-                    'dry_run' => $this->dryRun,
-                    'error' => $e->getMessage(),
-                ];
-
-                throw $e;
+            Log::info(static::class.' - sync completed', $this->report);
+        } catch (\Throwable $e) {
+            if (! $this->dryRun) {
+                $service->markFailed($entity, $e->getMessage());
             }
-        } finally {
-            $property = new \ReflectionProperty(UserHelper::class, 'isBypassRolesCheck');
-            $property->setAccessible(true);
-            $property->setValue(null, $previousBypass);
+
+            $this->report = [
+                'provider_id' => $provider->id,
+                'entity' => $entity,
+                'since' => $startedAt->toIso8601String(),
+                'dry_run' => $this->dryRun,
+                'error' => $e->getMessage(),
+            ];
+
+            throw $e;
         }
     }
 }
