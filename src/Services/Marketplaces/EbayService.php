@@ -35,6 +35,8 @@ class EbayService
 
     private ?Markets $market = null;
 
+    private ?EbayApplyService $applier = null;
+
     /**
      * @throws NotFoundException
      */
@@ -54,6 +56,15 @@ class EbayService
     public function getAdapter(): EbayAdapter
     {
         return $this->adapter;
+    }
+
+    /**
+     * Writes normalized eBay records into the local model graph. Shared by every sync job so they
+     * apply records by exactly the same rules.
+     */
+    public function applier(): EbayApplyService
+    {
+        return $this->applier ??= new EbayApplyService($this->provider, $this->market?->common_currency_id);
     }
 
     public function getMarket(): ?Markets
@@ -108,6 +119,24 @@ class EbayService
                 'iam_account_id' => $this->provider->iam_account_id,
                 'iam_user_id' => $this->provider->iam_user_id,
             ]);
+    }
+
+    /**
+     * Where an interrupted full scan of this entity should resume (0 = start from the beginning).
+     * eBay has no delta, so a scan walks the whole inventory; the page offset is kept in
+     * cursor_token so a failure part-way does not restart a long scan from zero.
+     */
+    public function scanOffset(string $entityType): int
+    {
+        return (int) $this->syncState($entityType)->cursor_token;
+    }
+
+    /**
+     * Remember the next page offset of a running scan, or clear it (null) when the scan finished.
+     */
+    public function saveScanOffset(string $entityType, ?int $offset): void
+    {
+        $this->syncState($entityType)->updateQuietly(['cursor_token' => $offset === null ? null : (string) $offset]);
     }
 
     /**

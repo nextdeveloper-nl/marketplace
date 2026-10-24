@@ -22,6 +22,10 @@ use NextDeveloper\Commons\Database\Traits\RunAsAdministrator;
  * @property integer $marketplace_product_id
  * @property integer $marketplace_provider_id
  * @property string $external_product_id
+ * @property string $external_listing_id
+ * @property string $sync_hash
+ * @property \Carbon\Carbon $external_updated_at
+ * @property \Carbon\Carbon $last_synced_at
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
@@ -45,6 +49,11 @@ class ProductMappings extends Model
             'marketplace_product_id',
             'marketplace_provider_id',
             'external_product_id',
+            // Sync bookkeeping columns, written by the provider sync/apply services.
+            'external_listing_id',
+            'sync_hash',
+            'external_updated_at',
+            'last_synced_at',
     ];
 
     /**
@@ -71,6 +80,10 @@ class ProductMappings extends Model
     'marketplace_product_id' => 'integer',
     'marketplace_provider_id' => 'integer',
     'external_product_id' => 'string',
+    'external_listing_id' => 'string',
+    'sync_hash' => 'string',
+    'external_updated_at' => 'datetime',
+    'last_synced_at' => 'datetime',
     'created_at' => 'datetime',
     'updated_at' => 'datetime',
     'deleted_at' => 'datetime',

@@ -22,6 +22,12 @@ use NextDeveloper\Commons\Database\Traits\RunAsAdministrator;
  * @property integer $marketplace_product_catalog_id
  * @property integer $marketplace_provider_id
  * @property string $external_catalog_id
+ * @property string $external_offer_id
+ * @property string $external_listing_id
+ * @property string $offer_status
+ * @property string $sync_hash
+ * @property \Carbon\Carbon $external_updated_at
+ * @property \Carbon\Carbon $last_synced_at
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
@@ -45,6 +51,13 @@ class ProductCatalogMappings extends Model
             'marketplace_product_catalog_id',
             'marketplace_provider_id',
             'external_catalog_id',
+            // eBay offer/listing ids and sync bookkeeping, written by the provider sync/apply services.
+            'external_offer_id',
+            'external_listing_id',
+            'offer_status',
+            'sync_hash',
+            'external_updated_at',
+            'last_synced_at',
     ];
 
     /**
@@ -71,6 +84,12 @@ class ProductCatalogMappings extends Model
     'marketplace_product_catalog_id' => 'integer',
     'marketplace_provider_id' => 'integer',
     'external_catalog_id' => 'string',
+    'external_offer_id' => 'string',
+    'external_listing_id' => 'string',
+    'offer_status' => 'string',
+    'sync_hash' => 'string',
+    'external_updated_at' => 'datetime',
+    'last_synced_at' => 'datetime',
     'created_at' => 'datetime',
     'updated_at' => 'datetime',
     'deleted_at' => 'datetime',

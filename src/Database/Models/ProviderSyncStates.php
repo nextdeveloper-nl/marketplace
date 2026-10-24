@@ -56,6 +56,8 @@ class ProviderSyncStates extends Model
         'consecutive_failures',
         'last_error',
         'records_processed',
+        // Resume position of a long full scan (eBay has no delta cursor).
+        'cursor_token',
         'iam_account_id',
         'iam_user_id',
     ];
@@ -89,6 +91,7 @@ class ProviderSyncStates extends Model
         'consecutive_failures' => 'integer',
         'last_error' => 'string',
         'records_processed' => 'integer',
+        'cursor_token' => 'string',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
