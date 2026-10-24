@@ -7,19 +7,26 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use NextDeveloper\Commons\Exceptions\NotAllowedException;
 use NextDeveloper\Commons\Exceptions\NotFoundException;
+use NextDeveloper\Marketplace\Database\Models\Providers;
+use NextDeveloper\Marketplace\Services\Marketplaces\EbayOAuthService;
 
 /**
- * Thin REST client for eBay's application-level APIs (Browse).
+ * Thin REST client for eBay's APIs (Browse, Sell Inventory/Account, Taxonomy, Identity).
  *
  * Hand-rolled on Illuminate\Http for the same reason as ShopifyClient: no new
  * package can be installed in this application.
  *
- * Authenticates with an application token (OAuth client-credentials grant).
- * That token represents our keyset, not a seller, so it is shared across the
- * whole platform and cached: eBay rate-limits how many tokens a keyset may mint
- * per day, and minting one per request would exhaust that long before the
- * Browse call quota.
+ * Two authentication modes:
+ *
+ *  - Application mode (no provider): OAuth client-credentials token that represents our
+ *    keyset, not a seller. Shared across the platform and cached, because eBay rate-limits
+ *    how many tokens a keyset may mint per day. Only good for public APIs (Browse).
+ *
+ *  - Seller mode (a Providers row): the seller's own user token, stored encrypted on the
+ *    provider by EbayOAuthService. Needed for every Sell API. The token is refreshed through
+ *    the stored refresh token when it is about to expire or eBay answers 401.
  */
 class EbayClient
 {
@@ -41,7 +48,13 @@ class EbayClient
 
     private int $timeout;
 
-    public function __construct(?string $marketplaceId = null)
+    private int $retryMax;
+
+    private int $retryBaseMs;
+
+    private ?Providers $provider;
+
+    public function __construct(?string $marketplaceId = null, ?Providers $provider = null)
     {
         $config = (array) config('marketplace.ebay', []);
 
@@ -54,11 +67,21 @@ class EbayClient
             );
         }
 
+        $this->provider = $provider;
         $this->environment = strtolower((string) ($config['environment'] ?? 'production')) === 'sandbox'
             ? 'sandbox'
             : 'production';
-        $this->marketplaceId = $marketplaceId ?: (string) ($config['marketplace_id'] ?? 'EBAY_US');
+
+        // Seller mode takes the marketplace from the provider's own eBay settings unless told otherwise.
+        $providerMarketplace = $provider
+            ? ($provider->getApiConfigArray()['ebay']['marketplace_id'] ?? null)
+            : null;
+
+        $this->marketplaceId = $marketplaceId
+            ?: ($providerMarketplace ?: (string) ($config['marketplace_id'] ?? 'EBAY_US'));
         $this->timeout = (int) ($config['timeout'] ?? 30);
+        $this->retryMax = max(0, (int) ($config['retry_max'] ?? 3));
+        $this->retryBaseMs = max(0, (int) ($config['retry_base_ms'] ?? 500));
     }
 
     public function getMarketplaceId(): string
@@ -67,22 +90,48 @@ class EbayClient
     }
 
     /**
-     * GET a JSON resource. A 401 means the cached token was revoked or expired
-     * early, so it is dropped and the call retried once with a fresh one.
+     * GET a JSON resource.
      *
      * @param  array<string, mixed>  $query
      * @return array<string, mixed>
      */
     public function get(string $path, array $query = []): array
     {
-        $response = $this->request()->get($path, $query);
+        return $this->send('GET', $path, $query);
+    }
 
-        if ($response->status() === 401) {
-            $this->forgetToken();
-            $response = $this->request()->get($path, $query);
-        }
+    /**
+     * POST a JSON body. eBay answers many writes with 201/204 and an empty body, which decodes to [].
+     *
+     * @param  array<string, mixed>  $body
+     * @param  array<string, mixed>  $query
+     * @return array<string, mixed>
+     */
+    public function post(string $path, array $body = [], array $query = []): array
+    {
+        return $this->send('POST', $path, $query, $body);
+    }
 
-        return $this->decode($response, 'GET '.$path);
+    /**
+     * PUT a JSON body. On the Inventory API a PUT replaces the whole resource, so callers
+     * must send the full, merged document.
+     *
+     * @param  array<string, mixed>  $body
+     * @param  array<string, mixed>  $query
+     * @return array<string, mixed>
+     */
+    public function put(string $path, array $body = [], array $query = []): array
+    {
+        return $this->send('PUT', $path, $query, $body);
+    }
+
+    /**
+     * @param  array<string, mixed>  $query
+     * @return array<string, mixed>
+     */
+    public function delete(string $path, array $query = []): array
+    {
+        return $this->send('DELETE', $path, $query);
     }
 
     /**
@@ -125,13 +174,110 @@ class EbayClient
         Cache::forget($this->tokenCacheKey());
     }
 
-    private function request(): PendingRequest
+    /**
+     * Run one request with the retry rules:
+     *  - 401: drop/refresh the token and retry once;
+     *  - 429: back off and retry (eBay did not process the call, so every verb is safe);
+     *  - 5xx: back off and retry, but not for POST, which may have been half-applied.
+     *
+     * @param  array<string, mixed>  $query
+     * @param  array<string, mixed>|null  $body
+     * @return array<string, mixed>
+     */
+    private function send(string $method, string $path, array $query = [], ?array $body = null): array
     {
-        return Http::baseUrl($this->baseUrl())
+        $refreshed = false;
+        $attempt = 0;
+
+        while (true) {
+            $response = $this->dispatch($method, $path, $query, $body);
+
+            if ($response->status() === 401 && ! $refreshed) {
+                $refreshed = true;
+                $this->refreshToken();
+
+                continue;
+            }
+
+            $retryable = $response->status() === 429 || ($response->serverError() && $method !== 'POST');
+
+            if ($retryable && $attempt < $this->retryMax) {
+                // Exponential backoff: base, 2x base, 4x base ...
+                usleep((int) ($this->retryBaseMs * (2 ** $attempt)) * 1000);
+                $attempt++;
+
+                continue;
+            }
+
+            return $this->decode($response, $method.' '.$path);
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $query
+     * @param  array<string, mixed>|null  $body
+     */
+    private function dispatch(string $method, string $path, array $query, ?array $body): Response
+    {
+        $request = $this->request($path);
+
+        // The Inventory API refuses writes without a Content-Language header.
+        if ($method !== 'GET' && str_starts_with($path, '/sell/inventory')) {
+            $request = $request->withHeaders(['Content-Language' => 'en-US']);
+        }
+
+        return match ($method) {
+            'GET' => $request->get($path, $query),
+            'DELETE' => $request->delete($path.($query ? '?'.http_build_query($query) : '')),
+            'POST' => $request->asJson()->post($path.($query ? '?'.http_build_query($query) : ''), $body ?? []),
+            'PUT' => $request->asJson()->put($path.($query ? '?'.http_build_query($query) : ''), $body ?? []),
+        };
+    }
+
+    private function request(string $path): PendingRequest
+    {
+        return Http::baseUrl($this->baseUrlFor($path))
             ->timeout($this->timeout)
-            ->withToken($this->applicationToken())
+            ->withToken($this->bearerToken())
             ->withHeaders(['X-EBAY-C-MARKETPLACE-ID' => $this->marketplaceId])
             ->acceptJson();
+    }
+
+    private function bearerToken(): string
+    {
+        if ($this->provider === null) {
+            return $this->applicationToken();
+        }
+
+        // Seller mode: refresh ahead of expiry when we know it, otherwise use what is stored.
+        $oauth = new EbayOAuthService($this->provider);
+        if ($oauth->needsRefresh() && $oauth->hasRefreshToken()) {
+            $this->provider = $oauth->refreshAccessToken();
+        }
+
+        $token = (string) $this->provider->getDecryptedAccessToken();
+
+        if ($token === '') {
+            throw new NotAllowedException(
+                'eBay provider '.$this->provider->uuid.' is not connected yet. Connect the eBay account first.'
+            );
+        }
+
+        return $token;
+    }
+
+    /**
+     * After a 401: seller mode exchanges the refresh token, application mode drops the cached token.
+     */
+    private function refreshToken(): void
+    {
+        if ($this->provider === null) {
+            $this->forgetToken();
+
+            return;
+        }
+
+        $this->provider = (new EbayOAuthService($this->provider))->refreshAccessToken();
     }
 
     /**
@@ -140,6 +286,7 @@ class EbayClient
     private function decode(Response $response, string $operation): array
     {
         if ($response->successful()) {
+            // 201/204 with an empty body decode to [].
             return (array) $response->json();
         }
 
@@ -154,6 +301,12 @@ class EbayClient
             'status' => $response->status(),
             'errors' => $errors ?: $response->body(),
         ]);
+
+        // 4xx other than auth/rate-limit means eBay disagrees with the data or account state:
+        // surface it as a user error so callers can show it to the seller.
+        if ($response->clientError() && ! in_array($response->status(), [401, 403, 429], true)) {
+            throw new EbayUserException(sprintf('eBay %s: %s', $operation, $message), $response->status(), $errors);
+        }
 
         $hint = match (true) {
             $response->status() === 429 => ' (rate limit reached — the Browse API allows 5,000 calls/day by default)',
@@ -175,6 +328,20 @@ class EbayClient
         return $this->environment === 'sandbox'
             ? 'https://api.sandbox.ebay.com'
             : 'https://api.ebay.com';
+    }
+
+    /**
+     * The Identity API lives on the apiz.* host; everything else on api.*.
+     */
+    private function baseUrlFor(string $path): string
+    {
+        if (str_starts_with($path, '/commerce/identity')) {
+            return $this->environment === 'sandbox'
+                ? 'https://apiz.sandbox.ebay.com'
+                : 'https://apiz.ebay.com';
+        }
+
+        return $this->baseUrl();
     }
 
     private function tokenCacheKey(): string
