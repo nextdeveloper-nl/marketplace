@@ -180,7 +180,9 @@ class EbaySetupService
      */
     public function categoryTreeId(): string
     {
-        $response = $this->client->get('/commerce/taxonomy/v1/get_default_category_tree_id', [
+        // Taxonomy is an application-level API: the keyset's own token is the one it accepts, a seller
+        // token (issued for the Sell scopes only) may be refused.
+        $response = (new EbayClient($this->client->getMarketplaceId()))->get('/commerce/taxonomy/v1/get_default_category_tree_id', [
             'marketplace_id' => $this->client->getMarketplaceId(),
         ]);
 

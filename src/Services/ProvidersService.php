@@ -141,4 +141,79 @@ class ProvidersService extends AbstractProvidersService
             'full' => $full,
         ];
     }
+    /**
+     * Added: queue a run that links every unlinked local product of this eBay provider's market to
+     * eBay (see LinkEbayProductsJob). Creating listings is guarded: a real run needs a hard $limit.
+     *
+     * @param  string  $ref  Provider uuid (public id)
+     * @param  string  $mode  match_by_sku | create_listings
+     * @return array<string, mixed>
+     */
+    public static function linkProductsToEbay(string $ref, string $mode, bool $dryRun = false, ?int $limit = null): array
+    {
+        $provider = self::ebayProviderForLinking($ref);
+
+        if (! in_array($mode, [\NextDeveloper\Marketplace\Jobs\Ebay\LinkEbayProductsJob::MODE_MATCH, \NextDeveloper\Marketplace\Jobs\Ebay\LinkEbayProductsJob::MODE_CREATE], true)) {
+            throw new \NextDeveloper\Commons\Exceptions\NotAllowedException('Unknown mode. Use match_by_sku or create_listings.');
+        }
+
+        // Live listings are never created without a ceiling the caller chose on purpose.
+        if ($mode === \NextDeveloper\Marketplace\Jobs\Ebay\LinkEbayProductsJob::MODE_CREATE && ! $dryRun && ($limit === null || $limit < 1 || $limit > 200)) {
+            throw new \NextDeveloper\Commons\Exceptions\NotAllowedException('create_listings needs limit (1-200): the most listings this run may create. Run with dry_run first.');
+        }
+
+        // Debounce, and never two runs at once for the same provider.
+        $current = \NextDeveloper\Marketplace\Jobs\Ebay\LinkEbayProductsJob::report($provider->id);
+        if (in_array($current['status'] ?? null, ['queued', 'running'], true)
+            && now()->subHours(2)->lt(\Illuminate\Support\Carbon::parse($current['started_at'] ?? $current['queued_at'] ?? now()))) {
+            throw new \NextDeveloper\Commons\Exceptions\NotAllowedException('A link run is already in progress for this provider.');
+        }
+
+        \NextDeveloper\Marketplace\Jobs\Ebay\LinkEbayProductsJob::markQueued($provider->id, $mode, $dryRun, $limit);
+
+        // Dispatched straight from the service (no event wiring), like the other sync entry points.
+        \NextDeveloper\Marketplace\Jobs\Ebay\LinkEbayProductsJob::dispatch($provider->id, $mode, $dryRun, $limit);
+
+        return ['provider_id' => $provider->uuid, 'queued' => true, 'mode' => $mode, 'dry_run' => $dryRun, 'limit' => $limit];
+    }
+
+    /**
+     * Added: the latest link run report for an eBay provider (status, counts, per-product lines).
+     *
+     * @return array<string, mixed>
+     */
+    public static function ebayLinkReport(string $ref): array
+    {
+        $provider = self::ebayProviderForLinking($ref);
+
+        return ['provider_id' => $provider->uuid] + (\NextDeveloper\Marketplace\Jobs\Ebay\LinkEbayProductsJob::report($provider->id)
+            ?? ['status' => 'none', 'counts' => [], 'items' => []]);
+    }
+
+    /**
+     * The eBay provider behind a ref, visible to the user, updatable by them, active and connected.
+     */
+    private static function ebayProviderForLinking(string $ref): Providers
+    {
+        // Looked up through the scoped model, so users can only reach providers they can see.
+        $provider = self::getByRef($ref);
+
+        if (! $provider || strtolower(trim((string) $provider->adapter)) !== 'ebay') {
+            throw new \NextDeveloper\Commons\Exceptions\NotFoundException('eBay provider not found.');
+        }
+
+        if (! \NextDeveloper\IAM\Helpers\UserHelper::can('update', $provider)) {
+            throw new \NextDeveloper\Commons\Exceptions\NotAllowedException('You are not allowed to use this provider.');
+        }
+
+        if (! $provider->is_active) {
+            throw new \NextDeveloper\Commons\Exceptions\NotAllowedException('This provider is paused. Activate it first.');
+        }
+
+        if ((string) $provider->getDecryptedAccessToken() === '') {
+            throw new \NextDeveloper\Commons\Exceptions\NotAllowedException('This eBay account is not connected yet.');
+        }
+
+        return $provider;
+    }
 }

@@ -245,6 +245,43 @@ class EbayAdapter implements InventorySyncAdapter, MarketplaceAdapter, ProductSy
     }
 
     /**
+     * Create an offer, or replace an existing one (PUT replaces the whole offer, so $body must be
+     * complete). Returns the offer id.
+     *
+     * @param  array<string, mixed>  $body
+     */
+    public function saveOffer(?string $offerId, array $body): string
+    {
+        if ($offerId !== null) {
+            $this->client->put('/sell/inventory/v1/offer/'.rawurlencode($offerId), $body);
+
+            return $offerId;
+        }
+
+        $response = $this->client->post('/sell/inventory/v1/offer', $body);
+
+        if (empty($response['offerId'])) {
+            throw new \RuntimeException('eBay did not return an offerId for the new offer.');
+        }
+
+        return (string) $response['offerId'];
+    }
+
+    /**
+     * Publish an offer, which makes the listing live. Returns the listing id.
+     */
+    public function publishOffer(string $offerId): string
+    {
+        $response = $this->client->post('/sell/inventory/v1/offer/'.rawurlencode($offerId).'/publish');
+
+        if (empty($response['listingId'])) {
+            throw new \RuntimeException('eBay did not return a listingId for the published offer.');
+        }
+
+        return (string) $response['listingId'];
+    }
+
+    /**
      * Partial update of stock and/or price for up to 25 SKUs per call (eBay's limit), without the
      * read-merge-write a PUT needs. Each request: sku, quantity (int|null), and optionally
      * offer_id + price + currency.
