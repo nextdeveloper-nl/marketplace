@@ -197,6 +197,8 @@ class EbayApplyService
         // syncs never flap against each other.
         if ($isNew) {
             $attributes['quantity_in_inventory'] = (int) $variant['quantity_in_inventory'];
+            // Last quantity both sides agreed on; the per-product sync merges stock against it.
+            $attributes['args']['ebay']['synced_quantity'] = (int) $variant['quantity_in_inventory'];
         }
 
         $catalog->fill($attributes);
@@ -261,13 +263,26 @@ class EbayApplyService
             return self::APPLIED;
         }
 
-        // Pull-only for now: eBay is the stock authority until push is enabled.
-        $catalog->updateQuietly(['quantity_in_inventory' => $available]);
+        // The scheduled sync is pull-only: eBay is the stock authority there.
+        $this->setQuantity($catalog, $available);
 
         $mapping->last_synced_at = Carbon::now();
         $mapping->saveQuietly();
 
         return self::APPLIED;
+    }
+
+    /**
+     * Set a catalog entry's stock and record it as the quantity both sides agree on
+     * (args.ebay.synced_quantity), without bumping updated_at-driven change detection logic
+     * elsewhere: the caller stamps the mapping's last_synced_at afterwards.
+     */
+    public function setQuantity(ProductCatalogs $catalog, int $quantity): void
+    {
+        $args = is_array($catalog->args) ? $catalog->args : [];
+        $args['ebay']['synced_quantity'] = $quantity;
+
+        $catalog->updateQuietly(['quantity_in_inventory' => $quantity, 'args' => $args]);
     }
 
     /**
