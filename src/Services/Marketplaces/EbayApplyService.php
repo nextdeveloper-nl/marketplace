@@ -222,10 +222,9 @@ class EbayApplyService
         $mapping->last_synced_at = Carbon::now();
         $mapping->saveQuietly();
 
-        // Product-level listing id: a single-item product mirrors its only listing; a group's
-        // listing id is set by the group publish, which a later phase handles.
-        if ($variant['listing_id'] && $productMapping->external_listing_id !== $variant['listing_id']
-            && $productMapping->external_product_id === $variant['external_id']) {
+        // Product-level listing id, for the product page link: a single-item product mirrors its
+        // only listing; the SKUs of a variation group are sold in one listing, so they share it.
+        if ($variant['listing_id'] && $productMapping->external_listing_id !== $variant['listing_id']) {
             $productMapping->external_listing_id = $variant['listing_id'];
             $productMapping->saveQuietly();
         }
