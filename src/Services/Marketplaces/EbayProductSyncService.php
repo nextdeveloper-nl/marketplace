@@ -27,6 +27,10 @@ use NextDeveloper\Marketplace\Services\Marketplaces\Adapters\Ebay\EbayUserExcept
  * and the rule per record is: only local changed -> push; only eBay changed (or neither) -> pull;
  * both changed -> conflict, which is reported and left untouched unless the caller picks a side.
  *
+ * Timestamps have one-second precision, so a local edit made within the same second as the end of a
+ * sync is not seen as newer; the following edit is. Treating equal as newer would instead report a
+ * spurious conflict after most syncs, which is the worse failure.
+ *
  * Records and what they carry:
  *   product  title <-> name, description              (eBay inventory item, or its variation group)
  *   variant  price                                     (eBay offer)
