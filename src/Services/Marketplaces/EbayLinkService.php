@@ -66,25 +66,8 @@ class EbayLinkService
      */
     public static function forProduct(Products $product, ?string $providerRef = null): self
     {
-        $providers = Providers::withoutGlobalScope(AuthorizationScope::class)->withoutGlobalScope(LimitScope::class)
-            ->whereRaw("lower(trim(adapter)) = 'ebay'")
-            ->where('iam_account_id', $product->iam_account_id)
-            ->where('is_active', true)
-            ->when($providerRef, fn ($q) => $q->where('uuid', $providerRef))
-            ->get()
-            // A connection that never finished consent has no token and nothing to link against.
-            ->filter(fn (Providers $p) => (string) $p->getDecryptedAccessToken() !== '')
-            ->values();
-
-        if ($providers->isEmpty()) {
-            throw new NotFoundException('No connected eBay account found for this product. Connect eBay first.');
-        }
-
-        if ($providers->count() > 1) {
-            throw new NotAllowedException('Several eBay accounts are connected. Say which one with provider_id.');
-        }
-
-        return new self($product, $providers->first());
+        // Added: each refusal names its own cause (see ExternalProviderResolver).
+        return new self($product, ExternalProviderResolver::resolve($product, 'ebay', 'eBay', $providerRef));
     }
 
     /**

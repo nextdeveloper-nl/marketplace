@@ -57,24 +57,8 @@ class ShopifyLinkService
      */
     public static function forProduct(Products $product, ?string $providerRef = null): self
     {
-        $providers = Providers::withoutGlobalScope(AuthorizationScope::class)->withoutGlobalScope(LimitScope::class)
-            ->whereRaw("lower(trim(adapter)) = 'shopify'")
-            ->where('iam_account_id', $product->iam_account_id)
-            ->where('is_active', true)
-            ->when($providerRef, fn ($q) => $q->where('uuid', $providerRef))
-            ->get()
-            ->filter(fn (Providers $p) => (string) $p->getDecryptedAccessToken() !== '')
-            ->values();
-
-        if ($providers->isEmpty()) {
-            throw new NotFoundException('No connected Shopify shop found for this product. Connect Shopify first.');
-        }
-
-        if ($providers->count() > 1) {
-            throw new NotAllowedException('Several Shopify shops are connected. Say which one with provider_id.');
-        }
-
-        return new self($product, $providers->first());
+        // Added: each refusal names its own cause (see ExternalProviderResolver).
+        return new self($product, ExternalProviderResolver::resolve($product, 'shopify', 'Shopify', $providerRef));
     }
 
     /**
