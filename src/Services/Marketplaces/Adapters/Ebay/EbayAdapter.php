@@ -196,6 +196,115 @@ class EbayAdapter implements InventorySyncAdapter, MarketplaceAdapter, ProductSy
     }
 
     /**
+     * One inventory item by SKU, or null when eBay no longer has it.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function fetchItem(string $sku): ?array
+    {
+        try {
+            return $this->client->get('/sell/inventory/v1/inventory_item/'.rawurlencode($sku));
+        } catch (EbayUserException $e) {
+            if ($e->getStatus() === 404) {
+                return null;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Replace one inventory item. eBay's PUT replaces the whole resource, so $item must be the
+     * complete, merged document; read-only keys eBay returns on GET (sku, locale, group ids) are
+     * dropped here because the PUT schema does not accept them.
+     *
+     * @param  array<string, mixed>  $item
+     */
+    public function putInventoryItem(string $sku, array $item): void
+    {
+        $body = array_intersect_key($item, array_flip([
+            'availability', 'condition', 'conditionDescription', 'packageWeightAndSize', 'product',
+        ]));
+
+        $this->client->put('/sell/inventory/v1/inventory_item/'.rawurlencode($sku), $body);
+    }
+
+    /**
+     * Replace one variation group (complete, merged document, same reason as putInventoryItem()).
+     *
+     * @param  array<string, mixed>  $group
+     */
+    public function putGroup(string $groupKey, array $group): void
+    {
+        $body = array_intersect_key($group, array_flip([
+            'aspects', 'description', 'imageUrls', 'inventoryItemGroupKey', 'subtitle', 'title',
+            'variantSKUs', 'variesBy', 'videoIds',
+        ]));
+
+        $this->client->put('/sell/inventory/v1/inventory_item_group/'.rawurlencode($groupKey), $body);
+    }
+
+    /**
+     * Partial update of stock and/or price for up to 25 SKUs per call (eBay's limit), without the
+     * read-merge-write a PUT needs. Each request: sku, quantity (int|null), and optionally
+     * offer_id + price + currency.
+     *
+     * @param  array<int, array{sku: string, quantity: int|null, offer_id?: string|null, price?: float|null, currency?: string|null}>  $changes
+     *
+     * @throws EbayUserException When eBay rejects any SKU of the batch.
+     */
+    public function bulkUpdatePriceQuantity(array $changes): void
+    {
+        foreach (array_chunk($changes, 25) as $chunk) {
+            $requests = array_map(function (array $c) {
+                $request = ['sku' => $c['sku']];
+
+                if (($c['quantity'] ?? null) !== null) {
+                    $request['shipToLocationAvailability'] = ['quantity' => (int) $c['quantity']];
+                }
+
+                if (! empty($c['offer_id'])) {
+                    $offer = ['offerId' => $c['offer_id']];
+
+                    if (($c['quantity'] ?? null) !== null) {
+                        $offer['availableQuantity'] = (int) $c['quantity'];
+                    }
+                    if (($c['price'] ?? null) !== null) {
+                        $offer['price'] = ['value' => number_format((float) $c['price'], 2, '.', ''), 'currency' => $c['currency']];
+                    }
+
+                    $request['offers'] = [$offer];
+                }
+
+                return $request;
+            }, $chunk);
+
+            $response = $this->client->post('/sell/inventory/v1/bulk_update_price_quantity', ['requests' => $requests]);
+
+            // The call answers 200 with a status per SKU; a failed SKU must not look like success.
+            foreach ((array) ($response['responses'] ?? []) as $result) {
+                $status = (int) ($result['statusCode'] ?? 200);
+                $errors = (array) ($result['errors'] ?? []);
+
+                foreach ((array) ($result['offers'] ?? []) as $offerResult) {
+                    if ((int) ($offerResult['statusCode'] ?? 200) >= 300) {
+                        $status = max($status, (int) $offerResult['statusCode']);
+                        $errors = array_merge($errors, (array) ($offerResult['errors'] ?? []));
+                    }
+                }
+
+                if ($status >= 300) {
+                    throw new EbayUserException(
+                        'eBay rejected the update for SKU '.($result['sku'] ?? '?').': '.($errors[0]['message'] ?? 'HTTP '.$status),
+                        $status,
+                        $errors
+                    );
+                }
+            }
+        }
+    }
+
+    /**
      * A variation group (the parent of several SKUs), or null when eBay no longer has it.
      *
      * @return array<string, mixed>|null

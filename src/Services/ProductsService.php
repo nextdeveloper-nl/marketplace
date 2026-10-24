@@ -20,4 +20,29 @@ class ProductsService extends AbstractProductsService
     {
         return parent::get($filter, $params);
     }
+
+    /**
+     * Added: two-way sync of one eBay-linked product (the product page "Sync with eBay" action).
+     * Looks the product up through the scoped model, so users can only sync products they can see,
+     * and requires update rights on it because the sync can change it.
+     *
+     * @param  string  $ref  Product uuid (public id)
+     * @param  string|null  $providerRef  eBay provider uuid, needed only when the product has several
+     * @return array<string, mixed>
+     */
+    public static function syncWithEbay(string $ref, ?string $providerRef = null, bool $dryRun = false, ?string $prefer = null): array
+    {
+        $product = self::getByRef($ref);
+
+        if (! $product) {
+            throw new \NextDeveloper\Commons\Exceptions\NotFoundException('Product not found.');
+        }
+
+        if (! \NextDeveloper\IAM\Helpers\UserHelper::can('update', $product)) {
+            throw new \NextDeveloper\Commons\Exceptions\NotAllowedException('You are not allowed to sync this product.');
+        }
+
+        return \NextDeveloper\Marketplace\Services\Marketplaces\EbayProductSyncService::forProduct($product, $providerRef)
+            ->sync($dryRun, $prefer);
+    }
 }
