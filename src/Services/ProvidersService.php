@@ -95,8 +95,11 @@ class ProvidersService extends AbstractProvidersService
         // Looked up through the scoped model, so users can only sync providers they can see.
         $provider = self::getByRef($ref);
 
-        if (! $provider || strtolower(trim((string) $provider->adapter)) !== 'ideasoft') {
-            throw new \NextDeveloper\Commons\Exceptions\NotFoundException('Ideasoft provider not found.');
+        // Added: eBay joins Ideasoft as an on-demand syncable adapter; each has its own job map.
+        $adapter = $provider ? strtolower(trim((string) $provider->adapter)) : '';
+
+        if (! $provider || ! in_array($adapter, ['ideasoft', 'ebay'], true)) {
+            throw new \NextDeveloper\Commons\Exceptions\NotFoundException('Syncable provider not found.');
         }
 
         if (! \NextDeveloper\IAM\Helpers\UserHelper::can('update', $provider)) {
@@ -108,10 +111,12 @@ class ProvidersService extends AbstractProvidersService
         }
 
         if ((string) $provider->getDecryptedAccessToken() === '') {
-            throw new \NextDeveloper\Commons\Exceptions\NotAllowedException('This store is not connected yet. Connect Ideasoft first.');
+            throw new \NextDeveloper\Commons\Exceptions\NotAllowedException('This store is not connected yet. Connect the account first.');
         }
 
-        $jobs = \NextDeveloper\Marketplace\Console\Commands\SyncIdeasoftCommand::ENTITY_JOBS;
+        $jobs = $adapter === 'ebay'
+            ? \NextDeveloper\Marketplace\Console\Commands\SyncEbayCommand::ENTITY_JOBS
+            : \NextDeveloper\Marketplace\Console\Commands\SyncIdeasoftCommand::ENTITY_JOBS;
         $entity = strtolower($entity);
 
         if ($entity !== 'all' && ! array_key_exists($entity, $jobs)) {
@@ -119,7 +124,7 @@ class ProvidersService extends AbstractProvidersService
         }
 
         // Debounce: a double click or a script loop must not stack full catalog walks.
-        if (! \Illuminate\Support\Facades\Cache::add('marketplace:ideasoft:sync-now:'.$provider->id, 1, 60)) {
+        if (! \Illuminate\Support\Facades\Cache::add('marketplace:'.$adapter.':sync-now:'.$provider->id, 1, 60)) {
             throw new \NextDeveloper\Commons\Exceptions\NotAllowedException('A sync was triggered for this provider less than a minute ago.');
         }
 
