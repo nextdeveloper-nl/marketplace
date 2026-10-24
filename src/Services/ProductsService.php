@@ -45,4 +45,26 @@ class ProductsService extends AbstractProductsService
         return \NextDeveloper\Marketplace\Services\Marketplaces\EbayProductSyncService::forProduct($product, $providerRef)
             ->sync($dryRun, $prefer);
     }
+    /**
+     * Added: link an existing local product to eBay (by SKU, or by creating the listing) so that
+     * "Sync with eBay" works for it. Same lookup and permission rules as syncWithEbay().
+     *
+     * @param  array<string, mixed>  $options  provider_id, sku, create_listing, dry_run, category_id, aspects, image_urls, condition
+     * @return array<string, mixed>
+     */
+    public static function linkToEbay(string $ref, array $options = []): array
+    {
+        $product = self::getByRef($ref);
+
+        if (! $product) {
+            throw new \NextDeveloper\Commons\Exceptions\NotFoundException('Product not found.');
+        }
+
+        if (! \NextDeveloper\IAM\Helpers\UserHelper::can('update', $product)) {
+            throw new \NextDeveloper\Commons\Exceptions\NotAllowedException('You are not allowed to link this product.');
+        }
+
+        return \NextDeveloper\Marketplace\Services\Marketplaces\EbayLinkService::forProduct($product, $options['provider_id'] ?? null)
+            ->link($options);
+    }
 }

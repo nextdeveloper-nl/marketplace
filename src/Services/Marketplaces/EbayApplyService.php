@@ -272,6 +272,47 @@ class EbayApplyService
     }
 
     /**
+     * Link an existing LOCAL product to an eBay listing: create the product mapping and nothing else.
+     * The hash and last_synced_at are left empty on purpose, so the first product sync sees local
+     * as "never synced" and eBay as "changed" and reports any difference as a conflict to settle,
+     * instead of silently overwriting either side.
+     */
+    public function linkProduct(Products $product, string $externalId, ?string $listingId = null): ProductMappings
+    {
+        $mapping = new ProductMappings;
+        $mapping->fill([
+            'marketplace_provider_id' => $this->provider->id,
+            'external_product_id' => $externalId,
+            'marketplace_product_id' => $product->id,
+        ]);
+        $mapping->external_listing_id = $listingId;
+        $mapping->saveQuietly();
+
+        return $mapping;
+    }
+
+    /**
+     * Link an existing LOCAL catalog entry to an eBay SKU (see linkProduct()).
+     *
+     * @param  array<string, mixed>  $variant  Output of EbayAdapter::normalizeVariantData()
+     */
+    public function linkVariant(ProductCatalogs $catalog, array $variant): ProductCatalogMappings
+    {
+        $mapping = new ProductCatalogMappings;
+        $mapping->fill([
+            'marketplace_provider_id' => $this->provider->id,
+            'external_catalog_id' => (string) $variant['external_id'],
+            'marketplace_product_catalog_id' => $catalog->id,
+        ]);
+        $mapping->external_offer_id = $variant['offer_id'];
+        $mapping->external_listing_id = $variant['listing_id'];
+        $mapping->offer_status = $variant['offer_status'];
+        $mapping->saveQuietly();
+
+        return $mapping;
+    }
+
+    /**
      * Set a catalog entry's stock and record it as the quantity both sides agree on
      * (args.ebay.synced_quantity), without bumping updated_at-driven change detection logic
      * elsewhere: the caller stamps the mapping's last_synced_at afterwards.
