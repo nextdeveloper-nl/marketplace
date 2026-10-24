@@ -67,4 +67,27 @@ class ProductsService extends AbstractProductsService
         return \NextDeveloper\Marketplace\Services\Marketplaces\EbayLinkService::forProduct($product, $options['provider_id'] ?? null)
             ->link($options);
     }
+
+    /**
+     * Added: link an existing local product (and its catalog entries) to the product with the same
+     * SKUs on a connected Shopify shop. Same lookup and permission rules as linkToEbay().
+     *
+     * @param  array<string, mixed>  $options  provider_id, sku, dry_run
+     * @return array<string, mixed>
+     */
+    public static function linkToShopify(string $ref, array $options = []): array
+    {
+        $product = self::getByRef($ref);
+
+        if (! $product) {
+            throw new \NextDeveloper\Commons\Exceptions\NotFoundException('Product not found.');
+        }
+
+        if (! \NextDeveloper\IAM\Helpers\UserHelper::can('update', $product)) {
+            throw new \NextDeveloper\Commons\Exceptions\NotAllowedException('You are not allowed to link this product.');
+        }
+
+        return \NextDeveloper\Marketplace\Services\Marketplaces\ShopifyLinkService::forProduct($product, $options['provider_id'] ?? null)
+            ->link($options);
+    }
 }

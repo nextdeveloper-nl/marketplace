@@ -264,6 +264,63 @@ class ShopifyApplyService
         return $isNew ? self::CREATED : self::UPDATED;
     }
 
+    /**
+     * Added: link an existing LOCAL product to a product already on the shop (see ShopifyLinkService).
+     *
+     * Unlike the eBay link, the mapping is baselined with the shop's current hash and timestamp.
+     * Left empty, the next pull would see the shop as "changed" and overwrite the local name,
+     * description and prices without asking; baselined, nothing moves until one side changes
+     * after the link, and the link result lists what differs right now.
+     *
+     * @param  array<string, mixed>  $n  Output of ShopifyAdapter::normalizeProductData()
+     */
+    public function linkProduct(Products $product, array $n): ProductMappings
+    {
+        $mapping = new ProductMappings;
+        $mapping->fill([
+            'marketplace_provider_id' => $this->provider->id,
+            'external_product_id' => (string) $n['external_id'],
+            'marketplace_product_id' => $product->id,
+        ]);
+        $mapping->sync_hash = $n['sync_hash'];
+        $mapping->external_updated_at = $n['external_updated_at'];
+        $mapping->last_synced_at = Carbon::now();
+        $mapping->saveQuietly();
+
+        return $mapping;
+    }
+
+    /**
+     * Added: link one local catalog entry to a Shopify variant (see linkProduct()).
+     *
+     * pushed_price records the shop's current price, so only a price edited after the link is
+     * pushed. synced_quantity is left unset on purpose: the local row then counts as unedited, so
+     * the first inventory pull takes the shop's stock instead of the local figure overwriting it.
+     *
+     * @param  array<string, mixed>  $variant  One entry of normalizeProductData()['variants']
+     */
+    public function linkVariant(ProductCatalogs $catalog, array $variant): ProductCatalogMappings
+    {
+        $mapping = new ProductCatalogMappings;
+        $mapping->fill([
+            'marketplace_provider_id' => $this->provider->id,
+            'external_catalog_id' => (string) $variant['external_id'],
+            'marketplace_product_catalog_id' => $catalog->id,
+        ]);
+        $mapping->sync_hash = $variant['sync_hash'];
+        $mapping->external_updated_at = $variant['external_updated_at'];
+        $mapping->last_synced_at = Carbon::now();
+        $mapping->external_inventory_item_id = $variant['external_inventory_item_id'];
+        $mapping->saveQuietly();
+
+        $args = is_array($catalog->args) ? $catalog->args : [];
+        $args['shopify']['external_variant_id'] = $variant['external_id'];
+        $args['shopify']['pushed_price'] = (float) $variant['price'];
+        self::stampArgs($catalog, $args);
+
+        return $mapping;
+    }
+
     // -------------------------------------------------------------------------
     // Inventory
     // -------------------------------------------------------------------------

@@ -38,7 +38,7 @@ class SyncShopifyCommand extends Command
      *
      * @var array<string, class-string<AbstractShopifySyncJob>>
      */
-    private const ENTITY_JOBS = [
+    public const ENTITY_JOBS = [
         'products' => SyncShopifyProductsJob::class,
         'inventory' => SyncShopifyInventoryJob::class,
         'customers' => SyncShopifyCustomersJob::class,

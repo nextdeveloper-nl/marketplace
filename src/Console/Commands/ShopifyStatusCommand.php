@@ -4,13 +4,10 @@ namespace NextDeveloper\Marketplace\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use NextDeveloper\Commons\Database\GlobalScopes\LimitScope;
 use NextDeveloper\IAM\Database\Scopes\AuthorizationScope;
 use NextDeveloper\Marketplace\Database\Models\Providers;
-use NextDeveloper\Marketplace\Database\Models\ProviderSyncStates;
-use NextDeveloper\Marketplace\Database\Models\WebhookEvents;
-use NextDeveloper\Marketplace\Jobs\Shopify\ProcessShopifyWebhookJob;
+use NextDeveloper\Marketplace\Services\Marketplaces\ShopifyStatusService;
 
 /**
  * What is actually syncing, per connection and per entity.
@@ -123,81 +120,13 @@ class ShopifyStatusCommand extends Command
     }
 
     /**
+     * Added: the report itself now lives in ShopifyStatusService, shared with the status API endpoint.
+     *
      * @return array<string, mixed>
      */
     private function describe(Providers $provider): array
     {
-        $config = $provider->getApiConfigArray();
-
-        $states = ProviderSyncStates::withoutGlobalScope(AuthorizationScope::class)->withoutGlobalScope(LimitScope::class)
-            ->where('marketplace_provider_id', $provider->id)
-            ->get()
-            ->keyBy('entity_type');
-
-        $entities = [];
-
-        foreach (['products', 'inventory', 'orders', 'customers'] as $entity) {
-            $state = $states->get($entity);
-
-            $entities[$entity] = [
-                'cursor' => $state?->cursor_updated_at,
-                'last_success' => $state?->last_success_at,
-                'consecutive_failures' => (int) ($state?->consecutive_failures ?? 0),
-                'records_processed' => (int) ($state?->records_processed ?? 0),
-                'last_error' => $state?->last_error,
-            ];
-        }
-
-        $webhooks = [
-            'pending' => WebhookEvents::withoutGlobalScope(AuthorizationScope::class)->withoutGlobalScope(LimitScope::class)
-                ->where('marketplace_provider_id', $provider->id)
-                ->where('is_processed', false)
-                ->where('attempts', '<', ProcessShopifyWebhookJob::MAX_ATTEMPTS)
-                ->count(),
-            'dead_letters' => WebhookEvents::withoutGlobalScope(AuthorizationScope::class)->withoutGlobalScope(LimitScope::class)
-                ->where('marketplace_provider_id', $provider->id)
-                ->where('is_processed', false)
-                ->where('attempts', '>=', ProcessShopifyWebhookJob::MAX_ATTEMPTS)
-                ->count(),
-            'processed_24h' => WebhookEvents::withoutGlobalScope(AuthorizationScope::class)->withoutGlobalScope(LimitScope::class)
-                ->where('marketplace_provider_id', $provider->id)
-                ->where('is_processed', true)
-                ->where('processed_at', '>=', now()->subDay())
-                ->count(),
-        ];
-
-        $mapped = [
-            'products' => DB::table('marketplace_product_mappings')
-                ->where('marketplace_provider_id', $provider->id)->whereNull('deleted_at')->count(),
-            'variants' => DB::table('marketplace_product_catalog_mappings')
-                ->where('marketplace_provider_id', $provider->id)->whereNull('deleted_at')->count(),
-            'customers' => DB::table('marketplace_customer_mappings')
-                ->where('marketplace_provider_id', $provider->id)->whereNull('deleted_at')->count(),
-            'orders' => DB::table('marketplace_orders')
-                ->where('marketplace_provider_id', $provider->id)->whereNull('deleted_at')->count(),
-        ];
-
-        $failingOrders = DB::table('marketplace_orders')
-            ->where('marketplace_provider_id', $provider->id)
-            ->whereNotNull('sync_error_message')
-            ->whereNull('deleted_at')
-            ->count();
-
-        return [
-            'provider_id' => $provider->id,
-            'name' => $provider->name,
-            'shop' => $config['shop_domain'] ?? null,
-            'is_active' => (bool) $provider->is_active,
-            'alerting_muted' => $provider->isAlertingMuted(),
-            'alerting_mute_reason' => $provider->alertingMuteReason(),
-            'has_token' => $provider->getDecryptedAccessToken() !== null,
-            'api_version' => $config['api_version'] ?? null,
-            'location_id' => $config['location_id'] ?? null,
-            'entities' => $entities,
-            'webhooks' => $webhooks,
-            'mapped' => $mapped,
-            'orders_with_sync_errors' => $failingOrders,
-        ];
+        return ShopifyStatusService::describe($provider);
     }
 
     /**
