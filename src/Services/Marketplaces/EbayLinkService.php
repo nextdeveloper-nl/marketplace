@@ -15,6 +15,7 @@ use NextDeveloper\Marketplace\Database\Models\ProductMappings;
 use NextDeveloper\Marketplace\Database\Models\Products;
 use NextDeveloper\Marketplace\Database\Models\Providers;
 use NextDeveloper\Marketplace\Services\Marketplaces\Adapters\Ebay\EbayClient;
+use NextDeveloper\Marketplace\Services\Marketplaces\Adapters\Ebay\EbayUserException;
 
 /**
  * Links an EXISTING local product to eBay, either to a listing that already exists (match by SKU)
@@ -85,6 +86,12 @@ class EbayLinkService
         try {
             // The writes are the link's own bookkeeping, not an action the requesting user's roles cover.
             return UserHelper::withRolesCheckBypassed(fn () => $this->run($options));
+        } catch (EbayUserException $e) {
+            // eBay's own message, returned with its errors by the controller.
+            throw $e;
+        } catch (\RuntimeException $e) {
+            // Added: a rejected token or an eBay outage is a readable refusal, not a 500.
+            throw new NotAllowedException(ExternalProviderResolver::describeFailure($e, 'eBay'));
         } finally {
             $lock->release();
         }

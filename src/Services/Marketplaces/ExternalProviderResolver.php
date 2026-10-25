@@ -62,4 +62,30 @@ class ExternalProviderResolver
 
         return $connected->first();
     }
+
+    /**
+     * A message for a failed call to the external API, for the user instead of a 500.
+     *
+     * The clients throw a plain RuntimeException that carries "HTTP <status>" in its text. A 401/403
+     * means the stored token is no longer accepted, which is the common cause and needs the shop to be
+     * reconnected, so it gets its own wording.
+     */
+    public static function describeFailure(\Throwable $e, string $label): string
+    {
+        $message = $e->getMessage();
+
+        if (preg_match('/HTTP (401|403)\b/', $message, $m)) {
+            return "{$label} rejected the stored access token (HTTP {$m[1]}). The connection is no longer valid: reconnect {$label} with a fresh access token, then activate it.";
+        }
+
+        if (preg_match('/HTTP 429\b/', $message)) {
+            return "{$label} is rate limiting requests. Try again in a minute.";
+        }
+
+        if (preg_match('/HTTP (5\d\d)\b/', $message, $m)) {
+            return "{$label} had a server error (HTTP {$m[1]}). Try again later.";
+        }
+
+        return "The {$label} request failed: ".mb_substr($message, 0, 200);
+    }
 }

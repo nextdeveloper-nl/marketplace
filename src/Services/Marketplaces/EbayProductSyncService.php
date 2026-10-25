@@ -121,6 +121,11 @@ class EbayProductSyncService
         try {
             // The writes are the sync's own bookkeeping, not an action the requesting user's roles cover.
             return UserHelper::withRolesCheckBypassed(fn () => $this->run($dryRun, $prefer));
+        } catch (EbayUserException $e) {
+            throw $e;
+        } catch (\RuntimeException $e) {
+            // Added: a rejected token or an eBay outage is a readable refusal, not a 500.
+            throw new NotAllowedException(ExternalProviderResolver::describeFailure($e, 'eBay'));
         } finally {
             $lock->release();
         }

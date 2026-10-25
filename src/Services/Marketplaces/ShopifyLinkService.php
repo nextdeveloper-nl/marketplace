@@ -76,6 +76,9 @@ class ShopifyLinkService
         try {
             // The writes are the link's own bookkeeping, not an action the requesting user's roles cover.
             return UserHelper::withRolesCheckBypassed(fn () => $this->run($options));
+        } catch (\RuntimeException $e) {
+            // Added: a rejected token or a Shopify outage is a readable refusal, not a 500.
+            throw new NotAllowedException(ExternalProviderResolver::describeFailure($e, 'Shopify'));
         } finally {
             $lock->release();
         }
