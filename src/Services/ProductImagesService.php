@@ -13,7 +13,12 @@ use NextDeveloper\Commons\Services\MediaService;
 use NextDeveloper\IAM\Database\Models\Accounts;
 use NextDeveloper\IAM\Database\Models\Users;
 use NextDeveloper\IAM\Helpers\UserHelper;
+use NextDeveloper\Marketplace\Database\Models\ProductMappings;
 use NextDeveloper\Marketplace\Database\Models\Products;
+use NextDeveloper\Marketplace\Services\Marketplaces\ExternalProviderResolver;
+use NextDeveloper\Marketplace\Services\Marketplaces\ExternalSyncGate;
+use NextDeveloper\Marketplace\Services\Marketplaces\ShopifyProductPushService;
+use NextDeveloper\Marketplace\Services\Marketplaces\ShopifyService;
 
 /**
  * Product images.
@@ -243,6 +248,40 @@ class ProductImagesService
 
         self::ensureCover($product);
         self::forget($product);
+    }
+
+    /**
+     * Sends the product's images to a connected Shopify shop. Add-only: images the shop does not have yet are added,
+     * nothing on the shop is replaced or removed. Explicit on purpose (never part of the automatic push), and it
+     * only works for a product that is already mapped to a Shopify product and on a shop whose product push is
+     * switched on and approved.
+     *
+     * @return array<string, mixed> pushed (bool), reason (when nothing was sent), added (count)
+     */
+    public static function pushToShopify(string $productRef, ?string $providerRef = null): array
+    {
+        $product = self::product($productRef, true);
+
+        // The account-owner gate used by every external-marketplace action (see ExternalSyncGate).
+        ExternalSyncGate::assertCanManage($product);
+
+        $provider = ExternalProviderResolver::resolve($product, 'shopify', 'Shopify', $providerRef);
+
+        $mapping = ProductMappings::withoutGlobalScopes()
+            ->where('marketplace_provider_id', $provider->id)
+            ->where('marketplace_product_id', $product->id)
+            ->first();
+
+        if (! $mapping) {
+            self::refuse('product_id', 'This product is not linked to a Shopify product yet. Link it first.');
+        }
+
+        try {
+            return (new ShopifyProductPushService(new ShopifyService($provider)))->pushImages($product, $mapping);
+        } catch (\LogicException $e) {
+            // Push not enabled / not approved for this shop: a refusal the caller can act on, not a 500.
+            self::refuse('provider_id', $e->getMessage());
+        }
     }
 
     /**

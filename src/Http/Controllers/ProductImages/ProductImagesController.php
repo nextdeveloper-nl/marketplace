@@ -71,6 +71,17 @@ class ProductImagesController extends AbstractController
         return $this->collection(ProductImagesService::setCover($ref, $imageId));
     }
 
+    /**
+     * POST /marketplace/products/{product}/images/push-shopify
+     * Body: optional `provider_id` (needed only when the account has several Shopify shops).
+     */
+    public function pushShopify($ref, Request $request)
+    {
+        $data = $request->validate(['provider_id' => 'nullable|uuid']);
+
+        return response()->json(ProductImagesService::pushToShopify($ref, $data['provider_id'] ?? null));
+    }
+
     /** DELETE /marketplace/products/{product}/images/{image} */
     public function destroy($ref, $imageId)
     {
