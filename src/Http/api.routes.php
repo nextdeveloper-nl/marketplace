@@ -75,6 +75,14 @@ Route::prefix('marketplace')->group(
                 Route::get('{marketplace_products}/addresses ', 'Products\ProductsController@addresses');
                 Route::post('{marketplace_products}/addresses ', 'Products\ProductsController@saveAddresses');
 
+                // Added: product images (URL / own S3 bucket references). Declared before the {subObjects} catch-all.
+                Route::get('/{marketplace_products}/images', 'ProductImages\ProductImagesController@index');
+                Route::post('/{marketplace_products}/images', 'ProductImages\ProductImagesController@store');
+                Route::post('/{marketplace_products}/images/import', 'ProductImages\ProductImagesController@import');
+                Route::put('/{marketplace_products}/images/order', 'ProductImages\ProductImagesController@reorder');
+                Route::post('/{marketplace_products}/images/{image}/cover', 'ProductImages\ProductImagesController@cover');
+                Route::delete('/{marketplace_products}/images/{image}', 'ProductImages\ProductImagesController@destroy');
+
                 Route::get('/{marketplace_products}/{subObjects}', 'Products\ProductsController@relatedObjects');
                 Route::get('/{marketplace_products}', 'Products\ProductsController@show');
 

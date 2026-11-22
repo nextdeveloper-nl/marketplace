@@ -2,6 +2,7 @@
 
 namespace NextDeveloper\Marketplace\Services\Marketplaces;
 
+use NextDeveloper\Marketplace\Services\ProductImagesService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -130,6 +131,14 @@ class ShopifyApplyService
 
         $product->fill($attributes);
         $product->saveQuietly();
+
+        // Added: mirror the listing's images into the product's media (references only, nothing is copied) so they
+        // show up in include=media. A failure here must never fail the product sync itself.
+        try {
+            ProductImagesService::syncProviderImages($product, 'shopify', (array) ($n['images'] ?? []));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning(__METHOD__.' - image sync failed', ['product' => $product->uuid, 'error' => $e->getMessage()]);
+        }
 
         if (! $mapping) {
             $mapping = new ProductMappings;

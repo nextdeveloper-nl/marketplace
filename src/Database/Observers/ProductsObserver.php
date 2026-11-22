@@ -120,6 +120,13 @@ class ProductsObserver
      */
     public function deleted(Model $model)
     {
+        // Added: drop the product's image references (the files themselves stay with the customer).
+        try {
+            \NextDeveloper\Marketplace\Services\ProductImagesService::detachAll($model);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning(__METHOD__.' - image cleanup failed', ['product' => $model->uuid, 'error' => $e->getMessage()]);
+        }
+
         Events::fire('deleted:NextDeveloper\Marketplace\Products', $model);
     }
 
