@@ -2,6 +2,7 @@
 
 namespace NextDeveloper\Marketplace\Services\Marketplaces;
 
+use NextDeveloper\Marketplace\Services\ProductImagesService;
 use Illuminate\Support\Facades\Cache;
 use NextDeveloper\Commons\Database\GlobalScopes\LimitScope;
 use NextDeveloper\Commons\Database\Models\Currencies;
@@ -297,9 +298,20 @@ class EbayLinkService
             $problems[] = 'the market has no currency';
         }
 
-        $images = array_values(array_filter((array) ($o['image_urls'] ?? ($this->product->metadata['ebay']['images'] ?? []))));
+        // Changed: explicit image_urls win, then the product's own images (Media, cover first), and only then whatever
+        // the last eBay import left in metadata. Metadata images are {url, alt} pairs, so they are reduced to URLs.
+        $images = array_values(array_filter((array) ($o['image_urls'] ?? [])));
         if ($images === []) {
-            $problems[] = 'eBay needs at least one public image URL (pass image_urls)';
+            $images = ProductImagesService::urlsFor($this->product);
+        }
+        if ($images === []) {
+            $images = array_values(array_filter(array_map(
+                fn ($i) => is_array($i) ? ($i['url'] ?? null) : $i,
+                (array) ($this->product->metadata['ebay']['images'] ?? [])
+            )));
+        }
+        if ($images === []) {
+            $problems[] = 'eBay needs at least one public image: add an image to the product (URL or one stored in your own S3 bucket) or pass image_urls';
         }
 
         if ($problems !== []) {

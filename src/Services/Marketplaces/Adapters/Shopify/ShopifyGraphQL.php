@@ -368,6 +368,19 @@ class ShopifyGraphQL
     GQL;
 
     /**
+     * Attach new images to a product. Add-only: existing Shopify media is never replaced or removed, which is why
+     * this is allowed while PRODUCT_PUSH deliberately leaves images alone. Shopify downloads each URL itself.
+     */
+    public const PRODUCT_MEDIA_ADD = <<<'GQL'
+    mutation ProductMediaAdd($product: ProductUpdateInput!, $media: [CreateMediaInput!]!) {
+      productUpdate(product: $product, media: $media) {
+        product { id updatedAt }
+        userErrors { field message }
+      }
+    }
+    GQL;
+
+    /**
      * Push variant pricing. SKU is not pushed — it is the merchant's own key
      * into their warehouse and other channels, and rewriting it from our side
      * would break joins we do not own.

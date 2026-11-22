@@ -47,6 +47,8 @@ class ProductsPerspectiveTransformer extends AbstractProductsPerspectiveTransfor
         }
 
         $transformed = parent::transform($model);
+        // Added: cover image address for list views (cached with the rest; cleared when the images change).
+        $transformed['cover_image_url'] = \NextDeveloper\Marketplace\Services\ProductImagesService::coverUrlFor((int) $model->id, (int) $model->iam_account_id);
         $transformed['sales_pitch_short'] = Str::words($transformed['sales_pitch'], 20);
 
         Cache::set(

@@ -345,6 +345,56 @@ class ShopifyAdapter implements CustomerSyncAdapter, FulfillmentAdapter, Invento
     }
 
     /**
+     * Send the product's images that Shopify does not have yet. Add-only (nothing on the shop is replaced or
+     * removed), gated by the same push policy and approval as the catalogue push. URLs already sent are remembered
+     * in metadata so a repeat run sends nothing.
+     *
+     * @return array<string, mixed>
+     */
+    public function pushImages(Products $product): array
+    {
+        $this->assertPushAllowed('products');
+        $this->assertProductPushApproved();
+
+        $externalId = $this->externalProductIdFor($product);
+
+        if ($externalId === null) {
+            return ['pushed' => false, 'reason' => 'unmapped'];
+        }
+
+        $metadata = is_array($product->metadata) ? $product->metadata : [];
+        $known = array_merge(
+            array_column((array) data_get($metadata, 'shopify.images', []), 'url'),
+            (array) data_get($metadata, 'shopify.pushed_image_urls', [])
+        );
+
+        $new = array_values(array_diff(\NextDeveloper\Marketplace\Services\ProductImagesService::urlsFor($product), $known));
+
+        if ($new === []) {
+            return ['pushed' => false, 'reason' => 'nothing_new'];
+        }
+
+        $media = array_map(fn ($url) => ['originalSource' => $url, 'mediaContentType' => 'IMAGE'], $new);
+
+        $data = $this->client->mutate(
+            ShopifyGraphQL::PRODUCT_MEDIA_ADD,
+            ['product' => ['id' => $externalId], 'media' => $media],
+            $this->idempotencyKey('product-media', (string) $product->id, md5(json_encode($new) ?: ''))
+        );
+
+        $errors = (array) data_get($data, 'productUpdate.userErrors', []);
+        if ($errors !== []) {
+            throw new \RuntimeException('Shopify refused the images: '.json_encode($errors));
+        }
+
+        $metadata['shopify']['pushed_image_urls'] = array_values(array_unique(array_merge($known, $new)));
+        $product->metadata = $metadata;
+        $product->saveQuietly();
+
+        return ['pushed' => true, 'external_id' => $externalId, 'added' => count($new)];
+    }
+
+    /**
      * What a push would change, without writing anything.
      *
      * This is what the dry-run gate renders: enabling catalogue push on a shop

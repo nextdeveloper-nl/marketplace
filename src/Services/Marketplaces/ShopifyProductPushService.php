@@ -51,6 +51,23 @@ class ShopifyProductPushService
     }
 
     /**
+     * Send images Shopify does not have yet (add-only), then re-read the product so our fingerprint matches.
+     * Explicit on purpose: it is not part of the automatic push, because Shopify has no undo for media.
+     *
+     * @return array<string, mixed>
+     */
+    public function pushImages(Products $product, ProductMappings $mapping): array
+    {
+        $result = $this->service->getAdapter()->pushImages($product);
+
+        if (($result['pushed'] ?? false) === true) {
+            $this->reapply((string) $mapping->external_product_id);
+        }
+
+        return $result;
+    }
+
+    /**
      * Record that local and remote agree, so the row stops looking
      * locally-edited on every subsequent run.
      */
