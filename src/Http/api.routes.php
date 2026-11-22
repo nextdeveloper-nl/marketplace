@@ -80,6 +80,7 @@ Route::prefix('marketplace')->group(
                 Route::post('/{marketplace_products}/images', 'ProductImages\ProductImagesController@store');
                 Route::post('/{marketplace_products}/images/import', 'ProductImages\ProductImagesController@import');
                 Route::put('/{marketplace_products}/images/order', 'ProductImages\ProductImagesController@reorder');
+                Route::post('/{marketplace_products}/images/push-shopify', 'ProductImages\\ProductImagesController@pushShopify');
                 Route::post('/{marketplace_products}/images/{image}/cover', 'ProductImages\ProductImagesController@cover');
                 Route::delete('/{marketplace_products}/images/{image}', 'ProductImages\ProductImagesController@destroy');
 
