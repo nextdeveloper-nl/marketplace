@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use NextDeveloper\Commons\Common\Cache\CacheHelper;
 use NextDeveloper\Commons\Common\Enums\GenericErrorCodes;
 use NextDeveloper\Commons\Database\Models\Media;
+use NextDeveloper\Commons\Exceptions\NotAllowedException;
 use NextDeveloper\Commons\Services\MediaService;
 use NextDeveloper\IAM\Database\Models\Accounts;
 use NextDeveloper\IAM\Database\Models\Users;
@@ -40,9 +41,6 @@ class ProductImagesService
     /** Hard cap so a runaway import cannot attach thousands of rows to one product. */
     public const MAX_IMAGES = 50;
 
-    /** Owner uuids for media created by a background sync; empty means "the signed-in user". */
-    private static array $owner = [];
-
     /**
      * Images of a product, cover first, then by order.
      */
@@ -54,7 +52,8 @@ class ProductImagesService
     /**
      * Public URLs of the product's images in display order (cover first). This is what listings pushed to a
      * marketplace are built from, so the media rows are the single source of truth for images.
-     * The caller has already been authorized on the product; the read is not filtered by the caller's account
+     * Only media owned by the product's own account counts: the generic media API lets anyone who can see a public
+     * product attach a file to it, and such files must never reach a listing. Not filtered by the caller's account
      * because pushes also run from queue jobs.
      *
      * @return array<int, string>
@@ -64,6 +63,7 @@ class ProductImagesService
         return Media::withoutGlobalScopes()
             ->where('object_type', Products::class)
             ->where('object_id', $product->id)
+            ->where('iam_account_id', $product->iam_account_id)
             ->where('collection_name', self::COLLECTION)
             ->whereNull('deleted_at')
             ->whereNotNull('cdn_url')
@@ -78,11 +78,12 @@ class ProductImagesService
      * Null when the product has no image. Files are referenced, not hosted, so there are no resized variants:
      * the URL is the customer's own (their CDN or S3 bucket) and is served as it is.
      */
-    public static function coverUrlFor(int $productId): ?string
+    public static function coverUrlFor(int $productId, int $accountId): ?string
     {
         $rows = Media::withoutGlobalScopes()
             ->where('object_type', Products::class)
             ->where('object_id', $productId)
+            ->where('iam_account_id', $accountId)
             ->where('collection_name', self::COLLECTION)
             ->whereNull('deleted_at')
             ->whereNotNull('cdn_url')
@@ -112,7 +113,7 @@ class ProductImagesService
      */
     public static function addFromUrl(string $productRef, string $url, ?string $alt = null, bool $asCover = false): Media
     {
-        $product = self::product($productRef);
+        $product = self::product($productRef, true);
 
         return self::register($product, self::assertUrl($url), self::SOURCE_URL, ['alt' => $alt], $asCover);
     }
@@ -125,7 +126,7 @@ class ProductImagesService
      */
     public static function importFromUrls(string $productRef, array $items): array
     {
-        $product = self::product($productRef);
+        $product = self::product($productRef, true);
         $summary = ['added' => 0, 'skipped' => 0, 'failed' => 0, 'results' => []];
 
         foreach ($items as $item) {
@@ -160,7 +161,7 @@ class ProductImagesService
      */
     public static function addFromS3(string $productRef, string $bucketRef, string $objectKey, ?string $alt = null, bool $asCover = false): Media
     {
-        $product = self::product($productRef);
+        $product = self::product($productRef, true);
         $bucketModel = 'NextDeveloper\\S3\\Database\\Models\\BucketsPerspective';
 
         if (! class_exists($bucketModel)) {
@@ -207,7 +208,8 @@ class ProductImagesService
     {
         $account = Accounts::withoutGlobalScopes()->find($product->iam_account_id);
         $user = Users::withoutGlobalScopes()->find($product->iam_user_id);
-        self::$owner = array_filter([
+        // Passed explicitly down to register(); no static state that could leak into the next call.
+        $owner = array_filter([
             'iam_account_id' => $account?->uuid,
             'iam_user_id' => $user?->uuid,
         ]);
@@ -236,12 +238,11 @@ class ProductImagesService
             if (self::findByUrl($product, $url)) {
                 continue;
             }
-            self::register($product, $url, self::SOURCE_PROVIDER, ['alt' => $alt, 'provider' => $providerKey], false, false);
+            self::register($product, $url, self::SOURCE_PROVIDER, ['alt' => $alt, 'provider' => $providerKey], false, false, $owner);
         }
 
         self::ensureCover($product);
         self::forget($product);
-        self::$owner = [];
     }
 
     /**
@@ -251,7 +252,7 @@ class ProductImagesService
      */
     public static function reorder(string $productRef, array $orderedIds): Collection
     {
-        $product = self::product($productRef);
+        $product = self::product($productRef, true);
         $images = self::query($product)->get()->keyBy('uuid');
 
         foreach ($orderedIds as $id) {
@@ -277,7 +278,7 @@ class ProductImagesService
      */
     public static function setCover(string $productRef, string $mediaId): Collection
     {
-        $product = self::product($productRef);
+        $product = self::product($productRef, true);
         $images = self::query($product)->get();
 
         if (! $images->firstWhere('uuid', $mediaId)) {
@@ -302,7 +303,7 @@ class ProductImagesService
      */
     public static function remove(string $productRef, string $mediaId): void
     {
-        $product = self::product($productRef);
+        $product = self::product($productRef, true);
         $media = self::query($product)->where('uuid', $mediaId)->first();
 
         if (! $media) {
@@ -317,13 +318,21 @@ class ProductImagesService
 
     // ------------------------------------------------------------------------------------------------------------
 
-    private static function product(string $ref): Products
+    /**
+     * @param  bool  $forWrite  Writes need more than visibility: a public product is visible to everyone, but only
+     *                          the account that owns it may change its images.
+     */
+    private static function product(string $ref, bool $forWrite = false): Products
     {
         // Goes through Products' AuthorizationScope: a product the caller cannot see is not found.
         $product = ProductsService::getByRef($ref);
 
         if (! $product) {
             self::refuse('product_id', 'The product cannot be found.');
+        }
+
+        if ($forWrite && (int) $product->iam_account_id !== (int) UserHelper::currentAccount()?->id) {
+            throw new NotAllowedException('Only the account that owns this product can change its images.');
         }
 
         return $product;
@@ -333,6 +342,7 @@ class ProductImagesService
     {
         return Media::where('object_type', Products::class)
             ->where('object_id', $product->id)
+            ->where('iam_account_id', $product->iam_account_id)
             ->where('collection_name', self::COLLECTION)
             ->orderBy('order_column')
             ->orderBy('id');
@@ -346,7 +356,7 @@ class ProductImagesService
     /**
      * Creates the reference row, or returns the existing one for the same URL.
      */
-    private static function register(Products $product, string $url, string $source, array $props, bool $asCover = false, bool $refresh = true): Media
+    private static function register(Products $product, string $url, string $source, array $props, bool $asCover = false, bool $refresh = true, array $owner = []): Media
     {
         if ($existing = self::findByUrl($product, $url)) {
             return $existing;
@@ -357,7 +367,7 @@ class ProductImagesService
             self::refuse('url', 'A product can have at most '.self::MAX_IMAGES.' images.');
         }
 
-        $media = MediaService::create(self::$owner + [
+        $media = MediaService::create($owner + [
             'object_type' => Products::class,
             'object_id' => $product->uuid,
             'collection_name' => self::COLLECTION,

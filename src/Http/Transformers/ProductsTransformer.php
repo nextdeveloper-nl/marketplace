@@ -47,7 +47,7 @@ class ProductsTransformer extends AbstractProductsTransformer
 
         $transformed = parent::transform($model);
         // Added: cover image address for list views (cached with the rest; cleared when the images change).
-        $transformed['cover_image_url'] = \NextDeveloper\Marketplace\Services\ProductImagesService::coverUrlFor((int) $model->id);
+        $transformed['cover_image_url'] = \NextDeveloper\Marketplace\Services\ProductImagesService::coverUrlFor((int) $model->id, (int) $model->iam_account_id);
 
         Cache::set(
             CacheHelper::getKey('Products', $model->uuid, 'Transformed'),
