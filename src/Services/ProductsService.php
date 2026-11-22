@@ -2,6 +2,8 @@
 
 namespace NextDeveloper\Marketplace\Services;
 
+use NextDeveloper\Commons\Database\Models\Categories;
+use NextDeveloper\Commons\Exceptions\NotAllowedException;
 use NextDeveloper\Marketplace\Database\Filters\ProductsQueryFilter;
 use NextDeveloper\Marketplace\Services\AbstractServices\AbstractProductsService;
 
@@ -16,6 +18,43 @@ class ProductsService extends AbstractProductsService
 {
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
+
+    /**
+     * Added: a product may only use a category the caller can see (public, or owned by the current account).
+     * Categories are tenant owned now, so another tenant's private category must be rejected loudly instead of
+     * being silently dropped when the uuid fails to resolve.
+     */
+    public static function create(array $data)
+    {
+        self::assertCategoryUsable($data['common_category_id'] ?? null);
+
+        return parent::create($data);
+    }
+
+    /**
+     * Added: same category visibility rule on update.
+     */
+    public static function update($id, array $data)
+    {
+        self::assertCategoryUsable($data['common_category_id'] ?? null);
+
+        return parent::update($id, $data);
+    }
+
+    /**
+     * Goes through Categories' AuthorizationScope on purpose: categories the caller cannot see are not found.
+     */
+    private static function assertCategoryUsable(?string $categoryUuid): void
+    {
+        if (!$categoryUuid) {
+            return;
+        }
+
+        if (!Categories::where('uuid', $categoryUuid)->exists()) {
+            throw new NotAllowedException('The category cannot be found or you are not allowed to use it.');
+        }
+    }
+
     public static function get(?ProductsQueryFilter $filter = null, array $params = []): \Illuminate\Database\Eloquent\Collection|\Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         return parent::get($filter, $params);
