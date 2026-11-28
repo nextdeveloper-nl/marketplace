@@ -41,5 +41,21 @@ class ProductsCreateRequest extends AbstractFormRequest
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n
 
+    /**
+     * Added (leo4#1394): an optional first plan, so a product can be created with its price in one step.
+     * ProductsService::create() turns it into a product catalog. Merged here because rules() above is regenerated.
+     *
+     * @return array<string, string>
+     */
+    protected function validationRules()
+    {
+        return array_merge(parent::validationRules(), [
+            'catalog' => 'nullable|array',
+            'catalog.price' => 'required_with:catalog|numeric|min:0',
+            'catalog.sku' => 'nullable|string',
+            'catalog.common_currency_id' => 'nullable|uuid|exists:common_currencies,uuid',
+        ]);
+    }
+
 
 }
