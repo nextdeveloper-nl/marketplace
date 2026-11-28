@@ -17,6 +17,12 @@ A `Products` row is the abstract, sellable item definition: `name`, `content`, `
 
 A `ProductCatalogs` row is the actual purchasable variant of a Product: `price`, `sku`, `quantity_in_inventory`, `trial_date`, `features`, `common_currency_id`, belonging to a Product. Subscriptions and Order Items reference the catalog row, not the Product directly — the catalog is "the SKU," the Product is "the listing." `ProductCatalogsPerspective` mirrors this for reporting/listing.
 
+## Stock Status and Movements
+
+A catalog row also carries `stock_status` (`in_stock`, `out_of_stock`, `in_transit`, `at_customs`, `on_order`, or empty when not tracked) and `expected_arrival_at`. `quantity_in_inventory` is the running total; `-1` means unlimited.
+
+`StockMovements` (`marketplace_stock_movements`) is the stock history of a catalog row: `incoming`, `sale`, `rental_out`, `rental_return`, `adjustment`, with a signed `quantity`, the resulting `quantity_after`, `moved_at`, notes and an optional `crm_opportunity_id` / `crm_quote_id`. `POST /marketplace/stock-movements` updates the row's `quantity_in_inventory` in the same transaction (never below 0; an unlimited row starts counting from 0) and moves an explicit status along (`StockLedger::statusAfter`). The ledger is append-only: a mistake is corrected with an `adjustment`. `GET /marketplace/stock-movements/summary` returns units per catalog row and movement type, optionally per `interval` (`day`, `week`, `month`). Direct edits of `quantity_in_inventory` (the panel field, Shopify / Ideasoft sync) do not write a movement.
+
 ## Mapping External Products
 
 `ProductMappings` and `ProductCatalogMappings` link an internal Product/ProductCatalog to its `external_product_id`/`external_catalog_id` on a specific Provider. This is the reconciliation table sync jobs read and write: when a Shopify webhook arrives for a product, the mapping table is how the module finds (or creates) the matching internal record, and vice versa when pushing a local price change out to Shopify. `MappingExternalProduct` (a helper, not a model) provides the lookup functions (`mapProductCatalog`, `mapMainProduct`, `mapOrderStatus`) used across the sync pipeline, logging a warning whenever an external ID can't be resolved to an internal record instead of failing the whole sync run.

@@ -265,6 +265,21 @@ Route::prefix('marketplace')->group(
             }
         );
 
+        Route::prefix('stock-movements')->group(
+            function () {
+                Route::get('/', 'StockMovements\StockMovementsController@index');
+                Route::get('/actions', 'StockMovements\StockMovementsController@getActions');
+                // Units sold / rented / received per plan (and per day, week or month).
+                Route::get('/summary', 'StockMovements\StockMovementsController@summary');
+
+                Route::get('/{marketplace_stock_movements}/{subObjects}', 'StockMovements\StockMovementsController@relatedObjects');
+                Route::get('/{marketplace_stock_movements}', 'StockMovements\StockMovementsController@show');
+
+                // Append-only ledger: no PATCH / DELETE. A mistake is corrected with an adjustment movement.
+                Route::post('/', 'StockMovements\StockMovementsController@store');
+            }
+        );
+
         Route::prefix('order-items-perspective')->group(
             function () {
                 Route::get('/', 'OrderItemsPerspective\OrderItemsPerspectiveController@index');

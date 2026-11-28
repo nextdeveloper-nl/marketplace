@@ -37,6 +37,8 @@ use NextDeveloper\Commons\Database\Traits\RunAsAdministrator;
  * @property integer $iam_account_id
  * @property integer $iam_user_id
  * @property integer $common_currency_id
+ * @property string $stock_status
+ * @property \Carbon\Carbon $expected_arrival_at
  */
 class ProductCatalogs extends Model
 {
@@ -68,6 +70,8 @@ class ProductCatalogs extends Model
             'iam_account_id',
             'iam_user_id',
             'common_currency_id',
+            'stock_status',
+            'expected_arrival_at',
     ];
 
     /**
@@ -105,6 +109,8 @@ class ProductCatalogs extends Model
     'features' => \NextDeveloper\Commons\Database\Casts\TextArray::class,
     'is_public' => 'boolean',
     'common_currency_id' => 'integer',
+    'stock_status' => 'string',
+    'expected_arrival_at' => 'datetime',
     ];
 
     /**
@@ -116,6 +122,7 @@ class ProductCatalogs extends Model
     'created_at',
     'updated_at',
     'deleted_at',
+    'expected_arrival_at',
     ];
 
     /**
@@ -183,6 +190,11 @@ class ProductCatalogs extends Model
     public function productCatalogMappings() : \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\ProductCatalogMappings::class);
+    }
+
+    public function stockMovements() : \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\StockMovements::class, 'marketplace_product_catalog_id');
     }
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
