@@ -3,6 +3,7 @@
 namespace NextDeveloper\Marketplace\Http\Requests\Products;
 
 use NextDeveloper\Commons\Http\Requests\AbstractFormRequest;
+use NextDeveloper\Marketplace\Helpers\ProductPublishing;
 
 class ProductsCreateRequest extends AbstractFormRequest
 {
@@ -41,5 +42,11 @@ class ProductsCreateRequest extends AbstractFormRequest
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n
 
-
+    /**
+     * Added (leo4#1398): a product cannot be created as public, since it has no image yet.
+     */
+    protected function passedValidation(): void
+    {
+        ProductPublishing::assertCanTurnPublic(null, $this->input('is_public'));
+    }
 }
