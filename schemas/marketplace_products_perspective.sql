@@ -37,24 +37,24 @@ SELECT id,
           WHERE n_ia.id = mp.iam_user_id) AS responsible,
     ( SELECT count(n_mpc.id) AS count
            FROM marketplace_product_catalogs n_mpc
-          WHERE n_mpc.marketplace_product_id = mp.id) AS product_catalog_count,
+          WHERE n_mpc.marketplace_product_id = mp.id AND n_mpc.deleted_at IS NULL) AS product_catalog_count,
     ( SELECT
                 CASE
                     WHEN count(n_mpc2.id) > 0 THEN true
                     ELSE false
                 END AS "case"
            FROM marketplace_product_catalogs n_mpc2
-          WHERE n_mpc2.marketplace_product_id = mp.id AND n_mpc2.trial_date > 0) AS has_free_trial,
+          WHERE n_mpc2.marketplace_product_id = mp.id AND n_mpc2.deleted_at IS NULL AND n_mpc2.trial_date > 0) AS has_free_trial,
     ( SELECT n_mpc2.price
            FROM marketplace_product_catalogs n_mpc2
-          WHERE n_mpc2.marketplace_product_id = mp.id
+          WHERE n_mpc2.marketplace_product_id = mp.id AND n_mpc2.deleted_at IS NULL
           ORDER BY n_mpc2.price
          LIMIT 1) AS starting_from,
     ( SELECT n_cc.code
            FROM common_currencies n_cc
           WHERE n_cc.id = (( SELECT n_mpc3.common_currency_id
                    FROM marketplace_product_catalogs n_mpc3
-                  WHERE n_mpc3.marketplace_product_id = mp.id
+                  WHERE n_mpc3.marketplace_product_id = mp.id AND n_mpc3.deleted_at IS NULL
                   ORDER BY n_mpc3.price
                  LIMIT 1))) AS currency_code,
     ( SELECT n_pa.meeting_link
