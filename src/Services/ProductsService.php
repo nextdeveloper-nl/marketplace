@@ -2,8 +2,13 @@
 
 namespace NextDeveloper\Marketplace\Services;
 
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use NextDeveloper\Commons\Database\Models\Categories;
 use NextDeveloper\Commons\Exceptions\NotAllowedException;
+use NextDeveloper\IAM\Database\Scopes\AuthorizationScope;
+use NextDeveloper\Marketplace\Database\Models\Markets;
+use NextDeveloper\Marketplace\Database\Models\Products;
 use NextDeveloper\Marketplace\Database\Filters\ProductsQueryFilter;
 use NextDeveloper\Marketplace\Services\AbstractServices\AbstractProductsService;
 
@@ -28,7 +33,62 @@ class ProductsService extends AbstractProductsService
     {
         self::assertCategoryUsable($data['common_category_id'] ?? null);
 
-        return parent::create($data);
+        $catalog = $data['catalog'] ?? null;
+        unset($data['catalog']);
+
+        // Added (leo4#1394): the API never accepted a slug, so products created from the panel had none. The
+        // marketplace syncs rely on it, so it is generated the way the sync imports do (name slug + short suffix).
+        if (empty($data['slug'])) {
+            $data['slug'] = self::generateSlug((string) ($data['name'] ?? ''));
+        }
+
+        if (! is_array($catalog) || ! isset($catalog['price'])) {
+            return parent::create($data);
+        }
+
+        // Added (leo4#1394): "create with price" makes the product and its first plan together, or neither.
+        return DB::transaction(function () use ($data, $catalog) {
+            $product = parent::create($data);
+
+            self::createFirstCatalog($product, $catalog);
+
+            return $product->fresh();
+        });
+    }
+
+    /**
+     * Platform-wide slugs are not unique on their own, so the name slug gets a random 6-hex suffix.
+     */
+    public static function generateSlug(string $name): string
+    {
+        return (Str::slug($name) ?: 'product').'-'.bin2hex(random_bytes(3));
+    }
+
+    /**
+     * The plan "Add Plan / Item" would make: named after the product, priced in the given currency or,
+     * when none is given, in the market's currency (the currency the catalog price is documented to use).
+     *
+     * @param  array{price: int|float|string, sku?: string|null, common_currency_id?: string|null}  $catalog
+     */
+    private static function createFirstCatalog(Products $product, array $catalog): void
+    {
+        $currency = $catalog['common_currency_id'] ?? null;
+
+        if (! $currency) {
+            $currency = Markets::withoutGlobalScope(AuthorizationScope::class)
+                ->where('id', $product->marketplace_market_id)
+                ->value('common_currency_id');
+        }
+
+        ProductCatalogsService::create([
+            'name' => $product->name,
+            'price' => $catalog['price'],
+            'sku' => $catalog['sku'] ?? null,
+            'common_currency_id' => $currency,
+            'marketplace_product_id' => $product->id,
+            'iam_account_id' => $product->iam_account_id,
+            'iam_user_id' => $product->iam_user_id,
+        ]);
     }
 
     /**
