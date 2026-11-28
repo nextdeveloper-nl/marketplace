@@ -14,7 +14,7 @@ CREATE TABLE marketplace_products (
     subscription_type         subscription_type NOT NULL DEFAULT 'hourly'::subscription_type,
     slug                      text, -- [ro]
     version                   text,
-    product_type              product_type DEFAULT 'onetime'::product_type,
+    product_type              product_type DEFAULT 'onetime'::product_type, -- iaas, saas, paas, onetime, service, subscription, other, product, accessory, spare_part (last two: leo4#1397)
     is_service                boolean DEFAULT false,
     is_in_maintenance         boolean DEFAULT false,
     is_public                 boolean DEFAULT false,

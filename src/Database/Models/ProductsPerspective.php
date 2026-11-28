@@ -55,6 +55,7 @@ use NextDeveloper\Commons\Database\Traits\RunAsAdministrator;
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
+ * @property $product_type
  */
 class ProductsPerspective extends Model
 {
@@ -105,6 +106,7 @@ class ProductsPerspective extends Model
             'tags',
             'iam_account_id',
             'iam_user_id',
+            'product_type',
     ];
 
     /**

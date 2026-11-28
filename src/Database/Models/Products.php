@@ -250,6 +250,22 @@ class Products extends Model
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
 
+    /**
+     * The family of this product (leo4#1397): links to its accessories, spare parts and bundled items.
+     */
+    public function familyItems() : \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\ProductRelations::class, 'marketplace_product_id');
+    }
+
+    /**
+     * The families this product belongs to as an accessory, spare part or bundled item. Several are allowed.
+     */
+    public function families() : \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\NextDeveloper\Marketplace\Database\Models\ProductRelations::class, 'related_marketplace_product_id');
+    }
+
 
 
 

@@ -378,6 +378,21 @@ class ProductsPerspectiveQueryFilter extends AbstractQueryFilter
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
 
+    /**
+     * Kind of product (leo4#1397): product (main product), accessory, spare_part, service, ... Comma separated for
+     * several. The generator emits no filter for enum columns, so it lives here.
+     */
+    public function productType($value)
+    {
+        return $this->builder->whereIn('product_type', array_filter(array_map('trim', explode(',', (string) $value))));
+    }
+
+    //  This is an alias function of productType
+    public function product_type($value)
+    {
+        return $this->productType($value);
+    }
+
 
 
 

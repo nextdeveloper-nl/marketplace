@@ -1,5 +1,6 @@
 -- PostgreSQL
 -- VIEW (read-only; re-run this file with CREATE OR REPLACE VIEW whenever the SELECT needs to change)
+-- New columns go at the END: CREATE OR REPLACE VIEW cannot insert or reorder columns.
 
 CREATE OR REPLACE VIEW marketplace_products_perspective AS
 SELECT id,
@@ -69,5 +70,6 @@ SELECT id,
     iam_user_id,
     created_at,
     updated_at,
-    deleted_at
+    deleted_at,
+    product_type
    FROM marketplace_products mp;

@@ -5,13 +5,14 @@ The catalog model separates **what a product is** from **what you can buy** — 
 ## Key Capabilities
 
 - Define a Product once (name, content, sales pitch, EULA, refund policy) and offer it as one or more priced ProductCatalog variants (price, SKU, stock)
-- Support add-on/bundled products via a parent-product relationship
+- Group products into families: a main product with its accessories, spare parts and bundled items (many-to-many)
+- Say what each plan sells (sale, short or long term rental, service) and how often it is billed
 - Reconcile internal Products/ProductCatalogs with external marketplace product/variant IDs so sync jobs know what maps to what
 - (Planned) let other platform modules auto-generate a marketplace listing for their own resources via the `Productable`/`Catalogable` traits
 
 ## Products
 
-A `Products` row is the abstract, sellable item definition: `name`, `content`, `highlights`, `subscription_type`, `product_type`, `sales_pitch`, `eula`, `refund_policy`, `is_service`, `is_approved`, and the owning `marketplace_market_id`/`marketplace_provider_id`. A product can reference a `parent_marketplace_product_id` and be flagged `is_additional_product` — this is how bundled add-ons (e.g. "extra warranty" on top of a base product) are modeled. `ProductsPerspective` gives a denormalized, read-oriented view for listing.
+A `Products` row is the abstract, sellable item definition: `name`, `content`, `highlights`, `subscription_type`, `product_type`, `sales_pitch`, `eula`, `refund_policy`, `is_service`, `is_approved`, and the owning `marketplace_market_id`/`marketplace_provider_id`. `product_type` also says the kind of product in a family: `product` (main product), `accessory`, `spare_part` or `service`. (The model still lists `parent_marketplace_product_id` / `is_additional_product`, but those columns do not exist in the database; families use `ProductRelations` below.) `ProductsPerspective` gives a denormalized, read-oriented view for listing.
 
 ## Product Catalogs
 
@@ -22,6 +23,14 @@ A `ProductCatalogs` row is the actual purchasable variant of a Product: `price`,
 A catalog row also carries `stock_status` (`in_stock`, `out_of_stock`, `in_transit`, `at_customs`, `on_order`, or empty when not tracked) and `expected_arrival_at`. `quantity_in_inventory` is the running total; `-1` means unlimited.
 
 `StockMovements` (`marketplace_stock_movements`) is the stock history of a catalog row: `incoming`, `sale`, `rental_out`, `rental_return`, `adjustment`, with a signed `quantity`, the resulting `quantity_after`, `moved_at`, notes and an optional `crm_opportunity_id` / `crm_quote_id`. `POST /marketplace/stock-movements` updates the row's `quantity_in_inventory` in the same transaction (never below 0; an unlimited row starts counting from 0) and moves an explicit status along (`StockLedger::statusAfter`). The ledger is append-only: a mistake is corrected with an `adjustment`. `GET /marketplace/stock-movements/summary` returns units per catalog row and movement type, optionally per `interval` (`day`, `week`, `month`). Direct edits of `quantity_in_inventory` (the panel field, Shopify / Ideasoft sync) do not write a movement.
+
+## Product Families
+
+`ProductRelations` (`marketplace_product_relations`) links a main product (`marketplace_product_id`, e.g. a robot) to an item of its family (`related_marketplace_product_id`) with a `relation_type`: `accessory`, `spare_part` or `bundle`. It is many-to-many: the same battery can be an accessory of several robots. Only the account that owns the main product can change its family; the item only has to be visible to that account. One live link per (main product, item, type). `GET /marketplace/product-relations?marketplace_product_id=<uuid>` lists a product's family; `?related_marketplace_product_id=<uuid>` lists the families an item belongs to. Each row carries both products' names and kinds.
+
+## Offering Types and Billing Periods
+
+A catalog row says what it sells in `offering_type` (`sale`, `short_term_rental`, `long_term_rental` = Robot-as-a-Service, `service`) and how often its price is charged in `billing_period` (`one_time`, `day`, `week`, `month`, `year`). Rentals can set `min_rental_duration` / `max_rental_duration`, counted in billing periods. An offering type saved without a period gets a default (sale = one_time, short term rental = day, long term rental = month, service = day). A sale is always one_time and a rental never is (`ProductOfferings::planErrors`, checked on save). These are recorded only: quotes and invoices do not multiply by the period yet.
 
 ## Mapping External Products
 

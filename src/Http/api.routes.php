@@ -265,6 +265,21 @@ Route::prefix('marketplace')->group(
             }
         );
 
+        // Product families (leo4#1397): accessories, spare parts and bundled items of a main product.
+        Route::prefix('product-relations')->group(
+            function () {
+                Route::get('/', 'ProductRelations\ProductRelationsController@index');
+                Route::get('/actions', 'ProductRelations\ProductRelationsController@getActions');
+
+                Route::get('/{marketplace_product_relations}/{subObjects}', 'ProductRelations\ProductRelationsController@relatedObjects');
+                Route::get('/{marketplace_product_relations}', 'ProductRelations\ProductRelationsController@show');
+
+                Route::post('/', 'ProductRelations\ProductRelationsController@store');
+                Route::patch('/{marketplace_product_relations}', 'ProductRelations\ProductRelationsController@update');
+                Route::delete('/{marketplace_product_relations}', 'ProductRelations\ProductRelationsController@destroy');
+            }
+        );
+
         Route::prefix('stock-movements')->group(
             function () {
                 Route::get('/', 'StockMovements\StockMovementsController@index');

@@ -60,6 +60,11 @@ class MarketplaceAdminRole extends AbstractRole implements IAuthorizationRole
             // Stock history (leo4#1396): append-only, so no update / delete.
             'marketplace_stock_movements:read',
             'marketplace_stock_movements:create',
+            // Product families (leo4#1397).
+            'marketplace_product_relations:read',
+            'marketplace_product_relations:create',
+            'marketplace_product_relations:update',
+            'marketplace_product_relations:delete',
             'marketplace_subscriptions:read',
             'marketplace_subscriptions:update',
             'marketplace_subscriptions:create',
