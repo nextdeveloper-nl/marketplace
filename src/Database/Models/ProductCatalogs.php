@@ -10,6 +10,7 @@ use NextDeveloper\Commons\Database\Traits\HasStates;
 use NextDeveloper\Marketplace\Database\Observers\ProductCatalogsObserver;
 use NextDeveloper\Commons\Database\Traits\UuidId;
 use NextDeveloper\Commons\Common\Cache\Traits\CleanCache;
+use NextDeveloper\Commons\Common\Cache\CacheHelper;
 use NextDeveloper\Commons\Database\Traits\Taggable;
 use NextDeveloper\Commons\Database\Traits\RunAsAdministrator;
 
@@ -186,6 +187,42 @@ class ProductCatalogs extends Model
 
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE
 
+    /**
+     * The product's transformed output (ProductsPerspective: starting_from, currency_code, has_free_trial, plan
+     * count) is built from its plans and cached with no expiry. CleanCache only clears the plan's own keys, so
+     * a plan change must also clear its product's, or the product keeps showing the old price.
+     */
+    protected static function booted(): void
+    {
+        static::saved(fn (self $catalog) => $catalog->forgetProductCache());
+        static::deleted(fn (self $catalog) => $catalog->forgetProductCache());
+        static::restored(fn (self $catalog) => $catalog->forgetProductCache());
+    }
+
+    /**
+     * Clears the cached output of the product this plan belongs to, and of the previous product when the plan
+     * was moved to another one.
+     */
+    public function forgetProductCache(): void
+    {
+        $productIds = array_unique(array_filter([
+            $this->marketplace_product_id,
+            $this->getOriginal('marketplace_product_id'),
+        ]));
+
+        if (! $productIds) {
+            return;
+        }
+
+        $productUuids = Products::query()
+            ->withoutGlobalScopes()
+            ->whereIn('id', $productIds)
+            ->pluck('uuid');
+
+        foreach ($productUuids as $productUuid) {
+            CacheHelper::deleteKeys(Products::class, $productUuid);
+        }
+    }
 
 
 
