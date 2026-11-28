@@ -23,6 +23,13 @@ CREATE TABLE marketplace_product_catalogs (
     payment_gateway_mappings  json,
     stock_status              text, -- [label:"Stock status of this item: in_stock, out_of_stock, in_transit, at_customs or on_order. Empty when not tracked."]
     expected_arrival_at       timestamp with time zone, -- [label:"When the stock is expected to arrive. Used with in_transit, at_customs and on_order."]
+    offering_type             text, -- [label:"What this plan sells: sale, short_term_rental, long_term_rental (Robot-as-a-Service) or service. Empty when not set."]
+    billing_period            text, -- [label:"How often the price is charged: one_time, day, week, month or year. Empty when not set."]
+    min_rental_duration       integer, -- [label:"Shortest rental, in billing periods (e.g. 3 with month = at least 3 months)."]
+    max_rental_duration       integer, -- [label:"Longest rental, in billing periods."]
     CONSTRAINT chk_marketplace_product_catalogs_stock_status CHECK (stock_status IS NULL OR stock_status IN ('in_stock', 'out_of_stock', 'in_transit', 'at_customs', 'on_order')),
+    CONSTRAINT chk_marketplace_product_catalogs_offering_type CHECK (offering_type IS NULL OR offering_type IN ('sale', 'short_term_rental', 'long_term_rental', 'service')),
+    CONSTRAINT chk_marketplace_product_catalogs_billing_period CHECK (billing_period IS NULL OR billing_period IN ('one_time', 'day', 'week', 'month', 'year')),
+    CONSTRAINT chk_marketplace_product_catalogs_rental_duration CHECK ((min_rental_duration IS NULL OR min_rental_duration > 0) AND (max_rental_duration IS NULL OR max_rental_duration > 0) AND (min_rental_duration IS NULL OR max_rental_duration IS NULL OR min_rental_duration <= max_rental_duration)),
     CONSTRAINT marketplace_product_catalogs_pkey PRIMARY KEY (id)
 );

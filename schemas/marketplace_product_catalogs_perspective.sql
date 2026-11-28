@@ -24,5 +24,9 @@ SELECT id,
     updated_at,
     deleted_at,
     stock_status,
-    expected_arrival_at
+    expected_arrival_at,
+    offering_type,
+    billing_period,
+    min_rental_duration,
+    max_rental_duration
    FROM marketplace_product_catalogs c;

@@ -11,6 +11,7 @@ use NextDeveloper\Marketplace\Database\Observers\ProductCatalogsObserver;
 use NextDeveloper\Commons\Database\Traits\UuidId;
 use NextDeveloper\Commons\Common\Cache\Traits\CleanCache;
 use NextDeveloper\Commons\Common\Cache\CacheHelper;
+use NextDeveloper\Marketplace\Helpers\ProductOfferings;
 use NextDeveloper\Commons\Database\Traits\Taggable;
 use NextDeveloper\Commons\Database\Traits\RunAsAdministrator;
 
@@ -39,6 +40,10 @@ use NextDeveloper\Commons\Database\Traits\RunAsAdministrator;
  * @property integer $common_currency_id
  * @property string $stock_status
  * @property \Carbon\Carbon $expected_arrival_at
+ * @property string $offering_type
+ * @property string $billing_period
+ * @property integer $min_rental_duration
+ * @property integer $max_rental_duration
  */
 class ProductCatalogs extends Model
 {
@@ -72,6 +77,10 @@ class ProductCatalogs extends Model
             'common_currency_id',
             'stock_status',
             'expected_arrival_at',
+            'offering_type',
+            'billing_period',
+            'min_rental_duration',
+            'max_rental_duration',
     ];
 
     /**
@@ -111,6 +120,10 @@ class ProductCatalogs extends Model
     'common_currency_id' => 'integer',
     'stock_status' => 'string',
     'expected_arrival_at' => 'datetime',
+    'offering_type' => 'string',
+    'billing_period' => 'string',
+    'min_rental_duration' => 'integer',
+    'max_rental_duration' => 'integer',
     ];
 
     /**
@@ -206,9 +219,39 @@ class ProductCatalogs extends Model
      */
     protected static function booted(): void
     {
+        static::saving(fn (self $catalog) => $catalog->assertConsistentOffering());
         static::saved(fn (self $catalog) => $catalog->forgetProductCache());
         static::deleted(fn (self $catalog) => $catalog->forgetProductCache());
         static::restored(fn (self $catalog) => $catalog->forgetProductCache());
+    }
+
+    /**
+     * Offering type, billing period and rental durations must agree (leo4#1397). Checked on the plan's final values,
+     * so a partial update (only billing_period, say) is checked against what the row already holds, and every write
+     * path (API, first plan created with a product, sync jobs) gets the same rules. A plan with none of them set, as
+     * every plan written before them, always passes.
+     *
+     * An offering type saved without a period gets the type's default (sale = one_time, rental = day or month,
+     * service = day).
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function assertConsistentOffering(): void
+    {
+        if ($this->offering_type !== null && $this->billing_period === null) {
+            $this->billing_period = ProductOfferings::billingPeriodFor($this->offering_type, null);
+        }
+
+        $errors = ProductOfferings::planErrors(
+            $this->offering_type,
+            $this->billing_period,
+            $this->min_rental_duration,
+            $this->max_rental_duration,
+        );
+
+        if ($errors) {
+            throw \Illuminate\Validation\ValidationException::withMessages($errors);
+        }
     }
 
     /**

@@ -67,6 +67,28 @@ class ProductCatalogsPerspectiveQueryFilter extends AbstractQueryFilter
         return $this->stockStatus($value);
     }
 
+    public function offeringType($value)
+    {
+        return $this->builder->where('offering_type', '=', $value);
+    }
+
+        //  This is an alias function of offeringType
+    public function offering_type($value)
+    {
+        return $this->offeringType($value);
+    }
+
+    public function billingPeriod($value)
+    {
+        return $this->builder->where('billing_period', '=', $value);
+    }
+
+        //  This is an alias function of billingPeriod
+    public function billing_period($value)
+    {
+        return $this->billingPeriod($value);
+    }
+
     public function expectedArrivalAtStart($date)
     {
         return $this->builder->where('expected_arrival_at', '>=', $date);

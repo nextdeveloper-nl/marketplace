@@ -98,6 +98,7 @@ class AbstractProductsPerspectiveTransformer extends AbstractTransformer
             'created_at'  =>  $model->created_at,
             'updated_at'  =>  $model->updated_at,
             'deleted_at'  =>  $model->deleted_at,
+            'product_type'  =>  $model->product_type,
             ]
         );
     }

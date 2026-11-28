@@ -118,6 +118,8 @@ class MarketplaceUserRole extends AbstractRole implements IAuthorizationRole
             'marketplace_markets:create',
             'marketplace_products:read',
             'marketplace_product_catalogs:read',
+            // Product families (leo4#1397).
+            'marketplace_product_relations:read',
             'marketplace_subscriptions:read',
             'marketplace_subscriptions:update',
             'marketplace_subscriptions:create',

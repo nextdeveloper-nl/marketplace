@@ -34,6 +34,10 @@ use NextDeveloper\Commons\Database\Traits\RunAsAdministrator;
  * @property integer $iam_user_id
  * @property string $stock_status
  * @property \Carbon\Carbon $expected_arrival_at
+ * @property string $offering_type
+ * @property string $billing_period
+ * @property integer $min_rental_duration
+ * @property integer $max_rental_duration
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
@@ -69,6 +73,10 @@ class ProductCatalogsPerspective extends Model
             'iam_user_id',
             'stock_status',
             'expected_arrival_at',
+            'offering_type',
+            'billing_period',
+            'min_rental_duration',
+            'max_rental_duration',
     ];
 
     /**
@@ -107,6 +115,10 @@ class ProductCatalogsPerspective extends Model
     'deleted_at' => 'datetime',
     'stock_status' => 'string',
     'expected_arrival_at' => 'datetime',
+    'offering_type' => 'string',
+    'billing_period' => 'string',
+    'min_rental_duration' => 'integer',
+    'max_rental_duration' => 'integer',
     ];
 
     /**

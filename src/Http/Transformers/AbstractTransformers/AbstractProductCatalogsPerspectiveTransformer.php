@@ -79,6 +79,10 @@ class AbstractProductCatalogsPerspectiveTransformer extends AbstractTransformer
             'deleted_at'  =>  $model->deleted_at,
             'stock_status'  =>  $model->stock_status,
             'expected_arrival_at'  =>  $model->expected_arrival_at,
+            'offering_type'  =>  $model->offering_type,
+            'billing_period'  =>  $model->billing_period,
+            'min_rental_duration'  =>  $model->min_rental_duration,
+            'max_rental_duration'  =>  $model->max_rental_duration,
             ]
         );
     }
