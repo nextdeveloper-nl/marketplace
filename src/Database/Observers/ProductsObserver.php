@@ -127,6 +127,13 @@ class ProductsObserver
             \Illuminate\Support\Facades\Log::warning(__METHOD__.' - image cleanup failed', ['product' => $model->uuid, 'error' => $e->getMessage()]);
         }
 
+        // Added (leo4#1398): and its document rows (the files stay; see ProductDocumentsService::detachAll()).
+        try {
+            \NextDeveloper\Marketplace\Services\ProductDocumentsService::detachAll($model);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning(__METHOD__.' - document cleanup failed', ['product' => $model->uuid, 'error' => $e->getMessage()]);
+        }
+
         Events::fire('deleted:NextDeveloper\Marketplace\Products', $model);
     }
 

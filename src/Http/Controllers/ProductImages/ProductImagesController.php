@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use NextDeveloper\Commons\Http\Response\ResponsableFactory;
 use NextDeveloper\Commons\Http\Transformers\MediaTransformer;
 use NextDeveloper\Marketplace\Http\Controllers\AbstractController;
+use NextDeveloper\Marketplace\Http\Requests\ProductImages\ProductImagesUploadRequest;
 use NextDeveloper\Marketplace\Services\ProductImagesService;
 
 /**
@@ -38,6 +39,19 @@ class ProductImagesController extends AbstractController
         $media = isset($data['bucket_id'])
             ? ProductImagesService::addFromS3($ref, $data['bucket_id'], $data['object_key'], $data['alt'] ?? null, (bool) ($data['is_cover'] ?? false))
             : ProductImagesService::addFromUrl($ref, $data['url'], $data['alt'] ?? null, (bool) ($data['is_cover'] ?? false));
+
+        return $this->item($media, 201);
+    }
+
+    /**
+     * POST /marketplace/products/{product}/images/upload  (multipart, leo4#1398)
+     * Body: `file` (JPEG, PNG, WebP or GIF). Optional `alt`, `is_cover`.
+     */
+    public function upload($ref, ProductImagesUploadRequest $request)
+    {
+        $data = $request->validated();
+
+        $media = ProductImagesService::addFromUpload($ref, $request->file('file'), $data['alt'] ?? null, (bool) ($data['is_cover'] ?? false));
 
         return $this->item($media, 201);
     }

@@ -3,6 +3,9 @@
 namespace NextDeveloper\Marketplace\Http\Requests\Products;
 
 use NextDeveloper\Commons\Http\Requests\AbstractFormRequest;
+use NextDeveloper\Marketplace\Helpers\ProductPublishing;
+use NextDeveloper\Marketplace\Database\Models\Products;
+use NextDeveloper\Marketplace\Services\ProductsService;
 
 class ProductsUpdateRequest extends AbstractFormRequest
 {
@@ -40,4 +43,18 @@ class ProductsUpdateRequest extends AbstractFormRequest
         ];
     }
     // EDIT AFTER HERE - WARNING: ABOVE THIS LINE MAY BE REGENERATED AND YOU MAY LOSE CODE\n\n\n\n\n\n
+
+    /**
+     * Added (leo4#1398): a private product needs at least one image before it is made public. A product that is
+     * public already is not checked, so editing it keeps working. An unknown product is left to the controller.
+     */
+    protected function passedValidation(): void
+    {
+        $ref = $this->route('marketplace_products');
+        $product = $ref instanceof Products ? $ref : ProductsService::getByRef((string) $ref);
+
+        if ($product) {
+            ProductPublishing::assertCanTurnPublic($product, $this->input('is_public'));
+        }
+    }
 }

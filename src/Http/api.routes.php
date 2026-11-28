@@ -78,11 +78,18 @@ Route::prefix('marketplace')->group(
                 // Added: product images (URL / own S3 bucket references). Declared before the {subObjects} catch-all.
                 Route::get('/{marketplace_products}/images', 'ProductImages\ProductImagesController@index');
                 Route::post('/{marketplace_products}/images', 'ProductImages\ProductImagesController@store');
+                Route::post('/{marketplace_products}/images/upload', 'ProductImages\ProductImagesController@upload');
                 Route::post('/{marketplace_products}/images/import', 'ProductImages\ProductImagesController@import');
                 Route::put('/{marketplace_products}/images/order', 'ProductImages\ProductImagesController@reorder');
                 Route::post('/{marketplace_products}/images/push-shopify', 'ProductImages\\ProductImagesController@pushShopify');
                 Route::post('/{marketplace_products}/images/{image}/cover', 'ProductImages\ProductImagesController@cover');
                 Route::delete('/{marketplace_products}/images/{image}', 'ProductImages\ProductImagesController@destroy');
+
+                // Added (leo4#1398): product documents (catalog / user-manual PDFs). Before the {subObjects} catch-all.
+                Route::get('/{marketplace_products}/documents', 'ProductDocuments\ProductDocumentsController@index');
+                Route::post('/{marketplace_products}/documents', 'ProductDocuments\ProductDocumentsController@store');
+                Route::get('/{marketplace_products}/documents/{document}/download', 'ProductDocuments\ProductDocumentsController@download');
+                Route::delete('/{marketplace_products}/documents/{document}', 'ProductDocuments\ProductDocumentsController@destroy');
 
                 Route::get('/{marketplace_products}/{subObjects}', 'Products\ProductsController@relatedObjects');
                 Route::get('/{marketplace_products}', 'Products\ProductsController@show');

@@ -4,6 +4,7 @@ namespace NextDeveloper\Marketplace\Services;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 use NextDeveloper\Commons\Common\Cache\CacheHelper;
 use NextDeveloper\Commons\Common\Enums\GenericErrorCodes;
@@ -42,6 +43,10 @@ class ProductImagesService
     public const SOURCE_URL = 'url';
     public const SOURCE_S3 = 's3';
     public const SOURCE_PROVIDER = 'provider';
+    public const SOURCE_UPLOAD = 'upload';
+
+    /** Image types a seller may upload (leo4#1398). SVG is left out on purpose: it can carry script. */
+    public const UPLOAD_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
     /** Hard cap so a runaway import cannot attach thousands of rows to one product. */
     public const MAX_IMAGES = 50;
@@ -102,6 +107,29 @@ class ProductImagesService
     }
 
     /**
+     * Whether the product has at least one image (leo4#1398: a product needs one before it is made public).
+     * Counts the rows of this service (collection `images`) and the older uploads, which were made through the
+     * generic media upload and have no collection but an image mime type. Only media of the product's own account
+     * counts, as for listings.
+     */
+    public static function hasImage(Products $product): bool
+    {
+        return Media::withoutGlobalScopes()
+            ->where('object_type', Products::class)
+            ->where('object_id', $product->id)
+            ->where('iam_account_id', $product->iam_account_id)
+            ->whereNull('deleted_at')
+            ->where(function ($query) {
+                $query->where('collection_name', self::COLLECTION)
+                    ->orWhere(function ($legacy) {
+                        $legacy->where(fn ($none) => $none->whereNull('collection_name')->orWhere('collection_name', ''))
+                            ->where('mime_type', 'like', 'image%');
+                    });
+            })
+            ->exists();
+    }
+
+    /**
      * The product is going away: detach its image references. Files are never deleted - they belong to the
      * customer's CDN or bucket.
      */
@@ -121,6 +149,54 @@ class ProductImagesService
         $product = self::product($productRef, true);
 
         return self::register($product, self::assertUrl($url), self::SOURCE_URL, ['alt' => $alt], $asCover);
+    }
+
+    /**
+     * Stores an image file the seller uploads (leo4#1398) on the application's default media CDN, the same place
+     * the product images uploaded before this service live, and adds it to the product. Unlike url / s3 images
+     * the platform hosts this file. The type and size are validated by the request; the file must end up with a
+     * public address, since listings and the product page load it directly.
+     */
+    public static function addFromUpload(string $productRef, UploadedFile $file, ?string $alt = null, bool $asCover = false): Media
+    {
+        $product = self::product($productRef, true);
+
+        $count = self::query($product)->count();
+        if ($count >= self::MAX_IMAGES) {
+            self::refuse('file', 'A product can have at most '.self::MAX_IMAGES.' images.');
+        }
+
+        $media = MediaService::create([
+            'file' => $file,
+            'object_type' => Products::class,
+            'object_id' => $product->id,
+            'collection_name' => self::COLLECTION,
+            'name' => $alt,
+            'order_column' => $count,
+        ]);
+
+        $media = Media::where('uuid', $media->uuid)->first();
+
+        if (! $media->cdn_url) {
+            MediaService::delete($media->uuid);
+            self::refuse('file', 'The image could not be given a public address. Try again, or add it by URL.');
+        }
+
+        // MediaService::create() replaces custom_properties with the storage details; ours are added after.
+        MediaService::update($media->uuid, [
+            'custom_properties' => array_merge((array) $media->custom_properties, array_filter(['alt' => $alt], fn ($v) => $v !== null), [
+                'source' => self::SOURCE_UPLOAD,
+                'is_cover' => $count === 0,
+            ]),
+        ]);
+
+        if ($asCover && $count > 0) {
+            self::setCover($product->uuid, $media->uuid);
+        }
+
+        self::forget($product);
+
+        return Media::where('uuid', $media->uuid)->first();
     }
 
     /**
