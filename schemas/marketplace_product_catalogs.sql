@@ -21,5 +21,8 @@ CREATE TABLE marketplace_product_catalogs (
     quantity_in_inventory     integer NOT NULL DEFAULT '-1'::integer, -- [label:"The amount of the items you can sell right now."]
     common_currency_id        bigint,
     payment_gateway_mappings  json,
+    stock_status              text, -- [label:"Stock status of this item: in_stock, out_of_stock, in_transit, at_customs or on_order. Empty when not tracked."]
+    expected_arrival_at       timestamp with time zone, -- [label:"When the stock is expected to arrive. Used with in_transit, at_customs and on_order."]
+    CONSTRAINT chk_marketplace_product_catalogs_stock_status CHECK (stock_status IS NULL OR stock_status IN ('in_stock', 'out_of_stock', 'in_transit', 'at_customs', 'on_order')),
     CONSTRAINT marketplace_product_catalogs_pkey PRIMARY KEY (id)
 );

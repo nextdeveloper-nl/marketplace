@@ -79,6 +79,8 @@ class AbstractProductCatalogsTransformer extends AbstractTransformer
             'iam_account_id'  =>  $iamAccountId ? $iamAccountId->uuid : null,
             'iam_user_id'  =>  $iamUserId ? $iamUserId->uuid : null,
             'common_currency_id'  =>  $commonCurrencyId ? $commonCurrencyId->uuid : null,
+            'stock_status'  =>  $model->stock_status,
+            'expected_arrival_at'  =>  $model->expected_arrival_at,
             ]
         );
     }

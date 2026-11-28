@@ -77,6 +77,8 @@ class AbstractProductCatalogsPerspectiveTransformer extends AbstractTransformer
             'created_at'  =>  $model->created_at,
             'updated_at'  =>  $model->updated_at,
             'deleted_at'  =>  $model->deleted_at,
+            'stock_status'  =>  $model->stock_status,
+            'expected_arrival_at'  =>  $model->expected_arrival_at,
             ]
         );
     }

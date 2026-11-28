@@ -32,6 +32,8 @@ use NextDeveloper\Commons\Database\Traits\RunAsAdministrator;
  * @property string $product
  * @property integer $iam_account_id
  * @property integer $iam_user_id
+ * @property string $stock_status
+ * @property \Carbon\Carbon $expected_arrival_at
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
@@ -65,6 +67,8 @@ class ProductCatalogsPerspective extends Model
             'product',
             'iam_account_id',
             'iam_user_id',
+            'stock_status',
+            'expected_arrival_at',
     ];
 
     /**
@@ -101,6 +105,8 @@ class ProductCatalogsPerspective extends Model
     'created_at' => 'datetime',
     'updated_at' => 'datetime',
     'deleted_at' => 'datetime',
+    'stock_status' => 'string',
+    'expected_arrival_at' => 'datetime',
     ];
 
     /**
@@ -112,6 +118,7 @@ class ProductCatalogsPerspective extends Model
     'created_at',
     'updated_at',
     'deleted_at',
+    'expected_arrival_at',
     ];
 
     /**

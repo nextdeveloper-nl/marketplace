@@ -56,6 +56,39 @@ class ProductCatalogsPerspectiveQueryFilter extends AbstractQueryFilter
     }
 
 
+    public function stockStatus($value)
+    {
+        return $this->builder->where('stock_status', 'ilike', '%' . $value . '%');
+    }
+
+        //  This is an alias function of stockStatus
+    public function stock_status($value)
+    {
+        return $this->stockStatus($value);
+    }
+
+    public function expectedArrivalAtStart($date)
+    {
+        return $this->builder->where('expected_arrival_at', '>=', $date);
+    }
+
+    public function expectedArrivalAtEnd($date)
+    {
+        return $this->builder->where('expected_arrival_at', '<=', $date);
+    }
+
+    //  This is an alias function of expectedArrivalAt
+    public function expected_arrival_at_start($value)
+    {
+        return $this->expectedArrivalAtStart($value);
+    }
+
+    //  This is an alias function of expectedArrivalAt
+    public function expected_arrival_at_end($value)
+    {
+        return $this->expectedArrivalAtEnd($value);
+    }
+
     public function quantityInInventory($value)
     {
         $operator = substr($value, 0, 1);
